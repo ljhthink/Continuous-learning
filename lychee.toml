@@ -7,8 +7,8 @@ exclude = [
   "127.0.0.1",
 ]
 
-# 只检查相对链接与本仓库可达外链
-include = ["**/*.md"]
+# 文件过滤由 docs.yml args '**/*.md' 处理
+# （lychee include 字段是 URL regex 过滤器，非文件 glob；误用会导致 regex parse error）
 
 # 超时与重试
 timeout = 20
