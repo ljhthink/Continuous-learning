@@ -18,4 +18,5 @@ max_retries = 2
 accept = [200, 206, 429]
 
 # 跳过 GitHub 锚点（fragment 通常需 JS 渲染）
-include_fragments = false
+# v0.24.2 期望 string："off" / "path" / "full"
+include_fragments = "off"
