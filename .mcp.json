@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "continuous-learning-kb": {
+      "command": "node",
+      "args": ["D:\\s0611\\code\\Continuous-learning\\server\\dist\\index.js"],
+      "env": {
+        "KB_ROOT": "D:\\s0611\\code\\Continuous-learning"
+      }
+    }
+  }
+}

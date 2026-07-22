@@ -1,0 +1,21 @@
+# lychee 链接检查配置
+# https://lychee.cli.rs/
+
+# 排除需要登录或会失效的域名
+exclude = [
+  "localhost",
+  "127.0.0.1",
+]
+
+# 只检查相对链接与本仓库可达外链
+include = ["**/*.md"]
+
+# 超时与重试
+timeout = 20
+max_retries = 2
+
+# 接受这些状态码
+accept = [200, 206, 429]
+
+# 跳过 GitHub 锚点（fragment 通常需 JS 渲染）
+include_fragments = false

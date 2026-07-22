@@ -1,0 +1,12 @@
+{
+  "mcp": {
+    "continuous-learning-kb": {
+      "type": "local",
+      "command": ["node", "D:\\s0611\\code\\Continuous-learning\\server\\dist\\index.js"],
+      "enabled": true,
+      "environment": {
+        "KB_ROOT": "D:\\s0611\\code\\Continuous-learning"
+      }
+    }
+  }
+}
