@@ -7,7 +7,7 @@
 ## ADR 列表
 
 | 编号 | 标题 | 状态 | 日期 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | [ADR-001](ADR-001-knowledge-base-tech-stack.md) | 持续进化个人知识库系统整体技术栈 | Proposed | 2026-07-22 |
 | [ADR-002](ADR-002-mcp-client-integration.md) | MCP 客户端集成策略（Claude Code / Trae CN / OpenCode） | Proposed | 2026-07-23 |
 

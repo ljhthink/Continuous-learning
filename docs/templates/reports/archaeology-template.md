@@ -6,7 +6,7 @@
 ## 元信息
 
 | 项目 | 内容 |
-|---|---|
+| --- | --- |
 | 执行 Agent | code-archaeologist |
 | 任务令牌 | TKN-XXX-NNN |
 | 任务域 | <module-or-task> |

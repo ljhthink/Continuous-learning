@@ -3,7 +3,7 @@
 ## 元信息
 
 | 项目 | 内容 |
-|---|---|
+| --- | --- |
 | 执行 Agent | guardrail-enforcer |
 | 任务令牌 | TKN-P1-MCP-GUARDRAIL-002 |
 | 任务域 | P1 MCP Server 修复后第二轮审查（验证前次 3 阻断 + 4 建议修复项） |
@@ -49,7 +49,7 @@ const DOMAIN_REGEX = /^[a-z0-9][a-z0-9-]*$/;
 **正则有效性分析**：`^[a-z0-9][a-z0-9-]*$` 拦截所有路径穿越向量：
 
 | 攻击向量 | 输入示例 | 正则匹配 | 结果 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `../` 序列 | `../../../tmp` | 含 `.` 和 `/`，不匹配 | 拦截 ✓ |
 | Windows `..\` | `..\..\tmp` | 含 `.` 和 `\`，不匹配 | 拦截 ✓ |
 | 绝对路径 Unix | `/etc` | 含 `/`，不匹配 | 拦截 ✓ |
@@ -65,11 +65,13 @@ const DOMAIN_REGEX = /^[a-z0-9][a-z0-9-]*$/;
 - [write.ts:150-162](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L150-L162)：`kbWriteExperience` 构造 `inboxFullPath` 后添加 `path.relative(WIKI_DIR, inboxFullPath)` 穿越检查 ✓
 
 **运行时检查逻辑验证**：
+
 - `relWiki.startsWith("..")` — 拦截 `../` 序列 ✓
 - `path.isAbsolute(relWiki)` — 拦截绝对路径（Windows 跨盘符如 `C:\...`）✓
 - 两层防御（schema 正则 + 运行时 path.relative）互为冗余，任一层失效另一层仍可拦截 ✓
 
 **测试验证**：
+
 - [write.test.ts:103-113](file:///D:/s0611/code/Continuous-learning/server/src/tests/write.test.ts#L103-L113)：`kb_ingest_source` domain 穿越测试（直调 handler，绕过 schema，验证运行时检查）✓
 - [write.test.ts:168-178](file:///D:/s0611/code/Continuous-learning/server/src/tests/write.test.ts#L168-L178)：`kb_write_experience` domain 穿越测试（同上）✓
 - 两个测试均通过（已验证 `npm test` 输出：ok 5/5 和 ok 3/3）✓
@@ -106,12 +108,12 @@ function sanitizeIndexField(value: string): string {
 
 **注入防护有效性分析**：
 
-日志格式为 `## [date] type | title` + `- key: value`。攻击者要伪造新条目，必须在值中注入 `\n## [` 以创建新 header 行，或 `\n- ` 以创建新 detail 行。过滤 `\r\n` 后，攻击者无法创建新行，因此无法注入伪造的 header 或 detail。
+日志格式为 `## [date] type | title` + `- key: value`。攻击者要伪造新条目，必须在值中注入 `\n## [` 以创建新 header 行，或 `\n-` 以创建新 detail 行。过滤 `\r\n` 后，攻击者无法创建新行，因此无法注入伪造的 header 或 detail。
 
 **未 sanitize 的字段安全性验证**：
 
 | 字段 | 未 sanitize 原因 | 安全性 |
-|---|---|---|
+| --- | --- | --- |
 | `entry.date` | 系统生成（`todayDate()` 返回 YYYY-MM-DD） | 不含换行符 ✓ |
 | `entry.type` | 枚举值（ingest/query/lint/experience/init） | 不含换行符 ✓ |
 | `entry.path`（index） | 系统构建（`wiki/${domain}/${slug}.md`），domain 经正则校验，slug 经 `slugify()` 过滤为 `\p{L}\p{N}-` | 不含换行符 ✓ |
@@ -145,12 +147,14 @@ export function normalizeDate(value: unknown): string | null {
 - 其他类型返回 `null` — 防御性处理 ✓
 
 **调用点验证**：
+
 - [read-only.ts:13](file:///D:/s0611/code/Continuous-learning/server/src/tools/read-only.ts#L13)：`import { parseFrontmatter, normalizeDate } from "../utils/frontmatter.js"` ✓
 - [read-only.ts:102](file:///D:/s0611/code/Continuous-learning/server/src/tools/read-only.ts#L102)：`const date = normalizeDate(frontmatter.date);`（替换原 `as string | undefined`）✓
 - [lint.ts:18](file:///D:/s0611/code/Continuous-learning/server/src/tools/lint.ts#L18)：`import { parseFrontmatter, normalizeDate } from "../utils/frontmatter.js"` ✓
 - [lint.ts:206](file:///D:/s0611/code/Continuous-learning/server/src/tools/lint.ts#L206)：`const date = normalizeDate(frontmatter.date);` ✓
 
 **测试验证**：
+
 - [read-only.test.ts:154-178](file:///D:/s0611/code/Continuous-learning/server/src/tests/read-only.test.ts#L154-L178)：写入 `date: 2026-07-25`（未引号，js-yaml 解析为 Date 对象），验证 `last_update === "2026-07-25"` ✓
 - 测试通过（已验证 `npm test` 输出：ok 3 - handles unquoted ISO date frontmatter as Date object）✓
 
@@ -165,7 +169,7 @@ export function normalizeDate(value: unknown): string | null {
 **修复验证**：
 
 | 参数 | `.max()` | 正则 | 结论 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `kb_search.query` | `.max(1000)` | — | ✓ |
 | `kb_get_page.path` | `.max(512)` | — | ✓ |
 | `kb_get_page.section` | `.max(200)` | — | ✓ |
@@ -242,7 +246,7 @@ export function normalizeDate(value: unknown): string | null {
 **修复验证**：[ARCH.md §3.1](file:///D:/s0611/code/Continuous-learning/docs/ARCH.md#L75-L84) 表格已更新：
 
 | 偏差点 | ARCH 定义 | 实际实现 | 一致性 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | kb_lint checks enum | `["frontmatter","contradictions","orphans","stale","missing_xref"]` | [schemas.ts:137-143](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L137-L143) | ✓ |
 | kb_lint 输出 | `{ issues: [{ type, severity, page, detail, suggestion }], summary: { total, by_type, pages_scanned, checks_run } }` | [lint.ts:172-180](file:///D:/s0611/code/Continuous-learning/server/src/tools/lint.ts#L172-L180) | ✓ |
 | kb_list_recent type enum | `"ingest"/"query"/"lint"/"experience"/"init"` | [schemas.ts:116](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L116) | ✓ |
@@ -278,11 +282,13 @@ dist/
 #### 1.1 数值与类型边界
 
 **DOMAIN_REGEX 正则边界**：
+
 - 长度上限 `.max(64)` — 合理，AGENTS.md §2.1 未定义 domain 最大长度，64 字符足够 ✓
 - 字符集 `[a-z0-9-]` — 严格限制为 kebab-case，无注入风险 ✓
 - 无整数溢出风险（无算术运算）✓
 
 **normalizeDate() 类型边界**：
+
 - 输入 `unknown`，覆盖 string/Date/其他三种路径 ✓
 - Date 对象的 `getUTCFullYear()` 返回数字，`String()` 转换安全 ✓
 - 年份无范围检查（如负数年份），但 frontmatter date 不会有负数年份，非实际问题 ✓
@@ -367,7 +373,7 @@ domain: z
 
 **位置**：[log.ts:60-62](file:///D:/s0611/code/Continuous-learning/server/src/utils/log.ts#L60-L62)、[index-md.ts:38-40](file:///D:/s0611/code/Continuous-learning/server/src/utils/index-md.ts#L38-L40)
 
-**分析**：主 Agent 盲区 2 提出的问题。当前过滤 `/[\r\n]/g`，足以防止 markdown 注入（markdown 行分隔仅由 `\n` 和 `\r\n` 触发，section header `## ` 和 list item `- ` 必须位于行首）。其他 C0 控制字符（`\x00` null byte、`\t` tab、`\x0b` vertical tab、`\x0c` form feed 等）在 markdown 中无特殊语义，无法伪造新行/新条目。
+**分析**：主 Agent 盲区 2 提出的问题。当前过滤 `/[\r\n]/g`，足以防止 markdown 注入（markdown 行分隔仅由 `\n` 和 `\r\n` 触发，section header `##` 和 list item `-` 必须位于行首）。其他 C0 控制字符（`\x00` null byte、`\t` tab、`\x0b` vertical tab、`\x0c` form feed 等）在 markdown 中无特殊语义，无法伪造新行/新条目。
 
 **结论**：`\r\n` 过滤对于防止日志/索引注入是**充分的**。过滤全部 C0 控制字符是纵深防御增强，非安全必需。
 
@@ -395,6 +401,7 @@ function sanitizeLogField(value: string): string {
 **分析**：`console.error("...", err)` 输出完整 error 对象，在 Node.js 中会包含错误消息和堆栈跟踪。堆栈跟踪可能包含本地文件路径（如 `WIKI_DIR` 的绝对路径）。CLAUDE.md §19.3 要求日志中不输出"内部文件路径或系统细节"。
 
 **风险评估**：
+
 - `console.error` 输出到 stderr，MCP stdio 协议中 stderr 用于日志通道，不作为 tool response 返回给调用方
 - 路径为本地知识库路径，非敏感凭证
 - 实际泄露风险极低
@@ -420,7 +427,7 @@ console.error("[kb-mcp] kb_list_categories: read error:", (err as Error).message
 ## 5. 构建与测试验证
 
 | 验证项 | 命令 | 结果 |
-|---|---|---|
+| --- | --- | --- |
 | TypeScript 类型检查 | `npm run typecheck`（tsc --noEmit） | exit 0，无错误 ✓ |
 | 编译 | `npm run build`（tsc） | exit 0，编译成功 ✓ |
 | 单元测试 | `npm test`（node --test） | 31/31 通过，0 失败 ✓ |
@@ -428,12 +435,13 @@ console.error("[kb-mcp] kb_list_categories: read error:", (err as Error).message
 **新增测试验证**：
 
 | 测试 | 文件 | 验证目标 | 结果 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | rejects path traversal in domain parameter (S-1) | [write.test.ts:103](file:///D:/s0611/code/Continuous-learning/server/src/tests/write.test.ts#L103) | kb_ingest_source domain 穿越 | ok ✓ |
 | rejects path traversal in domain parameter (S-1) | [write.test.ts:168](file:///D:/s0611/code/Continuous-learning/server/src/tests/write.test.ts#L168) | kb_write_experience domain 穿越 | ok ✓ |
 | handles unquoted ISO date frontmatter as Date object (L-1) | [read-only.test.ts:154](file:///D:/s0611/code/Continuous-learning/server/src/tests/read-only.test.ts#L154) | normalizeDate Date 对象转换 | ok ✓ |
 
 **测试覆盖充分性评估**：
+
 - S-1 路径穿越：2 个测试覆盖两个 write tool 的 domain 参数 ✓
 - L-1 Date 解析：1 个测试覆盖 Date 对象 → 字符串转换 ✓
 - S-2 日志注入：无专门测试，但注入防护通过 `\r\n` 过滤实现，逻辑简单且已被现有 ingest/experience 测试间接覆盖（这些测试验证 title 正常写入 log.md）。建议未来补充直接注入测试，但非阻断项。
@@ -453,7 +461,7 @@ console.error("[kb-mcp] kb_list_categories: read error:", (err as Error).message
 修复实施质量评估：
 
 | 维度 | 评价 |
-|---|---|
+| --- | --- |
 | 修复正确性 | 全部 7 项发现 + 1 项 .gitignore 修复均正确实施 |
 | 纵深防御 | S-1 采用 schema 正则 + 运行时 path.relative 双层防御，设计优秀 |
 | 代码共享 | L-1/L-4 将 normalizeDate 提取为共享函数，消除重复 |
@@ -462,6 +470,7 @@ console.error("[kb-mcp] kb_list_categories: read error:", (err as Error).message
 | 新增风险 | 无阻断级或高风险新问题；4 项低风险建议（R2-1 ~ R2-4）均为防御性增强，非漏洞 |
 
 主 Agent 的三个盲区担忧均已验证：
+
 1. catch 块类型断言运行时安全（非 NodeJS 错误走 console.error 分支）
 2. `\r\n` 过滤对 markdown 注入防护充分（其他控制字符无 markdown 语义）
 3. DOMAIN_REGEX 正则拦截所有路径穿越向量变体（含 Windows/绝对路径）
@@ -469,7 +478,7 @@ console.error("[kb-mcp] kb_list_categories: read error:", (err as Error).message
 ### 低风险建议清单（不阻断，可后续迭代处理）
 
 | # | 问题 | 严重度 | 建议 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | R2-1 | kb_search.domain 缺少 .max() | 低 | 添加 `.max(64)` 保持一致性 |
 | R2-2 | sanitize 函数仅过滤 \r\n | 低 | 可选增强为过滤全部 C0 控制字符 |
 | R2-3 | console.error 输出完整 error 对象 | 低 | 可选改为输出 `err.message` |

@@ -31,7 +31,7 @@
 ### 2.1 量化验收矩阵
 
 | 指标名称 | 最低要求 | 理想目标 | 测量方法 | 权重(1-10) |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 与 Karpathy 原方案兼容性 | 不破坏三层架构（raw/wiki/schema）与双索引（index.md/log.md） | 原方案作为子集无缝运行 | 人工对照原方案操作清单回归 | 10 |
 | Agent 可调用性 | 至少 1 个编码 Agent 能查询知识库 | Claude Code / Trae / OpenCode 三者均可经 MCP 查询+回写 | 在三客户端配置 MCP server 并实测 search/ingest | 10 |
 | 检索延迟（P95） | < 2s（含重排） | < 200ms（BM25 纯关键词） | 本地压测 wiki 规模档位 | 8 |
@@ -45,7 +45,7 @@
 ### 2.2 刚性约束（一票否决项）
 
 | # | 约束 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | V1 | **License 必须允许商业闭源/自由使用** | 排除纯 AGPLv3（MinerU 已于 2026-04 从 AGPLv3 切到 Apache 2.0 风格许可，可通过） |
 | V2 | **存储层必须是 markdown + git 仓库** | 与 Karpathy 原方案兼容的硬性要求，排除纯数据库存储方案 |
 | V3 | **MCP server 必须支持 stdio 传输** | 本地 Agent（Claude Code/OpenCode）默认 stdio，无网络面 |
@@ -55,7 +55,7 @@
 ### 2.3 场景分档（解决用户未明确的规模问题）
 
 | 档位 | wiki 页面数 | raw 源文件数 | 推荐检索策略 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 小 | < 200 | < 100 | 纯 index.md（Karpathy 原方案，零依赖） |
 | 中 | 200–5000 | 100–1000 | qmd / markdown-vault-mcp（BM25+向量混合） |
 | 大 | > 5000 | > 1000 | LanceDB 嵌入式向量库 + FTS5 |
@@ -67,7 +67,7 @@
 ### 3.1 MCP 知识库 Server 候选全景
 
 | 候选 | 语言 | License | 检索能力 | 关键特性 | 初筛结论 |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | **enquire-mcp** ([GitHub](https://github.com/oomkapwn/enquire-mcp)) | Node | MIT | BM25+ML embeddings+BGE reranker, RRF, HNSW+int8 | 44 tools, 923 单测, SLSA-3 签名, PDF+OCR, 零云调用, v3.8.x stable | **入围（功能最强）** |
 | **obsidian-mcp (Rust)** ([crates.io](https://crates.io/crates/obsidian-mcp/2.0.0)) | Rust | MIT | Tantivy BM25 + 本地 embeddings | 单二进制, 18 tools, 文件系统直访, 无需 Obsidian 运行 | **入围（性能最佳）** |
 | **markdown-vault-mcp** ([PyPI](https://pypi.org/project/markdown-vault-mcp/3.0.3/)) | Python | MIT | FTS5 + 语义向量, RRF 混合 | 增量重索引, frontmatter 感知, Obsidian vault 通用 | **入围（Python 生态亲和）** |
@@ -79,7 +79,7 @@
 ### 3.2 GUI 框架候选
 
 | 候选 | 包体积 | 内存(空闲) | 原生文件系统能力 | 跨端一致性 | 初筛 |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | **Tauri v2** | 3-10MB | 40-80MB | Rust 后端直访 FS | 随 OS WebView 变化 | **入围** |
 | Electron | 120-200MB | 150-400MB | Node.js 全访问 | 完全一致(Chromium) | 淘汰（资源占用过重，违背 V4） |
 | Next.js Web | 0(浏览器) | 0 | 需后端中转 | 一致 | **入围（若选 Web 服务形态）** |
@@ -88,7 +88,7 @@
 ### 3.3 文件解析候选
 
 | 候选 | 格式覆盖 | License | 本地/云 | 质量 | 初筛 |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | **MinerU** ([PyPI](https://pypi.org/project/mineru/3.4.1/)) | PDF/DOCX/PPTX/XLSX/图片/网页 | MinerU OSS(Apache 2.0 风格) | 本地(CPU/GPU) | SOTA(OmniDocBench 95.39) | **入围（PDF 首选）** |
 | **unstructured.io** ([benchmarks](https://www.unstructured.io/benchmarks)) | 20+ 格式 | Apache 2.0(OSS)/商业(云) | 二者皆有 | 企业 ETL 第一(0.880) | 备选（OSS 质量低于 MinerU，云版付费） |
 | LlamaParse | 多格式 | 商业 API | 云 | 强(0.835) | 淘汰（云依赖，违背隐私可选约束） |
@@ -102,7 +102,7 @@
 ### 3.4 检索方案候选
 
 | 候选 | 依赖度 | 检索质量 | 维护成本 | 规模上限 | 初筛 |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | 纯 index.md | 零依赖 | 中(小规模够用) | 极低 | ~数百页 | **入围（小规模）** |
 | **qmd** | npm 包 + 3 GGUF 模型(~2GB) | 高(混合+重排) | 低 | 数千页 | **入围（中规模）** |
 | **markdown-vault-mcp** | Python + 可选 embedding | 高(FTS5+语义) | 低 | 数千页 | **入围（中规模）** |
@@ -118,7 +118,7 @@
 ### 决策点 A：整体部署形态
 
 | 维度 | ① 纯本地（Obsidian+git+CLI+MCP） | ② 本地优先+轻量 Web GUI（Tauri） | ③ Web 服务（前后端分离） | ④ 混合分层（推荐） |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 与 Karpathy 兼容性 | 100% | 100% | 70%（存储仍 md+git，但访问层脱离 Obsidian） | 100%（Karpathy 是其子集） |
 | 开发成本 | 最低（零 GUI） | 中（需学 Tauri） | 高（前后端+部署） | 中高（分层但复用现成组件） |
 | 多 Agent 调用便利 | 高（stdio MCP） | 高（同左） | 最高（HTTP MCP 可远程） | 高（stdio 本地 + 可选 HTTP） |
@@ -129,6 +129,7 @@
 **推荐：④ 混合分层架构。**
 
 理由：
+
 1. **与 Karpathy 完全兼容**：存储层仍是 `raw/` + `wiki/` + `CLAUDE.md/AGENTS.md`，双索引 `index.md` + `log.md` 不变。Karpathy 原方案明确写道「wiki 就是 git 仓库的 markdown 文件」「Obsidian 是 IDE，LLM 是程序员，wiki 是代码库」，混合方案保留这一内核。
 2. **解耦关注点**：存储（markdown+git）、Agent 访问（MCP server）、人工浏览（Obsidian）、批量管理（Tauri GUI）各司其职，任一层可独立替换。
 3. **覆盖用户全部四点改进**：持续进化→MCP ingest tool + AGENTS.md 规则；外部 Agent 调用→MCP server；多领域分类→目录树+tags；GUI+多格式上传→Tauri 层。
@@ -141,7 +142,7 @@
 ### 决策点 B：图形化界面技术栈
 
 | 维度 | Tauri v2 | Electron | Next.js Web | SvelteKit |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 包体积 | 3-10MB | 120-200MB | 0(浏览器) | 0(浏览器) |
 | 内存(空闲) | 40-80MB | 150-400MB | 0 | 0 |
 | 启动时间 | <200ms | 2-5s | 即时 | 即时 |
@@ -157,12 +158,14 @@
 **推荐：Tauri v2（桌面）+ 可选 Next.js Web（若需远程）。**
 
 理由：
+
 1. **资源占用**：知识库 GUI 是常驻后台的工具型应用，Tauri 40-80MB 内存 vs Electron 150-400MB，对老旧设备/并行跑多个 Agent 的场景显著更友好（V4 约束）。
 2. **原生文件系统能力**：多格式上传需要写 `raw/` 目录、调 git 提交、触发解析管道。Tauri 的 Rust 后端可直访 FS 与调 `git` CLI，无需额外后端服务，契合「本地优先」。
 3. **安全模型**：Tauri v2 默认前后端隔离 + 命令白名单 + capability 系统，优于 Electron 默认 XSS 风险面（知识库可能含用户上传的不可信文档，安全敏感）。
 4. **移动端**：Tauri 2 支持 iOS/Android，为未来「手机上传照片/截图到知识库」留扩展空间。
 
 **风险与缓解**：
+
 - 风险：团队无 Rust 经验。缓解：Tauri 后端命令可极简（FS 读写 + 调 Python 解析脚本 + git 操作），核心逻辑用 TypeScript；或用 `tauri-plugin-shell` 调外部进程，Rust 侧仅做薄封装。若 Rust 门槛过高，**降级方案为 Next.js Web + 本地 Node 后端**（纯 TS 栈）。
 - 风险：OS WebView 跨端渲染差异。缓解：GUI 不做像素级复杂渲染（主要是文件列表+上传+预览），差异可忽略。
 
@@ -173,7 +176,7 @@
 #### C-1 PDF 解析
 
 | 维度 | MinerU | unstructured(OSS) | marker | LlamaParse |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 准确度(OmniDocBench) | 95.39(vlm) / 86.47(pipeline) | 0.715-0.88(云版) | 8.1/10 | 0.835 |
 | 格式覆盖 | PDF/DOCX/PPTX/XLSX/图片/网页 | 20+ 格式 | 仅 PDF | 多格式 |
 | 本地运行 | CPU(16GB)或 GPU | 本地(OSS) | 本地 | 仅云 |
@@ -188,6 +191,7 @@
 **推荐：MinerU（PDF 首选）。**
 
 理由：
+
 1. **多格式一站式**：原生支持 PDF/DOCX/PPTX/XLSX，无需为每种格式配不同工具，降低集成复杂度。
 2. **License 解除地雷**：2026-04 从 AGPLv3 切到 Apache 2.0 风格许可，满足 V1 约束（此前 AGPLv3 是重大否决项）。
 3. **内置 MCP server**：可直接暴露给 Claude Code/Cursor，与知识库 MCP server 形成解析+入库的协作链。
@@ -197,7 +201,7 @@
 #### C-2 Word/Excel 解析
 
 | 格式 | 推荐库 | 备选 | 理由 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Word(.docx) | **mammoth** | python-docx / docx2python | mammoth 直接输出语义化 HTML/Markdown，BSD-2 许可，Production/Stable；python-docx 偏格式操作 |
 | Excel(.xlsx) | **pandas** | openpyxl | pandas `read_excel` 已封装 openpyxl 引擎，DataFrame→markdown 表格一行代码；openpyxl 用于需精细格式的场景 |
 | 统一入口 | **office2md** | — | MIT，智能选择最佳转换器，支持 DOCX/XLSX/PPTX/PDF，内置 wiki builder，可作 Tauri 后端调用的单一命令 |
@@ -213,7 +217,7 @@
 #### D-1 各编码 Agent 的 MCP 支持现状（2026-07）
 
 | Agent | MCP 支持 | 传输方式 | 配置方式 | 成熟度 | 来源 |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | **Claude Code** | 全面 | stdio/SSE/Streamable HTTP/WebSocket | `claude mcp add` / `.mcp.json` / `~/.claude.json` | 生产级 | [code.claude.com/docs/mcp](https://code.claude.com/docs/en/mcp) |
 | **Claude Desktop** | 全面 | stdio + 远程 HTTP(Pro/Max/Team/Enterprise) | `claude_desktop_config.json` | 生产级 | [support.claude.com](https://support.claude.com/ja/articles/11503834) |
 | **Trae CN** | 已接入 | stdio | `.trae/mcp.json` | 可用 | [CSDN 2026-07](https://blog.csdn.net/aidoudoulong/article/details/161085784) |
@@ -225,7 +229,7 @@
 #### D-2 MCP SDK 选型
 
 | 维度 | TypeScript SDK | Python SDK | Go SDK |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Tier | 1（参考实现） | 1 | 1 |
 | 类型安全 | 优秀(Zod) | 良好(Pydantic) | 良好(struct tags) |
 | 生态 | npm, 全栈首选 | pip, ML/数据科学亲和 | 高性能微服务 |
@@ -241,7 +245,7 @@
 基于 Karpathy 三大操作（Ingest/Query/Lint）+ 双索引 + 分类需求，推荐 tool 清单：
 
 | Tool | 对应 Karpathy 操作 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | `kb_search` | Query | 混合检索(BM25+向量)，返回带引用的页面片段 |
 | `kb_get_page` | Query | 按 path/标题读取完整 wiki 页面（支持 section 级） |
 | `kb_ingest_source` | Ingest | 接收原始资料路径/内容，LLM 整理后写 wiki 页面 + 更新 index/log |
@@ -254,13 +258,14 @@
 #### D-4 现成 MCP Server 推荐
 
 | 候选 | 推荐场景 | 优势 | 短板 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **enquire-mcp** | 中大规模、要最强检索 | 44 tools, BGE reranker, HNSW, PDF+OCR, 零云调用, SLSA-3 | Node 生态，需 npm, 模型下载 |
 | **obsidian-mcp (Rust)** | 追求极致性能/单二进制 | 单二进制无依赖, Tantivy BM25, 18 tools | Rust 二次开发门槛, 无内置重排 |
 | **markdown-vault-mcp** | Python 栈、中规模 | FTS5+语义, frontmatter 感知, 增量索引 | star 较少(18), 社区较小 |
 | **knowledge-base-server** | 需要持续进化参考 | 三层记忆, 自学习管道, 生产验证 | 检索为 FTS5, 无向量重排 |
 
 **推荐策略**：
+
 - **快速启动**：直接用 `enquire-mcp` 指向 wiki 目录，零开发获得 search/ingest 能力。
 - **定制化**：以 TypeScript SDK 自建薄 MCP server，复用 enquire-mcp 的检索内核（或回落 qmd），补齐 `kb_write_experience` / `kb_lint` 等知识库专属 tool。
 - **与 Karpathy 兼容**：所有候选均操作 markdown 文件目录，不破坏 raw/wiki/schema 三层结构。
@@ -270,7 +275,7 @@
 ### 决策点 E：检索方案
 
 | 维度 | 纯 index.md | qmd | markdown-vault-mcp | LanceDB |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 零依赖程度 | 完全零依赖 | npm+3 GGUF(~2GB) | Python+可选 embedding | pip, 无服务进程 |
 | 检索质量 | 中(小规模够) | 高(BM25+向量+LLM重排) | 高(FTS5+语义 RRF) | 高(向量, 需自配 BM25) |
 | 延迟 | 即时(LLM 读索引) | 0.2s(BM25)/2-3s(混合) | 毫秒级(FTS5) | 毫秒级 |
@@ -296,7 +301,7 @@
 #### F-1 候选机制对比
 
 | 机制 | 触发时机 | 自动化程度 | 防污染能力 | 与 Karpathy 兼容 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | ① AGENTS.md 规定任务结束强制写经验卡片 | Agent 任务完成时 | 半自动(Agent 执行) | 弱(需审核) | 高(schema 层扩展) |
 | ② MCP server 提供 `kb_write_experience` tool | Agent 主动调用 | 自动 | 中(可加门禁) | 高 |
 | ③ git hook 自动触发整理 | commit/push 时 | 自动 | 弱 | 中 |
@@ -311,7 +316,7 @@
 
 **推荐：四件套组合（①+②+④+⑤）。**
 
-```
+```text
 Agent 编码实践
     │ 发现更好方案 / 踩坑
     ▼
@@ -334,6 +339,7 @@ git commit → log.md 追加条目 → index.md 更新
 ```
 
 **防污染设计**：
+
 - **版本控制**：所有经验卡片经 git，可回滚（Karpathy 原方案「wiki 就是 git 仓库」天然支持）。
 - **两 tier 审核门禁**：高 confidence + 单域内自动合并；低 confidence / 跨域 / 矛盾触发人工审核（借鉴 Dream Loop）。
 - **质量评分**：经验卡片携带 `use_count` / `confidence` / `date` frontmatter，`/dream` 据此决定提升/老化/删除（借鉴 Dream Loop schema）。
@@ -346,7 +352,7 @@ git commit → log.md 追加条目 → index.md 更新
 ### 决策点 G：分类管理
 
 | 维度 | 目录树 | frontmatter tags | Dataview 查询 | 数据库索引 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 多归属 | 否(一文件一目录) | 是(多 tag) | 依赖前两者 | 是 |
 | 层级 | 强(树) | 弱(扁平, 支持 a/b) | 依赖前两者 | 强(可任意) |
 | 语义表达 | 弱(位置即归属) | 中(属性/状态) | 强(可组合查询) | 强 |
@@ -358,7 +364,7 @@ git commit → log.md 追加条目 → index.md 更新
 
 **推荐：混合方案（目录树为主 + frontmatter tags 为辅 + Dataview 为动态视图）。**
 
-```
+```text
 wiki/
 ├── coding/          ← 领域目录(主分类, 强归属)
 │   ├── concepts/
@@ -371,6 +377,7 @@ wiki/
 ```
 
 每页 frontmatter：
+
 ```yaml
 ---
 domain: [coding, reading]   # 横切多归属(tag)
@@ -382,6 +389,7 @@ sources: 3
 ```
 
 理由：
+
 1. **目录树**承担「物理存储 + 主领域归属」，对 LLM 与文件系统都直观（Karpathy 原方案的 index.md 即按类别组织）。
 2. **frontmatter tags**承担「多归属 + 状态/属性横切」，解决目录树一文件一目录的限制（一篇读书笔记可同时属 reading 与 coding）。
 3. **Dataview**承担「动态视图」（如「coding 域 status=draft 的所有经验」），仅在 Obsidian 内生效，不污染 markdown 本身，跨工具仍可用 tags。
@@ -394,7 +402,7 @@ sources: 3
 ### 5.1 推荐 PoC 计划（最小验证集）
 
 | 步骤 | 验证目标 | 工具 | 预期产出 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | 基础 Karpathy 系统可跑 | Obsidian + git + AGENTS.md | raw/wiki/index.md/log.md 结构 |
 | 2 | MCP 可被 Claude Code 调用 | enquire-mcp 指向 wiki/ | `kb_search` 返回带引用结果 |
 | 3 | PDF 上传→解析→入库 | MinerU pipeline + kb_ingest | 一篇 PDF 生成 wiki 页面 + 更新索引 |
@@ -414,7 +422,7 @@ sources: 3
 ### 5.3 异常场景行为
 
 | 场景 | 推荐方案行为 | 降级策略 |
-|---|---|---|
+| --- | --- | --- |
 | 网络分区（云 LLM 不可达） | 本地 qmd/embedding 仍可检索；ingest 回退本地 LLM(Ollama) 或排队 | 标记经验卡片 status=pending，待网络恢复 |
 | 磁盘满 | git commit 失败，ingest 中止 | MCP server 返回明确错误码，不写半成品 |
 | 低质量经验注入 | 两 tier 门禁拦截，留 inbox 不提升 | 定期 Lint 标记 stale，人工清理 |
@@ -425,7 +433,7 @@ sources: 3
 ## 6. 风险与缓解（推荐方案 Top 3）
 
 | # | 风险 | 等级 | 缓解措施 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | **MCP 生态快速演化**：2026-07-28 规范候选版 + SDK v2，半年内可能有破坏性变更 | 中 | 锁定 SDK 稳定版（TS v1.x / Python mcp>=1.27,<2）；MCP server 保持薄封装，核心逻辑与协议解耦；关注 v2 正式发布后 6 个月迁移窗口 |
 | 2 | **持续进化污染知识库**：低质量经验累积，wiki 退化 | 中高 | 强制两 tier 审核门禁 + use_count/confidence 老化机制 + 定期 Lint + git 可回滚；inbox 与正式 wiki 物理隔离 |
 | 3 | **Tauri Rust 门槛**：团队无 Rust 经验，定制原生能力受阻 | 中 | Tauri 后端保持极薄（FS+shell+git），复杂逻辑全放 TypeScript/Python；预编译 Rust 二进制（如 obsidian-mcp）直接调用无需改 Rust；降级为 Next.js+Node 后端（纯 TS） |
@@ -433,7 +441,7 @@ sources: 3
 ### 备选方案切换触发条件
 
 | 推荐方案 | 切换到 | 触发条件 |
-|---|---|---|
+| --- | --- | --- |
 | Tauri GUI | Next.js Web + Node 后端 | 2 周内 Tauri 原型无法跑通，或团队 Rust 门槛实测过高 |
 | enquire-mcp | markdown-vault-mcp | enquire-mcp 在目标 wiki 规模下检索质量不达标，或 Node 依赖链与团队栈冲突 |
 | MinerU | unstructured(OSS) | MinerU 在目标 PDF 类型（如纯中文扫描件）准确度不达标 |
@@ -446,7 +454,7 @@ sources: 3
 
 ### 7.1 整体技术栈推荐组合
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │  访问层                                               │
 │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐   │
@@ -471,7 +479,7 @@ sources: 3
 ```
 
 | 层 | 推荐选型 | 与 Karpathy 兼容 |
-|---|---|---|
+| --- | --- | --- |
 | 存储 | markdown + git + Obsidian | 100%（原方案内核） |
 | Agent 访问 | MCP server（优先 enquire-mcp，自建用 TS SDK） | 100%（原方案可选 qmd MCP） |
 | 人工浏览 | Obsidian + Dataview | 100%（原方案载体） |
@@ -492,7 +500,7 @@ sources: 3
 ### 7.3 下一步实施计划
 
 | 阶段 | 周期 | 交付物 |
-|---|---|---|
+| --- | --- | --- |
 | **P0 基础系统** | 1 周 | wiki/ 目录结构 + AGENTS.md schema + index.md/log.md + git 仓库 |
 | **P1 MCP 接入** | 1 周 | enquire-mcp 配置 + Claude Code/Trae CN 实测 search/ingest |
 | **P2 解析管道** | 1 周 | MinerU + office2md 集成 + PDF/Word/Excel 样本入库 |
@@ -516,6 +524,7 @@ sources: 3
 ## 附录 B：外部参考链接清单
 
 ### MCP 生态
+
 - MCP 官方 SDK 列表：https://modelcontextprotocol.io/docs/sdk
 - MCP 2026-07-28 候选规范 SDK beta：https://blog.modelcontextprotocol.io/posts/sdk-betas-2026-07-28/
 - Claude Code MCP 文档：https://code.claude.com/docs/en/mcp
@@ -524,6 +533,7 @@ sources: 3
 - Trae/Claude/OpenCode MCP 部署实战：https://blog.csdn.net/aidoudoulong/article/details/161085784
 
 ### MCP 知识库 Server
+
 - enquire-mcp：https://github.com/oomkapwn/enquire-mcp
 - obsidian-mcp (Rust)：https://crates.io/crates/obsidian-mcp/2.0.0
 - markdown-vault-mcp：https://pypi.org/project/markdown-vault-mcp/3.0.3/
@@ -532,6 +542,7 @@ sources: 3
 - WikiMind (Karpathy 实现)：https://lobehub.com/mcp/hal-9909-llm-wikimind
 
 ### 检索
+
 - qmd (tobi/qmd)：https://github.com/tobi/qmd
 - qmd 指南：https://blog.csdn.net/gitblog_00814/article/details/155018420
 - qmd Hermes skill：https://hermes-agent.nousresearch.com/docs/user-guide/skills/optional/research/research-qmd
@@ -540,11 +551,13 @@ sources: 3
 - LanceDB vs OpenSearch：https://www.lancedb.com/blog/opensearch-vs-lancedb-for-vector-search-query-cost-and-infrastructure
 
 ### GUI
+
 - Tauri vs Electron 2026：https://rustify.rs/articles/rust-tauri-vs-electron-2026
 - Electron vs Tauri 2026(中文)：https://blog.csdn.net/qq_21460781/article/details/156802161
 - PkgPulse 对比：https://www.pkgpulse.com/guides/electron-vs-tauri-2026/raw.md
 
 ### 文件解析
+
 - MinerU PyPI：https://pypi.org/project/mineru/3.4.1/
 - MinerU 深度解析：https://juejin.cn/post/7656556949906915371
 - unstructured benchmarks：https://www.unstructured.io/benchmarks
@@ -554,17 +567,20 @@ sources: 3
 - openpyxl vs pandas：https://blog.csdn.net/m0_56086190/article/details/157438928
 
 ### 持续进化
+
 - Dream Loop Playbook：https://hyperautomationlabs.co/self-learning-agent-playbook.pdf
 - Self-Improving Agent：https://eliteaiadvantage.com/blog/claude-code-agents-learn-mistakes-automatically
 - Claude Code 持久记忆：https://www.mindstudio.ai/blog/how-to-add-persistent-memory-claude-code
 - CLAUDE.md/AGENTS.md 深度：https://redreamality.com/blog/claude-md-agents-md-deep-dive/
 
 ### 分类管理
+
 - Obsidian 分类对比：https://forum.obsidian.md/t/how-to-structure-notes-categories-tags-and-folders/103125
 - Dataview 指南：https://blog.csdn.net/gitblog_00545/article/details/160076073
 - Dataview 90% 用例：https://forum.obsidian.md/t/three-dataview-queries-that-cover-90-of-use-cases/109350
 
 ### Baseline
+
 - Karpathy LLM Wiki 原方案：见本项目 [karpathy-LLM.md](file:///D:/s0611/code/Continuous-learning/karpathy-LLM.md)
 
 ---

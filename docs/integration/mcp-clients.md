@@ -9,7 +9,7 @@
 知识库 MCP server（`continuous-learning-kb` v0.1.0）以 stdio 传输暴露 8 个 tools：`kb_search` / `kb_get_page` / `kb_ingest_source` / `kb_write_experience` / `kb_list_categories` / `kb_list_recent` / `kb_lint` / `kb_health`。三个编码 Agent 各有独立的 MCP 配置文件位置与格式：
 
 | Agent | 配置文件 | 顶层键 | command 形式 | env 字段 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Claude Code | `.mcp.json`（项目根） | `mcpServers` | `command: "node"` + `args: [...]` | `env: { ... }` |
 | Trae CN | `.trae/mcp.json`（项目根） | `mcpServers` | `command: "node"` + `args: [...]` | `env: { ... }` |
 | OpenCode | `opencode.json`（项目根） | `mcp` | `command: ["node", ...]`（数组） | `environment: { ... }` |
@@ -78,7 +78,7 @@ claude mcp add continuous-learning-kb --scope project -e KB_ROOT=D:\s0611\code\C
 }
 ```
 
-5. 点击 确认。Trae CN 会写入 `.trae/mcp.json` 并加载 server。
+1. 点击 确认。Trae CN 会写入 `.trae/mcp.json` 并加载 server。
 
 **方式 B — 手动创建文件**：
 
@@ -114,7 +114,7 @@ OpenCode 读取项目根的 `opencode.json` 文件。本仓库已提供：
 当前三份配置使用**绝对路径**（`D:\\s0611\\code\\Continuous-learning\\...`），适用于本机。迁移到其他机器或目录时：
 
 | 场景 | 处理方式 |
-|---|---|
+| --- | --- |
 | 同机迁移项目目录 | 更新三份配置中的 `D:\\s0611\\code\\Continuous-learning` 为新路径 |
 | 跨机器迁移 | 同上；确保 Node.js ≥ 22 已安装，`server/dist/index.js` 已编译 |
 | 跨 OS（Windows → macOS/Linux） | 路径分隔符改为正斜杠 `/`，移除盘符 `D:`，如 `/Users/<user>/code/Continuous-learning/server/dist/index.js` |
@@ -149,6 +149,7 @@ node verify-mcp-clients.mjs    # 验证三配置（9 断言）
 ```
 
 脚本会：
+
 1. 解析 `.mcp.json`、`opencode.json` 实际文件 + Trae CN 内联模板（因 `.trae/mcp.json` 受保护）
 2. 对每个配置：用其 `command/args/env` spawn server，发 JSON-RPC `initialize` → `tools/list` → `tools/call kb_search`
 3. 断言：server 启动成功 + tools/list 含 kb_search + kb_search 返回非空结果
@@ -160,17 +161,20 @@ node verify-mcp-clients.mjs    # 验证三配置（9 断言）
 自动化脚本证明"配置可启动 server"，但 Agent UI 的配置加载逻辑与脚本不同。需在三个 Agent 中各手动触发一次 kb_search 确认：
 
 **Claude Code**：
+
 1. 在项目根打开 Claude Code
 2. 对话中输入：`用 kb_search 搜索知识库中关于 async 的内容`
 3. 确认返回非空结果（应含 `wiki/coding/async-patterns`）
 
 **Trae CN**：
+
 1. 确认 `.trae/mcp.json` 已创建（见 §3.2）
 2. 重启 Trae CN
 3. 在 solo_agent 或 IDE 模式对话中触发同样查询
 4. 确认返回非空结果
 
 **OpenCode**：
+
 1. 在项目根打开 OpenCode
 2. 触发同样查询
 3. 确认返回非空结果
@@ -180,7 +184,7 @@ node verify-mcp-clients.mjs    # 验证三配置（9 断言）
 ## 6. 故障排查
 
 | 症状 | 可能原因 | 解决方法 |
-|---|---|---|
+| --- | --- | --- |
 | server 未启动 | `server/dist/index.js` 不存在 | `cd server && npm install && npm run build` |
 | `node` 命令未找到 | Node.js 未安装或不在 PATH | 安装 Node.js ≥ 22，确认 `node --version` 可用 |
 | tools/list 为空 | server 启动失败 | 在 `server/` 执行 `node dist/index.js` 手动启动，查看 stderr 错误 |

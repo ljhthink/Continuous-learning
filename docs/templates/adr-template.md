@@ -3,7 +3,7 @@
 > 从本模板复制新建 ADR，文件命名 `ADR-NNN-<short-title>.md`，存于 `docs/decisions/`。
 
 | 项目 | 内容 |
-|---|---|
+| --- | --- |
 | 状态 | Proposed / Accepted / Deprecated / Superseded |
 | 日期 | YYYY-MM-DD |
 | 决策者 | |

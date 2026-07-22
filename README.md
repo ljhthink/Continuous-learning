@@ -38,7 +38,7 @@
 ### 项目核心文档
 
 | 文档 | 类型 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | [CLAUDE.md](CLAUDE.md) | 治理规则 | AI 编程行为规则（最高准则），治理知识库系统的开发过程 |
 | [AGENTS.md](AGENTS.md) | 知识库 schema | 知识库使用与持续进化工作流规约，治理知识库内容的使用 |
 | [karpathy-LLM.md](karpathy-LLM.md) | 原始方案 | Karpathy LLM Wiki 模式导论（本项目 baseline） |
@@ -46,7 +46,7 @@
 ### 设计文档（Diátaxis）
 
 | 文档 | Diátaxis 类别 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | [docs/PRD.md](docs/PRD.md) | How-to | 产品需求文档：四点改进的用户故事与验收标准 |
 | [docs/ARCH.md](docs/ARCH.md) | Explanation | 架构设计：五层架构、MCP 接口、数据模型、工作流、前端素材库 |
 | [docs/decisions/README.md](docs/decisions/README.md) | Explanation | ADR 索引 |
@@ -60,7 +60,7 @@
 ### 治理与自动化
 
 | 文件 | 说明 |
-|---|---|
+| --- | --- |
 | [scripts/consistency-check.js](scripts/consistency-check.js) | 文档一致性检查脚本（CI 必需） |
 | [.github/workflows/docs.yml](.github/workflows/docs.yml) | 文档质量 CI（markdownlint + consistency + lychee） |
 | [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md) | PR 模板（含 P0-P3 风险等级） |

@@ -7,6 +7,7 @@
 > 可用 `grep "^## \[" log.md | tail -5` 获取最近 5 条。
 
 ## [2026-07-22] init | 知识库初始化
+
 - action: 创建知识库目录骨架与双索引
 - domains: coding, emotions, reading
 - wiki_pages: 0

@@ -148,7 +148,7 @@
 本项目文档采用 [Diátaxis](https://diataxis.fr/) 框架组织，按读者目标分为四类：
 
 | 类别 | 目标 | 位置 |
-|---|---|---|
+| --- | --- | --- |
 | **Tutorial（教程）** | 帮助新人完成一次完整入门 | 根目录 `README.md` |
 | **How-to Guide（操作指南）** | 指导完成特定任务 | `docs/templates/` |
 | **Explanation（解释说明）** | 解释设计决策与背景 | `docs/decisions/`（ADR） |
@@ -205,7 +205,7 @@
 ### 7.1 角色与职责
 
 | 角色 | 标识名 | 职责 | 强制调用场景 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **主 Agent** | - | 需求澄清、模块拆分、方案设计、编写代码（含测试框架与基础用例）、文档维护、流程编排、Git 操作、修复缺陷 | 始终 |
 | **技术选型调研专家** | `tech-selection-researcher` | 技术选型与方案调研，输出结构化对比报告（**强制调用 `web-access`**） | 涉及选型、引入新依赖或方案抉择时强制 |
 | **源码考古学家** | `code-archaeologist` | 深度源码理解，输出考古报告（架构、风险、依赖图），负责所有源码探查工作 | 任何需要理解现有代码的场景均强制启动，除非符合明确豁免条件 |
@@ -275,7 +275,7 @@
 每个任务必须根据第十六节「变更风险分级与工作流差异化」判定 P0-P3 等级，并映射到对应的子 Agent 与文档要求：
 
 | 风险等级 | 判定关键词 | 必须启动的子 Agent | 可跳过的步骤 | 必须输出的文档 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | **P0 微小** | 注释、文档、typo、常量值、无逻辑影响的配置 | `guardrail-enforcer`（快速） | `code-archaeologist`、`ac-verifier` | 影响自检清单 |
 | **P1 常规** | 单个模块内部逻辑，不改接口/契约/依赖 | `code-archaeologist`（简化）、`guardrail-enforcer`、`ac-verifier` | 无 | guardrail 报告、acceptance 报告 |
 | **P2 跨模块** | 改动接口、数据模型、依赖版本、环境配置 | `code-archaeologist`、`guardrail-enforcer`、`ac-verifier` | 无 | guardrail 报告、acceptance 报告、ADR |
@@ -508,7 +508,7 @@
 ### 16.1 判定标准
 
 | 等级 | 影响面 | 是否可逆 | 是否涉及安全 | 是否改动核心规则/接口 | 典型场景 |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | **P0 微小** | 单一文件或局部 | 可逆 | 否 | 否 | 文档 typo、注释、常量值、无逻辑影响的配置 |
 | **P1 常规** | 单个模块内部 | 可逆 | 否 | 否 | 函数内部逻辑优化、新增私有方法、补充测试 |
 | **P2 跨模块** | 多个模块 | 部分可逆 | 可能 | 是 | 改动接口、数据模型、依赖版本、环境配置 |
@@ -517,7 +517,7 @@
 ### 16.2 对应工作流
 
 | 等级 | 必需子 Agent | 可跳过 | 必需文档 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | P0 | `guardrail-enforcer`（快速审查） | `code-archaeologist`、`ac-verifier` | 影响自检清单 |
 | P1 | `code-archaeologist`（简化）、`guardrail-enforcer`、`ac-verifier` | 无 | guardrail 报告、acceptance 报告 |
 | P2 | `code-archaeologist`、`guardrail-enforcer`、`ac-verifier` | 无 | guardrail 报告、acceptance 报告、ADR |
@@ -577,7 +577,7 @@ Proposed → Accepted → Deprecated / Superseded
 ### 18.1 依赖分级
 
 | 等级 | 定义 | 示例 | 管理要求 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | P0 核心 | 项目运行不可或缺，且深入代码 | Web 框架、ORM、认证库 | 必须写入 ADR，严格版本控制，手动审查升级 |
 | P1 重要 | 承担特定功能，替换成本中等 | 日志库、HTTP 客户端、测试框架 | 使用工具自动监控，升级前查看 changelog |
 | P2 辅助 | 开发工具、构建工具、一次性脚本 | linter、formatter、CLI 工具 | 可自动更新，但需通过 CI |
@@ -666,7 +666,7 @@ Proposed → Accepted → Deprecated / Superseded
 ### 19.6 可观测性三支柱
 
 | 支柱 | 要求 |
-|---|---|
+| --- | --- |
 | 日志（Logs） | 结构化、可检索、按 request_id 串联 |
 | 指标（Metrics） | 关键接口延迟、吞吐、错误率、资源使用率 |
 | 追踪（Traces） | 跨服务调用携带 trace_id/request_id |
@@ -680,7 +680,7 @@ Proposed → Accepted → Deprecated / Superseded
 ### 20.1 运行时产物目录规范
 
 | 文件类型 | 必须位置 | 提交规范 |
-|---|---|---|
+| --- | --- | --- |
 | 日志文件（`*.log`） | `logs/` 目录 | 禁止提交到仓库 |
 | 日志目录 | `logs/` | 在 `.gitignore` 中排除 |
 | 临时文件 | `tmp/` 或 `temp/` | 禁止提交到仓库 |
@@ -757,7 +757,7 @@ TKN-<任务域>-<序号>
 所有子 Agent 报告（`code-archaeologist`、`guardrail-enforcer`、`ac-verifier`、`TRAE-debugger`）必须在元信息表格中包含以下字段：
 
 | 项目 | 内容 |
-|---|---|
+| --- | --- |
 | 执行 Agent | `<agent-name>` |
 | 任务令牌 | `TKN-XXX-NNN` |
 

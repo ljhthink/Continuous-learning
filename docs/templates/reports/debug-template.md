@@ -6,7 +6,7 @@
 ## 元信息
 
 | 项目 | 内容 |
-|---|---|
+| --- | --- |
 | 执行 Agent | 主 Agent（TRAE-debugger skill） |
 | 任务令牌 | TKN-XXX-NNN |
 | 任务域 | <bug-id> |

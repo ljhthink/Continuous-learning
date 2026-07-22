@@ -6,7 +6,7 @@
 ## 元信息
 
 | 项目 | 内容 |
-|---|---|
+| --- | --- |
 | 审计日期 | YYYY-MM-DD |
 | 审计范围 | <里程碑名 / 版本号> |
 | 审计员 | <主 Agent / functional-validation-auditor> |

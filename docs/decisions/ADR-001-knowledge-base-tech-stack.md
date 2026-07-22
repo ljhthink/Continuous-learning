@@ -1,7 +1,7 @@
 # ADR-001: 持续进化个人知识库系统整体技术栈
 
 | 项目 | 内容 |
-|---|---|
+| --- | --- |
 | 状态 | Proposed |
 | 日期 | 2026-07-22 |
 | 决策者 | 主 Agent（基于 tech-selection-researcher 报告） |
@@ -22,7 +22,7 @@ tech-selection-researcher 已完成七决策点（A-G）的系统化调研，结
 采用**混合分层架构**——Karpathy 原方案是其 100% 子集。五层技术栈如下：
 
 | 层 | 选型 | 一句理由 |
-|---|---|---|
+| --- | --- | --- |
 | 存储 | markdown + git + Obsidian | Karpathy 内核，人类可读、可版本控制、vendor-neutral |
 | Agent 访问 | MCP server（优先复用 enquire-mcp，自建用 TypeScript SDK） | 2026 年五大编码 Agent 全线接入 MCP，标准化零锁定 |
 | 人工浏览 | Obsidian + Dataview | 原方案载体，图谱视图 |
@@ -40,7 +40,7 @@ tech-selection-researcher 已完成七决策点（A-G）的系统化调研，结
 ### A. 部署形态 → ④ 混合分层
 
 | 方案 | 否决理由 |
-|---|---|
+| --- | --- |
 | ① 纯本地（无 GUI） | 无法满足改进④多格式上传 GUI |
 | ② 本地优先 + 轻量 Web | 实为④的子集，未解耦存储与访问 |
 | ③ Web 服务前后端分离 | 开发成本高，存储层脱离 Obsidian，远程访问非刚需 |
@@ -49,7 +49,7 @@ tech-selection-researcher 已完成七决策点（A-G）的系统化调研，结
 ### B. GUI 技术栈 → Tauri v2
 
 | 方案 | 否决理由 |
-|---|---|
+| --- | --- |
 | Electron | 120-200MB 包体积、150-400MB 内存，违背轻量约束 |
 | Next.js Web | 需后端中转 FS，非桌面原生 |
 | **Tauri v2** ✅ | 3-10MB、40-80MB 内存、<200ms 启动、Rust 直访 FS、默认安全隔离 |
@@ -59,7 +59,7 @@ tech-selection-researcher 已完成七决策点（A-G）的系统化调研，结
 ### C. 文件解析 → MinerU + office2md
 
 | 方案 | 否决理由 |
-|---|---|
+| --- | --- |
 | unstructured OSS | 质量低于 MinerU，云版付费 |
 | LlamaParse | 云依赖，违背隐私可选约束 |
 | marker | 仅 PDF |
@@ -68,7 +68,7 @@ tech-selection-researcher 已完成七决策点（A-G）的系统化调研，结
 ### D. MCP server → enquire-mcp 优先
 
 | 方案 | 否决理由 |
-|---|---|
+| --- | --- |
 | obsidian-mcp (Rust) | Rust 二次开发门槛，无内置重排 |
 | markdown-vault-mcp | 社区较小（18★） |
 | **enquire-mcp** ✅ | 44 tools、BM25+向量+BGE 重排、HNSW+int8、PDF+OCR、MIT、serve 时零云调用、SLSA-3 |
@@ -78,7 +78,7 @@ tech-selection-researcher 已完成七决策点（A-G）的系统化调研，结
 ### E. 检索 → 分档递进
 
 | 规模 | 选型 | 理由 |
-|---|---|---|
+| --- | --- | --- |
 | 小（<200 页） | index.md | Karpathy 原方案默认，零依赖 |
 | 中（200-5000） | qmd | Karpathy 钦定，BM25+向量+LLM 重排 |
 | 大（>5000） | LanceDB | 嵌入式无服务进程，10w-100w 规模 |
@@ -86,7 +86,7 @@ tech-selection-researcher 已完成七决策点（A-G）的系统化调研，结
 ### F. 持续进化 → 四件套
 
 | 方案 | 否决理由 |
-|---|---|
+| --- | --- |
 | git hook 自动整理 | 防污染弱 |
 | 仅 AGENTS.md 规则 | 自动化不足 |
 | **AGENTS.md + MCP ingest + /dream + Lint** ✅ | Dream Loop 两 tier 门禁 + 三层记忆（inbox/wiki/archive）防污染 |
@@ -98,16 +98,19 @@ tech-selection-researcher 已完成七决策点（A-G）的系统化调研，结
 ## 后果（Consequences）
 
 **正面**：
+
 - 与 Karpathy 原方案 100% 兼容，知识库永远可被 git 版本控制、可被人直接阅读。
 - 多 Agent 调用经 MCP 标准化，零锁定。
 - 五层解耦，任一层可独立替换或降级。
 
 **负面 / 代价**：
+
 - Tauri 后端需基础 Rust 能力（缓解：后端极薄，复杂逻辑放 TS/Python）。
 - MCP 生态快速演化（2026-07-28 候选规范 + SDK v2 转无状态），需关注 6 个月迁移窗口。
 - 持续进化需持续维护审核门禁，否则知识库被低质量经验污染。
 
 **需同步更新**：
+
 - ARCH 文档落地五层架构详设。
 - AGENTS.md 落地知识库 schema 与进化工作流。
 - PRD 落地四点改进验收标准。

@@ -5,7 +5,7 @@
 ## 模板列表
 
 | 模板 | 用途 |
-|---|---|
+| --- | --- |
 | [adr-template.md](adr-template.md) | 架构决策记录 |
 | [prd-template.md](prd-template.md) | 产品需求文档 |
 | [arch-template.md](arch-template.md) | 架构设计文档 |
@@ -18,7 +18,7 @@
 子 Agent 报告必须从 `reports/` 子目录对应模板复制，并包含任务令牌字段（CLAUDE.md 第二十节 20.4）。
 
 | 模板 | 执行 Agent | 场景 |
-|---|---|---|
+| --- | --- | --- |
 | [reports/archaeology-template.md](reports/archaeology-template.md) | code-archaeologist | 源码探查 |
 | [reports/guardrail-template.md](reports/guardrail-template.md) | guardrail-enforcer | 代码安全与质量审计 |
 | [reports/acceptance-template.md](reports/acceptance-template.md) | ac-verifier | 验收测试 |

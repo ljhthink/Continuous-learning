@@ -5,6 +5,7 @@
 > 知识库如何组织、有哪些约定、Ingest/Query/Lint/持续进化 时应遵循什么工作流。
 >
 > **注意区分两套规则**：
+>
 > - `CLAUDE.md` 治理**知识库系统本身的开发过程**（开发 MCP server、Tauri GUI 时遵循）。
 > - `AGENTS.md`（本文件）治理**知识库内容的使用与进化**（使用知识库辅助编码时遵循）。
 
@@ -17,7 +18,7 @@
 ### 1.1 三层架构
 
 | 层 | 位置 | 说明 | 谁负责 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Raw sources | `raw/` | 不可变原始资料（PDF/Word/Excel 等） | 用户投放，Agent 只读 |
 | The wiki | `wiki/` | LLM 生成并维护的 markdown 知识库 | Agent 写、用户读 |
 | The schema | `AGENTS.md`（本文件） | 结构约定与工作流规约 | 用户与 Agent 共同演进 |
@@ -25,14 +26,14 @@
 ### 1.2 双索引
 
 | 索引 | 文件 | 导向 | 用途 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 内容索引 | `index.md` | 内容导向 | 按领域分组列出所有页面，LLM 回答前先读此文件定位 |
 | 时间日志 | `log.md` | 时间导向 | append-only 记录 ingest/query/lint/experience 事件 |
 
 ### 1.3 三大操作 + 一项扩展
 
 | 操作 | 说明 | 触发时机 |
-|---|---|---|
+| --- | --- | --- |
 | Ingest | 摄入新资料，整理成 wiki 页，更新 index/log | 用户投放新文件或 Agent 发现新资料 |
 | Query | 检索 wiki 并综合答案，带引用 | 用户提问或 Agent 编码时查询 |
 | Lint | 健康检查：矛盾、孤儿页、过时声明、缺失交叉引用 | 定期或手动 |
@@ -92,7 +93,7 @@ date: 2026-07-22            # ISO 日期：创建或最后更新日期
 ### 3.2 按 type 的附加字段
 
 | type | 附加必填字段 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | `source` | `source_file` | 指向 `raw/` 下原始资料路径 |
 | `experience` | `confidence`、`source_task` | confidence 为 0-1 浮点；source_task 为来源任务标识 |
 | `concept` / `entity` | 无附加 | 通用 |
@@ -151,7 +152,7 @@ experience:
 ### 5.1 检索策略（按规模分档）
 
 | 规模 | 策略 | Agent 行为 |
-|---|---|---|
+| --- | --- | --- |
 | 小（<200 页） | index.md 导航 | 先读 `index.md`，按领域定位，再钻取具体页面 |
 | 中（200-5000） | qmd 混合检索 | 调用 MCP `kb_search`（BM25 + 向量 + 重排） |
 | 大（>5000） | LanceDB 向量检索 | 调用 MCP `kb_search`（向量 + FTS5） |
@@ -182,7 +183,7 @@ experience:
 ### 6.2 Lint 检查项
 
 | 检查项 | 说明 | 严重度 |
-|---|---|---|
+| --- | --- | --- |
 | 矛盾 | 同一实体在不同页面有冲突声明 | 高 |
 | 孤儿页 | 无入链的页面（experience 且 confidence 高除外） | 中 |
 | 过时声明 | source 页面更新后，引用它的 wiki 页未同步 | 高 |
@@ -250,7 +251,7 @@ tags: [python, async, context-manager]
 ### 7.4 审核门禁（两 tier）
 
 | Tier | 条件 | 动作 | 占比 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Tier 1（自动） | confidence ≥ 0.8 且单域且非重复 | 自动提升为正式页（status=active，移出 inbox） | ~90% |
 | Tier 2（人工） | confidence < 0.8 或跨域或疑似重复 | 进入人工审核队列 | ~10% |
 
@@ -279,7 +280,7 @@ tags: [python, async, context-manager]
 `wiki/` 下每个一级目录是一个领域。常见领域：
 
 | 领域 | 目录 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | 编程 | `coding/` | 编程语言、框架、架构、DevOps |
 | 情感 | `emotions/` | 心理、情绪、自我成长 |
 | 读书 | `reading/` | 书籍笔记、读后感 |
@@ -305,7 +306,7 @@ tags: [python, async, context-manager]
 ### 9.1 MCP Tools 一览
 
 | Tool | 何时用 | 副作用 |
-|---|---|---|
+| --- | --- | --- |
 | `kb_search` | 编码前查知识、回答问题前检索 | 无 |
 | `kb_get_page` | 需要读取完整页面 | 无 |
 | `kb_ingest_source` | 用户投放新资料 | 写 wiki/staging/、追加 log |
@@ -335,7 +336,7 @@ tags: [python, async, context-manager]
 ## 10. 与 CLAUDE.md 的关系
 
 | 文件 | 治理对象 | 适用场景 |
-|---|---|---|
+| --- | --- | --- |
 | `CLAUDE.md` | 知识库**系统**的开发过程 | 开发 MCP server、Tauri GUI、解析管道时 |
 | `AGENTS.md`（本文件） | 知识库**内容**的使用与进化 | 使用知识库辅助编码、ingest 资料、写经验时 |
 

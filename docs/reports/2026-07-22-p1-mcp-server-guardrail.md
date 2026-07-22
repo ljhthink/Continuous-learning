@@ -3,7 +3,7 @@
 ## 元信息
 
 | 项目 | 内容 |
-|---|---|
+| --- | --- |
 | 执行 Agent | guardrail-enforcer |
 | 任务令牌 | TKN-P1-MCP-GUARDRAIL-001 |
 | 任务域 | P1 MCP Server 全量源码（8 个 kb_* tools + 共享工具 + 测试） |
@@ -27,7 +27,7 @@
 ### 2.1 Karpathy Guidelines 合规性
 
 | 项 | 结论 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | 命名 | 合格 | 文件 kebab-case，函数 camelCase，常量 UPPER_SNAKE。`kbHealth`/`kbSearch`/`kbIngestSource` 等命名清晰且与 ARCH 契约一致。私有 helper（`tokenize`/`slugify`/`normalizeDate`）命名准确。 |
 | 设计简洁性 | 合格 | 职责分离清晰：`tools/`（MCP handler）、`utils/`（共享纯函数）、`schemas.ts`（Zod 校验）、`config.ts`（路径配置）。每个 tool 函数控制在 100 行以内。`markdown.ts` 提取共享函数避免重复（US-005a 重构）。 |
 | 错误处理 | 需改进 | 多处空 `catch` 块静默吞异常（详见 2.2）。违反 Karpathy "不隐藏错误" 原则。 |
@@ -70,6 +70,7 @@ if (date && (!lastUpdate || date > lastUpdate)) {
 #### 发现 L-3：空 catch 块静默返回空结果（中风险）
 
 **位置**：
+
 - [read-only.ts:72](file:///D:/s0611/code/Continuous-learning/server/src/tools/read-only.ts#L72)：`catch { return jsonResult({ categories: [] }); }`
 - [search.ts:51](file:///D:/s0611/code/Continuous-learning/server/src/tools/search.ts#L51)：`catch { return jsonResult({ results: [] }); }`
 
@@ -92,7 +93,7 @@ if (date && (!lastUpdate || date > lastUpdate)) {
 **覆盖分析**：
 
 | Tool | 单元测试数 | 覆盖场景 | 缺失场景 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | kb_health | 3 | 总页数、index 状态、log 解析 | 无 |
 | kb_list_categories | 2 | 列表、统计 | **Date 对象 frontmatter（L-1 bug 未被测试捕获）** |
 | kb_list_recent | 2 | 默认、类型过滤 | 无 |
@@ -111,7 +112,7 @@ if (date && (!lastUpdate || date > lastUpdate)) {
 **发现 L-6：ARCH.md 3.1 契约与实现存在 3 处偏差（中风险）**
 
 | 偏差点 | ARCH 3.1 定义 | 实际实现 | 性质 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | kb_lint checks enum | `["contradictions","orphans","stale","missing_xref"]` | 添加 `"frontmatter"` | 向后兼容扩展 |
 | kb_lint 输出 | `{ issues: [{ type, page, detail, suggestion }] }` | 添加 `severity` 字段 + `summary` 对象 | 向后兼容扩展 |
 | kb_list_recent type enum | `"ingest"/"query"/"lint"` | 添加 `"experience"` 和 `"init"` | 向后兼容扩展 |
@@ -123,7 +124,7 @@ if (date && (!lastUpdate || date > lastUpdate)) {
 ### 3.1 OWASP Top 10 / CWE 扫描结果
 
 | # | 类别 | CWE | 标题 | 严重度 | 置信度 | 位置 |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
 | S-1 | 路径穿越 | CWE-22 | `domain` 参数未做路径穿越校验，可写入任意文件系统位置 | **阻断** | 0.95 | [write.ts:83](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L83)、[write.ts:143-149](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L143-L149) |
 | S-2 | 日志注入 | CWE-117 | `appendLogEntry` 中 title 和 detail 值未转义换行符，可注入伪造日志条目 | 高 | 0.90 | [log.ts:53-58](file:///D:/s0611/code/Continuous-learning/server/src/utils/log.ts#L53-L58) |
 | S-3 | 输入校验不足 | CWE-20 | Zod schema 对 string 类型未设长度上限，`domain` 未做安全字符校验 | 中 | 0.85 | [schemas.ts:46-47](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L46-L47)、[schemas.ts:56-57](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L56-L57) |
@@ -135,7 +136,7 @@ if (date && (!lastUpdate || date > lastUpdate)) {
 **Zod schema 校验分析**：
 
 | 参数 | Schema | 边界校验 | 结论 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | kb_search.query | `z.string()` | 无长度限制 | 需改进 |
 | kb_search.limit | `z.number().int().positive().max(50)` | 有上限 | 合格 |
 | kb_get_page.path | `z.string()` | 无长度限制，无路径格式校验 | 需改进（已有运行时 path.relative 检查兜底） |
@@ -162,12 +163,13 @@ if (date && (!lastUpdate || date > lastUpdate)) {
 
 **frontmatter status 状态机**（AGENTS.md 3.4）：
 
-```
+```text
 source/concept/entity: staging -> active -> archived
 experience: pending -> active -> archived / rejected
 ```
 
 **分析**：
+
 - `kb_ingest_source` 创建页面时硬编码 `status: "staging"`，符合状态机入口。合格。
 - `kb_write_experience` 创建卡片时硬编码 `status: "pending"`，符合状态机入口。合格。
 - `kb_lint` 的 `checkFrontmatter` 验证 status 是否在 `VALID_STATUSES` 列表中，但**不验证状态转换合法性**（如从 `active` 直接跳到 `pending`）。这是设计选择而非缺陷——lint 是检查工具，状态转换由业务逻辑（审核门禁）控制，当前 P1 阶段审核门禁尚未实现。
@@ -232,7 +234,7 @@ const frontmatter = (yaml.load(yamlText) ?? {}) as Record<string, unknown>;
 **Stage 5：依赖与供应链**
 
 | 依赖 | 锁定版本 | 用途 | 已知风险 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `@modelcontextprotocol/sdk` | 1.29.0 | MCP 协议 SDK | 无已知高危 CVE。SDK 仍在快速迭代中（ADR-001 注明 6 个月迁移窗口）。 |
 | `js-yaml` | 4.3.0 | YAML frontmatter 解析 | v4 默认 safe schema，无已知高危 CVE。 |
 | `zod` | 3.25.76 | 输入校验 | 无已知高危 CVE。 |
@@ -265,19 +267,19 @@ const frontmatter = (yaml.load(yamlText) ?? {}) as Record<string, unknown>;
 domain: z.string().describe("Target domain (e.g., 'coding')"),
 ```
 
-2. [write.ts:83](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L83) — `domain` 直接拼入文件路径：
+1. [write.ts:83](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L83) — `domain` 直接拼入文件路径：
 
 ```typescript
 const wikiFullPath = path.join(WIKI_DIR, domain, `${slug}.md`);
 ```
 
-3. [write.ts:101](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L101) — 拼接后的路径直接写入文件，**无路径穿越检查**：
+1. [write.ts:101](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L101) — 拼接后的路径直接写入文件，**无路径穿越检查**：
 
 ```typescript
 await writeFile(wikiFullPath, serializeFrontmatter(frontmatter, body));
 ```
 
-4. [write.ts:143-149](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L143-L149) — `kb_write_experience` 同样存在此问题：
+1. [write.ts:143-149](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L143-L149) — `kb_write_experience` 同样存在此问题：
 
 ```typescript
 const inboxFullPath = path.join(
@@ -288,7 +290,7 @@ const inboxFullPath = path.join(
 
 **攻击示例**：
 
-```
+```text
 kb_ingest_source({
   source_path: "raw/markdown/article.md",
   domain: "../../../tmp/evil"
@@ -346,7 +348,7 @@ for (const [key, value] of Object.entries(entry.details)) {
 
 **攻击示例**：
 
-```
+```text
 kb_write_experience({
   title: "正常标题\n## [2026-07-22] ingest | 伪造来源\n- source: raw/fake.pdf\n- wiki: wiki/coding/fake",
   domain: "coding",
@@ -400,7 +402,7 @@ section: z.string().max(200).describe("Specific section heading..."),
 主 Agent 要求重点验证 `kb_get_page` 和 `kb_ingest_source` 的 `path.relative` 检查是否完备。以下是逐向量验证：
 
 | 攻击向量 | 输入示例 | path.relative 结果 | 检查结果 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `../` 序列 | `../../../etc/passwd` | `..\..\..\etc\passwd.md` | `startsWith("..")` -> 拦截 |
 | 绝对路径 (Unix) | `/etc/passwd` | `..\..\..\etc\passwd.md` | `startsWith("..")` -> 拦截 |
 | 绝对路径 (Windows 跨盘) | `C:\Windows\system32\config\SAM` | `C:\Windows\system32\config\SAM.md` | `path.isAbsolute()` -> 拦截 |
@@ -429,7 +431,7 @@ section: z.string().max(200).describe("Specific section heading..."),
 ### 必须修复（阻断级，阻止进入测试阶段）
 
 | # | 问题 | 严重度 | 修复方案 | 验证标准 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | S-1 | `domain` 参数路径穿越 | 阻断 | Zod schema 添加 `domain` 正则校验 + write.ts 添加运行时 path.relative 检查 | 传入 `domain="../../../tmp"` 时返回 errorResult |
 | S-2 | 日志注入 | 高 | `appendLogEntry` 和 `addPageToIndex` 中过滤换行符 | 传入含 `\n` 的 title 时 log.md 不出现伪造条目 |
 | L-1 | kb_list_categories Date 解析 bug | 高 | 提取 `normalizeDate()` 到共享模块，在 read-only.ts 中调用 | frontmatter `date: 2026-07-20`（无引号）时 last_update 正确 |
@@ -437,7 +439,7 @@ section: z.string().max(200).describe("Specific section heading..."),
 ### 建议修复（不阻断但强烈建议在本轮修复）
 
 | # | 问题 | 严重度 | 修复方案 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | S-3 | 输入校验不足 | 中 | 所有 string schema 添加 `.max()` 长度限制 |
 | L-3 | 空 catch 块静默返回 | 中 | 添加 `console.error` 输出或区分错误类型 |
 | L-5 | domain 路径穿越测试缺失 | 高 | 添加 `domain="../../../tmp"` 的测试用例 |

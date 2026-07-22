@@ -45,7 +45,7 @@ UpdateRelStyle(agent, mcp, "stdio")
 ### 1.2 五层架构
 
 | 层 | 名称 | 选型 | 职责 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | L1 | 存储层 | markdown + git + Obsidian | 不可变 raw、人类可读 wiki、git 版本控制 |
 | L2 | 索引层 | index.md + log.md + frontmatter + Dataview | 内容导航、时间日志、元数据查询 |
 | L3 | 访问层 | MCP server（enquire-mcp + TS 扩展） | Agent 标准化调用，stdio 本地零网络 |
@@ -57,7 +57,7 @@ UpdateRelStyle(agent, mcp, "stdio")
 ## 2. 组件设计
 
 | 组件 | 职责 | 技术栈 | 关键依赖 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `repo` 知识库仓库 | 唯一事实来源，markdown + git | git ≥2.40、Obsidian ≥1.5 | 无（vendor-neutral） |
 | `mcp_server` | 暴露 8 个 MCP tools，stdio 传输 | TypeScript 5.x、@modelcontextprotocol/sdk | enquire-mcp（复用）/ Zod（校验） |
 | `parser` 解析管道 | PDF/Word/Excel → markdown | Python 3.11、MinerU 3.4+、office2md 0.5+ | mineru[pipeline]、mammoth、pandas |
@@ -73,7 +73,7 @@ UpdateRelStyle(agent, mcp, "stdio")
 所有 tools 经 stdio 传输，输入输出均为 JSON，参数用 Zod schema 校验。
 
 | Tool | 对应 Karpathy 操作 | 输入 | 输出 | 副作用 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `kb_search` | Query | `{ query: string, domain?: string, limit?: number }` | `{ results: [{ path, title, snippet, score }] }` | 无（只读） |
 | `kb_get_page` | Query | `{ path: string, section?: string }` | `{ frontmatter, body, links }` | 无 |
 | `kb_ingest_source` | Ingest | `{ source_path: string, domain: string, type?: "source" }` | `{ wiki_path, status: "staging" }` | 写 raw/、写 wiki/staging/、追加 log |
@@ -86,7 +86,7 @@ UpdateRelStyle(agent, mcp, "stdio")
 ### 3.2 Tauri GUI 命令（L4 内部 IPC）
 
 | 命令 | 输入 | 输出 | 说明 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `upload_file` | `{ file_path, domain }` | `{ staging_path }` | 触发解析管道，结果入 staging |
 | `confirm_staging` | `{ staging_path }` | `{ wiki_path }` | 用户确认后写入正式 wiki/ |
 | `preview_wiki` | `{ path }` | `{ html }` | Obsidian 兼容 markdown → HTML 预览 |
@@ -260,6 +260,7 @@ stateDiagram-v2
 ```
 
 **两 tier 审核门禁**（Anthropic Dream Loop 思路）：
+
 - **Tier 1（自动，约 90%）**：confidence ≥ 0.8 且单域且非重复 → 自动提升为正式页。
 - **Tier 2（人工，约 10%）**：confidence < 0.8 或跨域或疑似重复 → 进入人工审核队列，Tauri GUI 或 Obsidian 中提示用户。
 - **防污染**：所有经验经 git 可回滚；`use_count` 长期为 0 的条目经 `/dream` 老化降级到 `archive/`。
@@ -267,6 +268,7 @@ stateDiagram-v2
 ### 5.4 Lint（健康检查）
 
 定时或手动触发 `kb_lint`，检查：
+
 1. **矛盾**：同一实体在不同页面有冲突声明。
 2. **孤儿页**：无入链的页面（除非 type=experience 且 confidence 高）。
 3. **过时声明**：source 页面被更新后，引用它的 wiki 页未同步。
@@ -293,7 +295,7 @@ stateDiagram-v2
 ### 6.2 降级路径
 
 | 降级场景 | 退化形态 | 仍可用能力 |
-|---|---|---|
+| --- | --- | --- |
 | Tauri 不做 | Obsidian + CLI | raw→wiki 手动 ingest、index.md 检索、git 版本 |
 | MCP 不做 | CLI（git + grep + qmd） | 命令行检索、手动写经验卡片 |
 | qmd 模型未下载 | 纯 index.md | LLM 先读索引再钻取（<200 页够用） |
@@ -308,7 +310,7 @@ stateDiagram-v2
 ### 7.1 设计原则
 
 | 原则 | 说明 |
-|---|---|
+| --- | --- |
 | **本地优先** | 所有交互在本地完成，无网络等待；上传→解析→预览→确认全链路即时反馈 |
 | **极简工具型** | 知识库 GUI 是常驻后台工具，不追求视觉炫技，优先信息密度与操作效率 |
 | **Obsidian 兼容** | markdown 预览与 Obsidian 渲染一致，支持 [[wikilinks]]、frontmatter、Dataview |
@@ -321,6 +323,7 @@ stateDiagram-v2
 > **使用时机**：P4 GUI 阶段。在构建 Tauri GUI 前访问下列站点下载所需素材，再进行界面设计。
 >
 > **使用纪律**：
+>
 > - 每个素材记录来源 URL 与 License（避免商业闭源项目误用 CC-BY-NC 等限制商用素材）。
 > - 下载素材统一存放 `frontend/assets/` 下，按类别子目录组织。
 > - 仅选用与"极简工具型"原则相符的素材，避免过度装饰。
@@ -334,7 +337,7 @@ stateDiagram-v2
 #### 7.2.2 图像资源
 
 | 站点 | URL | 用途 |
-|---|---|---|
+| --- | --- | --- |
 | Pixabay | <https://pixabay.com/zh/> | 通用图像、矢量、插画（空状态插画、占位图） |
 | Texturelabs | <https://texturelabs.org> | 图像纹理（背景质感、纸张纹理） |
 | Pexels | <https://pexels.com> | 摄影向图像（首屏背景、情绪图） |
@@ -343,7 +346,7 @@ stateDiagram-v2
 #### 7.2.3 视频与动态素材
 
 | 站点 | URL | 用途 |
-|---|---|---|
+| --- | --- | --- |
 | Mixkit | <https://mixkit.co/free-stock-video/> | 转场、背景视频（首屏动效） |
 | Giphy | <https://giphy.com> | 贴纸、GIF（空状态、加载态） |
 | LottieFiles | <https://lottiefiles.com> | UI 动画（上传进度、成功反馈、loading） |
@@ -352,7 +355,7 @@ stateDiagram-v2
 #### 7.2.4 图标资源
 
 | 站点 | URL | 用途 |
-|---|---|---|
+| --- | --- | --- |
 | Flaticon | <https://flaticon.com> | 通用图标、logo 素材 |
 | Iconfont | <https://iconfont.cn/collections> | 中国图标 logo 查询（中文场景亲和） |
 | Google Material Icons | <https://fonts.google.com/icons> | Google 图标（标准化基础图标集） |
@@ -360,7 +363,7 @@ stateDiagram-v2
 #### 7.2.5 字体资源
 
 | 站点 | URL | 用途 |
-|---|---|---|
+| --- | --- | --- |
 | Google Fonts | <https://fonts.google.com> | 西文字体 + 中文字体（Noto Sans SC 等） |
 | DaFont | <https://dafont.com> | 英语装饰字体（标题、特殊场景） |
 | FontZone | <https://fontzone.net> | 英语字体补充 |
@@ -369,7 +372,7 @@ stateDiagram-v2
 #### 7.2.6 配色资源
 
 | 站点 | URL | 用途 |
-|---|---|---|
+| --- | --- | --- |
 | ColorHunt | <https://colorhunt.co> | 配色方案灵感 |
 | Color-Hex | <https://color-hex.com> | 颜色字典、十六进制查询 |
 | UI Gradients | <https://uigradients.com> | 渐变色方案 |
@@ -379,7 +382,7 @@ stateDiagram-v2
 #### 7.2.7 3D 模型素材（备用，本期 GUI 多半不需要）
 
 | 站点 | URL | 用途 |
-|---|---|---|
+| --- | --- | --- |
 | Sketchfab | <https://sketchfab.com> | 3D 模型预览与下载 |
 | Cubebrush | <https://cubebrush.co> | basemesh 基础模型 |
 | Gumroad | <https://gumroad.com> | 3D 模型工具包与插件 |
@@ -392,7 +395,7 @@ stateDiagram-v2
 #### 7.2.8 音效与音乐
 
 | 站点 | URL | 用途 |
-|---|---|---|
+| --- | --- | --- |
 | Pixabay Sound Effects | <https://pixabay.com/zh/sound-effects> | VFX 音效（上传成功、确认反馈） |
 | Mixkit Sound Effects | <https://mixkit.co/free-sound-effects/> | 免费背景音乐、UI 音效 |
 | Free Music Archive | <https://freemusicarchive.org> | 免费背景音乐（若需沉浸式浏览模式） |
@@ -400,7 +403,7 @@ stateDiagram-v2
 ### 7.3 GUI 组件清单
 
 | 组件 | 职责 | 素材建议 |
-|---|---|---|
+| --- | --- | --- |
 | `DropZone` | 拖拽上传区 | LottieFiles 上传动画 + Pixabay 空状态插画 |
 | `FileList` | staging 文件列表 | Google Material Icons 文件类型图标 |
 | `MarkdownPreview` | wiki 页预览 | Google Fonts Noto Sans SC + 等宽字体（代码块） |
@@ -419,7 +422,7 @@ stateDiagram-v2
 ## 8. 技术选型（引用 ADR）
 
 | 决策点 | 选型 | ADR |
-|---|---|---|
+| --- | --- | --- |
 | A. 部署形态 | ④ 混合分层架构 | [ADR-001](decisions/ADR-001-knowledge-base-tech-stack.md) |
 | B. GUI 技术栈 | Tauri v2（降级 Next.js + Node） | ADR-001 |
 | C. 文件解析 | MinerU（PDF）+ office2md（Word/Excel） | ADR-001 |
@@ -431,7 +434,7 @@ stateDiagram-v2
 ## 9. 风险与缓解
 
 | 风险 | 等级 | 缓解措施 |
-|---|---|---|
+| --- | --- | --- |
 | Tauri Rust 门槛 | 中 | 后端极薄封装 FS/git/调 Python；复杂逻辑放 TS；降级 Next.js |
 | MCP 生态演化（2026-07-28 候选规范） | 中 | 锁定 SDK 稳定版，薄封装 6 个月迁移窗口 |
 | 持续进化污染 | 中高 | 两 tier 审核门禁 + use_count 老化 + git 回滚 + inbox 物理隔离 |
@@ -442,7 +445,7 @@ stateDiagram-v2
 ## 10. 演进路线
 
 | 阶段 | 范围 | 对应 PRD 里程碑 |
-|---|---|---|
+| --- | --- | --- |
 | P0 | 治理脚手架（已完成）+ 知识库目录骨架 | P0 |
 | P1 | MCP server 8 tools + index.md/log.md + Ingest/Query 闭环 | P1 |
 | P2 | 三 Agent（Claude Code/Trae/OpenCode）接入验证 + L-2 性能优化（已完成） | P2 |
