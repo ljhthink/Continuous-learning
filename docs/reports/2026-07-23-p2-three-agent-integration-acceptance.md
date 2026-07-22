@@ -9,7 +9,7 @@
 | 任务域 | P2 三 Agent 接入（US-002）+ L-2 `checkMissingXref` O(N²)→O(N×K) 优化（US-006）+ 测试/性能脚本 + 客户端配置 |
 | 报告日期 | 2026-07-23 |
 | 风险等级 | P1（单模块内部算法优化 + 测试/开发脚本 + 客户端配置文件；无接口/契约/依赖变更） |
-| 验收依据 | [PRD](../../PRD.md) US-002 / US-006 / [ADR-002](../decisions/ADR-002-mcp-client-integration.md) / [ARCH](../../ARCH.md) §3.1、§10 |
+| 验收依据 | [PRD](../PRD.md) US-002 / US-006 / [ADR-002](../decisions/ADR-002-mcp-client-integration.md) / [ARCH](../ARCH.md) §3.1、§10 |
 | guardrail 报告 | [2026-07-23-p2-three-agent-integration-guardrail.md](./2026-07-23-p2-three-agent-integration-guardrail.md)（结论：通过；M-1 测试 flaky 已由主 Agent 修复并经本报告独立确认稳定） |
 | P1 验收基线 | [2026-07-22-p1-mcp-server-acceptance.md](./2026-07-22-p1-mcp-server-acceptance.md)（安全基线 + 性能基线） |
 | 测试架构 skill | test-architect（已调用，设计分层测试计划与覆盖矩阵） |

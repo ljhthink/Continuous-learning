@@ -8,7 +8,7 @@
 | 任务令牌 | TKN-P1-MCP-ACCEPTANCE-001 |
 | 任务域 | P1 MCP Server（8 个 kb_* tools + Ingest/Query/Lint/Experience 闭环） |
 | 报告日期 | 2026-07-22 |
-| 验收依据 | [PRD](../../PRD.md) US-001～US-006 / [ADR-001](../decisions/ADR-001-knowledge-base-tech-stack.md) / [ARCH](../../ARCH.md) §3.1 |
+| 验收依据 | [PRD](../PRD.md) US-001～US-006 / [ADR-001](../decisions/ADR-001-knowledge-base-tech-stack.md) / [ARCH](../ARCH.md) §3.1 |
 | guardrail 报告 | [2026-07-22-p1-mcp-server-guardrail-r2.md](./2026-07-22-p1-mcp-server-guardrail-r2.md)（结论：通过） |
 | 测试架构 skill | test-architect |
 | 主 Agent 签发上下文 | 盲区 1：31 个单元测试覆盖充分性，特别是边界场景（CJK/超大输入/并发）。盲区 2：性能基线从未建立，MCP stdio 延迟与 kb_lint O(N²) 无量化数据。盲区 3：MCP 协议层端到端测试覆盖不足（单元测试绕过 SDK schema 校验）。 |

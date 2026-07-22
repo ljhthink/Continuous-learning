@@ -68,7 +68,7 @@
 | [.markdownlint.json](.markdownlint.json) | markdownlint 配置 |
 | [lychee.toml](lychee.toml) | 链接检查配置 |
 | [.mcp.json](.mcp.json) | Claude Code 项目级 MCP 配置 |
-| [.trae/mcp.json](.trae/mcp.json) | Trae CN 工作区 MCP 配置（用户经 Trae CN UI 创建） |
+| .trae/mcp.json | Trae CN 工作区 MCP 配置（用户经 Trae CN UI 创建，文件在 `.gitignore` 中排除，不入版本控制） |
 | [opencode.json](opencode.json) | OpenCode 项目级 MCP 配置 |
 
 ## 架构一览
