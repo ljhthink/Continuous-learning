@@ -37,14 +37,14 @@
 
 **修复验证（方案 A + B 纵深防御）**：
 
-**方案 A（schema 层）**：[schemas.ts:46](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L46)
+**方案 A（schema 层）**：[schemas.ts:46](../../server/src/schemas.ts#L46)
 
 ```typescript
 const DOMAIN_REGEX = /^[a-z0-9][a-z0-9-]*$/;
 ```
 
-- [schemas.ts:56-63](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L56-L63)：`kb_ingest_source.domain` 添加 `.regex(DOMAIN_REGEX, ...).max(64)` ✓
-- [schemas.ts:73-80](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L73-L80)：`kb_write_experience.domain` 添加 `.regex(DOMAIN_REGEX, ...).max(64)` ✓
+- [schemas.ts:56-63](../../server/src/schemas.ts#L56-L63)：`kb_ingest_source.domain` 添加 `.regex(DOMAIN_REGEX, ...).max(64)` ✓
+- [schemas.ts:73-80](../../server/src/schemas.ts#L73-L80)：`kb_write_experience.domain` 添加 `.regex(DOMAIN_REGEX, ...).max(64)` ✓
 
 **正则有效性分析**：`^[a-z0-9][a-z0-9-]*$` 拦截所有路径穿越向量：
 
@@ -61,8 +61,8 @@ const DOMAIN_REGEX = /^[a-z0-9][a-z0-9-]*$/;
 
 **方案 B（运行时层）**：
 
-- [write.ts:83-90](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L83-L90)：`kbIngestSource` 构造 `wikiFullPath` 后添加 `path.relative(WIKI_DIR, wikiFullPath)` 穿越检查 ✓
-- [write.ts:150-162](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L150-L162)：`kbWriteExperience` 构造 `inboxFullPath` 后添加 `path.relative(WIKI_DIR, inboxFullPath)` 穿越检查 ✓
+- [write.ts:83-90](../../server/src/tools/write.ts#L83-L90)：`kbIngestSource` 构造 `wikiFullPath` 后添加 `path.relative(WIKI_DIR, wikiFullPath)` 穿越检查 ✓
+- [write.ts:150-162](../../server/src/tools/write.ts#L150-L162)：`kbWriteExperience` 构造 `inboxFullPath` 后添加 `path.relative(WIKI_DIR, inboxFullPath)` 穿越检查 ✓
 
 **运行时检查逻辑验证**：
 
@@ -72,8 +72,8 @@ const DOMAIN_REGEX = /^[a-z0-9][a-z0-9-]*$/;
 
 **测试验证**：
 
-- [write.test.ts:103-113](file:///D:/s0611/code/Continuous-learning/server/src/tests/write.test.ts#L103-L113)：`kb_ingest_source` domain 穿越测试（直调 handler，绕过 schema，验证运行时检查）✓
-- [write.test.ts:168-178](file:///D:/s0611/code/Continuous-learning/server/src/tests/write.test.ts#L168-L178)：`kb_write_experience` domain 穿越测试（同上）✓
+- [write.test.ts:103-113](../../server/src/tests/write.test.ts#L103-L113)：`kb_ingest_source` domain 穿越测试（直调 handler，绕过 schema，验证运行时检查）✓
+- [write.test.ts:168-178](../../server/src/tests/write.test.ts#L168-L178)：`kb_write_experience` domain 穿越测试（同上）✓
 - 两个测试均通过（已验证 `npm test` 输出：ok 5/5 和 ok 3/3）✓
 
 **结论**：S-1 已正确修复，纵深防御完整，测试覆盖充分。
@@ -84,7 +84,7 @@ const DOMAIN_REGEX = /^[a-z0-9][a-z0-9-]*$/;
 
 **修复验证**：
 
-**log.ts**：[log.ts:60-62](file:///D:/s0611/code/Continuous-learning/server/src/utils/log.ts#L60-L62)
+**log.ts**：[log.ts:60-62](../../server/src/utils/log.ts#L60-L62)
 
 ```typescript
 function sanitizeLogField(value: string): string {
@@ -92,11 +92,11 @@ function sanitizeLogField(value: string): string {
 }
 ```
 
-- [log.ts:66](file:///D:/s0611/code/Continuous-learning/server/src/utils/log.ts#L66)：`safeTitle = sanitizeLogField(entry.title)` ✓
-- [log.ts:68](file:///D:/s0611/code/Continuous-learning/server/src/utils/log.ts#L68)：header 行使用 `safeTitle` ✓
-- [log.ts:71](file:///D:/s0611/code/Continuous-learning/server/src/utils/log.ts#L71)：detail 的 key 和 value 均经过 `sanitizeLogField` ✓
+- [log.ts:66](../../server/src/utils/log.ts#L66)：`safeTitle = sanitizeLogField(entry.title)` ✓
+- [log.ts:68](../../server/src/utils/log.ts#L68)：header 行使用 `safeTitle` ✓
+- [log.ts:71](../../server/src/utils/log.ts#L71)：detail 的 key 和 value 均经过 `sanitizeLogField` ✓
 
-**index-md.ts**：[index-md.ts:38-40](file:///D:/s0611/code/Continuous-learning/server/src/utils/index-md.ts#L38-L40)
+**index-md.ts**：[index-md.ts:38-40](../../server/src/utils/index-md.ts#L38-L40)
 
 ```typescript
 function sanitizeIndexField(value: string): string {
@@ -104,7 +104,7 @@ function sanitizeIndexField(value: string): string {
 }
 ```
 
-- [index-md.ts:50-54](file:///D:/s0611/code/Continuous-learning/server/src/utils/index-md.ts#L50-L54)：对 `domain`、`entry.title`、`entry.extra` 应用 `sanitizeIndexField` ✓
+- [index-md.ts:50-54](../../server/src/utils/index-md.ts#L50-L54)：对 `domain`、`entry.title`、`entry.extra` 应用 `sanitizeIndexField` ✓
 
 **注入防护有效性分析**：
 
@@ -127,7 +127,7 @@ function sanitizeIndexField(value: string): string {
 
 **修复验证**：
 
-**共享函数提取**：[frontmatter.ts:34-48](file:///D:/s0611/code/Continuous-learning/server/src/utils/frontmatter.ts#L34-L48)
+**共享函数提取**：[frontmatter.ts:34-48](../../server/src/utils/frontmatter.ts#L34-L48)
 
 ```typescript
 export function normalizeDate(value: unknown): string | null {
@@ -148,14 +148,14 @@ export function normalizeDate(value: unknown): string | null {
 
 **调用点验证**：
 
-- [read-only.ts:13](file:///D:/s0611/code/Continuous-learning/server/src/tools/read-only.ts#L13)：`import { parseFrontmatter, normalizeDate } from "../utils/frontmatter.js"` ✓
-- [read-only.ts:102](file:///D:/s0611/code/Continuous-learning/server/src/tools/read-only.ts#L102)：`const date = normalizeDate(frontmatter.date);`（替换原 `as string | undefined`）✓
-- [lint.ts:18](file:///D:/s0611/code/Continuous-learning/server/src/tools/lint.ts#L18)：`import { parseFrontmatter, normalizeDate } from "../utils/frontmatter.js"` ✓
-- [lint.ts:206](file:///D:/s0611/code/Continuous-learning/server/src/tools/lint.ts#L206)：`const date = normalizeDate(frontmatter.date);` ✓
+- [read-only.ts:13](../../server/src/tools/read-only.ts#L13)：`import { parseFrontmatter, normalizeDate } from "../utils/frontmatter.js"` ✓
+- [read-only.ts:102](../../server/src/tools/read-only.ts#L102)：`const date = normalizeDate(frontmatter.date);`（替换原 `as string | undefined`）✓
+- [lint.ts:18](../../server/src/tools/lint.ts#L18)：`import { parseFrontmatter, normalizeDate } from "../utils/frontmatter.js"` ✓
+- [lint.ts:206](../../server/src/tools/lint.ts#L206)：`const date = normalizeDate(frontmatter.date);` ✓
 
 **测试验证**：
 
-- [read-only.test.ts:154-178](file:///D:/s0611/code/Continuous-learning/server/src/tests/read-only.test.ts#L154-L178)：写入 `date: 2026-07-25`（未引号，js-yaml 解析为 Date 对象），验证 `last_update === "2026-07-25"` ✓
+- [read-only.test.ts:154-178](../../server/src/tests/read-only.test.ts#L154-L178)：写入 `date: 2026-07-25`（未引号，js-yaml 解析为 Date 对象），验证 `last_update === "2026-07-25"` ✓
 - 测试通过（已验证 `npm test` 输出：ok 3 - handles unquoted ISO date frontmatter as Date object）✓
 
 **结论**：L-1 已正确修复，共享函数消除了重复风险，Date 对象转换逻辑正确。
@@ -183,7 +183,7 @@ export function normalizeDate(value: unknown): string | null {
 | `kb_search.limit` | `.max(50)` | — | ✓（原有） |
 | `kb_write_experience.confidence` | `.min(0).max(1)` | — | ✓（原有） |
 
-**结论**：S-3 对所有路径构造型参数已正确修复。`kb_search.domain` 过滤参数遗漏 `.max()`，但该参数仅用于字符串比较（[search.ts:68-72](file:///D:/s0611/code/Continuous-learning/server/src/tools/search.ts#L68-L72)），不参与路径构造，无穿越风险。记录为低风险建议 R2-1。
+**结论**：S-3 对所有路径构造型参数已正确修复。`kb_search.domain` 过滤参数遗漏 `.max()`，但该参数仅用于字符串比较（[search.ts:68-72](../../server/src/tools/search.ts#L68-L72)），不参与路径构造，无穿越风险。记录为低风险建议 R2-1。
 
 ---
 
@@ -191,7 +191,7 @@ export function normalizeDate(value: unknown): string | null {
 
 **修复验证**：
 
-**read-only.ts**：[read-only.ts:71-81](file:///D:/s0611/code/Continuous-learning/server/src/tools/read-only.ts#L71-L81)
+**read-only.ts**：[read-only.ts:71-81](../../server/src/tools/read-only.ts#L71-L81)
 
 ```typescript
 } catch (err) {
@@ -202,7 +202,7 @@ export function normalizeDate(value: unknown): string | null {
 }
 ```
 
-**search.ts**：[search.ts:49-58](file:///D:/s0611/code/Continuous-learning/server/src/tools/search.ts#L49-L58)
+**search.ts**：[search.ts:49-58](../../server/src/tools/search.ts#L49-L58)
 
 ```typescript
 } catch (err) {
@@ -227,7 +227,7 @@ export function normalizeDate(value: unknown): string | null {
 
 #### L-4：normalizeDate() 未共享 — ✅ 已正确修复
 
-**修复验证**：已在 L-1 验证中确认。`normalizeDate()` 已从 `lint.ts` 私有函数提取到 [frontmatter.ts:40](file:///D:/s0611/code/Continuous-learning/server/src/utils/frontmatter.ts#L40) 作为共享导出，`lint.ts` 和 `read-only.ts` 均从 `frontmatter.ts` 导入。无重复代码残留。
+**修复验证**：已在 L-1 验证中确认。`normalizeDate()` 已从 `lint.ts` 私有函数提取到 [frontmatter.ts:40](../../server/src/utils/frontmatter.ts#L40) 作为共享导出，`lint.ts` 和 `read-only.ts` 均从 `frontmatter.ts` 导入。无重复代码残留。
 
 **结论**：L-4 已正确修复。
 
@@ -243,13 +243,13 @@ export function normalizeDate(value: unknown): string | null {
 
 #### L-6：ARCH.md 3.1 契约与实现偏差 — ✅ 已正确修复
 
-**修复验证**：[ARCH.md §3.1](file:///D:/s0611/code/Continuous-learning/docs/ARCH.md#L75-L84) 表格已更新：
+**修复验证**：[ARCH.md §3.1](../ARCH.md#L75-L84) 表格已更新：
 
 | 偏差点 | ARCH 定义 | 实际实现 | 一致性 |
 | --- | --- | --- | --- |
-| kb_lint checks enum | `["frontmatter","contradictions","orphans","stale","missing_xref"]` | [schemas.ts:137-143](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L137-L143) | ✓ |
-| kb_lint 输出 | `{ issues: [{ type, severity, page, detail, suggestion }], summary: { total, by_type, pages_scanned, checks_run } }` | [lint.ts:172-180](file:///D:/s0611/code/Continuous-learning/server/src/tools/lint.ts#L172-L180) | ✓ |
-| kb_list_recent type enum | `"ingest"/"query"/"lint"/"experience"/"init"` | [schemas.ts:116](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L116) | ✓ |
+| kb_lint checks enum | `["frontmatter","contradictions","orphans","stale","missing_xref"]` | [schemas.ts:137-143](../../server/src/schemas.ts#L137-L143) | ✓ |
+| kb_lint 输出 | `{ issues: [{ type, severity, page, detail, suggestion }], summary: { total, by_type, pages_scanned, checks_run } }` | [lint.ts:172-180](../../server/src/tools/lint.ts#L172-L180) | ✓ |
+| kb_list_recent type enum | `"ingest"/"query"/"lint"/"experience"/"init"` | [schemas.ts:116](../../server/src/schemas.ts#L116) | ✓ |
 
 **结论**：L-6 已正确修复，文档与实现一致。
 
@@ -259,7 +259,7 @@ export function normalizeDate(value: unknown): string | null {
 
 #### .gitignore .env 排除项 — ✅ 已正确修复
 
-[server/.gitignore](file:///D:/s0611/code/Continuous-learning/server/.gitignore)：
+[server/.gitignore](../../server/.gitignore)：
 
 ```gitignore
 node_modules/
@@ -347,7 +347,7 @@ dist/
 
 ### R2-1：kb_search.domain 过滤参数缺少 .max() 限制（低风险）
 
-**位置**：[schemas.ts:14-17](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L14-L17)
+**位置**：[schemas.ts:14-17](../../server/src/schemas.ts#L14-L17)
 
 ```typescript
 domain: z
@@ -356,7 +356,7 @@ domain: z
   .describe("Filter by domain (e.g., 'coding', 'emotions')"),
 ```
 
-**分析**：S-3 修复为所有路径构造型字符串参数添加了 `.max()`，但 `kb_search.domain` 过滤参数遗漏。该参数仅用于 [search.ts:68-72](file:///D:/s0611/code/Continuous-learning/server/src/tools/search.ts#L68-L72) 的字符串比较（`pageDomains.includes(domain)`），不参与路径构造，无穿越风险。但为一致性和防御性编程，建议添加 `.max(64)`。
+**分析**：S-3 修复为所有路径构造型字符串参数添加了 `.max()`，但 `kb_search.domain` 过滤参数遗漏。该参数仅用于 [search.ts:68-72](../../server/src/tools/search.ts#L68-L72) 的字符串比较（`pageDomains.includes(domain)`），不参与路径构造，无穿越风险。但为一致性和防御性编程，建议添加 `.max(64)`。
 
 **严重度**：低风险（无安全影响，仅一致性问题）
 **建议**：
@@ -371,7 +371,7 @@ domain: z
 
 ### R2-2：sanitizeLogField/sanitizeIndexField 仅过滤 \r\n，未覆盖全部 C0 控制字符（低风险）
 
-**位置**：[log.ts:60-62](file:///D:/s0611/code/Continuous-learning/server/src/utils/log.ts#L60-L62)、[index-md.ts:38-40](file:///D:/s0611/code/Continuous-learning/server/src/utils/index-md.ts#L38-L40)
+**位置**：[log.ts:60-62](../../server/src/utils/log.ts#L60-L62)、[index-md.ts:38-40](../../server/src/utils/index-md.ts#L38-L40)
 
 **分析**：主 Agent 盲区 2 提出的问题。当前过滤 `/[\r\n]/g`，足以防止 markdown 注入（markdown 行分隔仅由 `\n` 和 `\r\n` 触发，section header `##` 和 list item `-` 必须位于行首）。其他 C0 控制字符（`\x00` null byte、`\t` tab、`\x0b` vertical tab、`\x0c` form feed 等）在 markdown 中无特殊语义，无法伪造新行/新条目。
 
@@ -396,7 +396,7 @@ function sanitizeLogField(value: string): string {
 
 ### R2-3：console.error 输出完整 error 对象可能包含内部路径（低风险）
 
-**位置**：[read-only.ts:78](file:///D:/s0611/code/Continuous-learning/server/src/tools/read-only.ts#L78)、[search.ts:55](file:///D:/s0611/code/Continuous-learning/server/src/tools/search.ts#L55)
+**位置**：[read-only.ts:78](../../server/src/tools/read-only.ts#L78)、[search.ts:55](../../server/src/tools/search.ts#L55)
 
 **分析**：`console.error("...", err)` 输出完整 error 对象，在 Node.js 中会包含错误消息和堆栈跟踪。堆栈跟踪可能包含本地文件路径（如 `WIKI_DIR` 的绝对路径）。CLAUDE.md §19.3 要求日志中不输出"内部文件路径或系统细节"。
 
@@ -415,7 +415,7 @@ console.error("[kb-mcp] kb_list_categories: read error:", (err as Error).message
 
 ### R2-4：sanitizeLogField 未包含 .trim()（低风险，纯美观）
 
-**位置**：[log.ts:60-62](file:///D:/s0611/code/Continuous-learning/server/src/utils/log.ts#L60-L62)
+**位置**：[log.ts:60-62](../../server/src/utils/log.ts#L60-L62)
 
 **分析**：前次报告建议的修复包含 `.trim()`，实际实现未包含。不含 `.trim()` 时，若 title 为 `"\nhello\n"`，sanitize 后为 `" hello "`（首尾空格）。这不影响安全性（空格无法注入新行），仅影响日志美观。
 
@@ -436,9 +436,9 @@ console.error("[kb-mcp] kb_list_categories: read error:", (err as Error).message
 
 | 测试 | 文件 | 验证目标 | 结果 |
 | --- | --- | --- | --- |
-| rejects path traversal in domain parameter (S-1) | [write.test.ts:103](file:///D:/s0611/code/Continuous-learning/server/src/tests/write.test.ts#L103) | kb_ingest_source domain 穿越 | ok ✓ |
-| rejects path traversal in domain parameter (S-1) | [write.test.ts:168](file:///D:/s0611/code/Continuous-learning/server/src/tests/write.test.ts#L168) | kb_write_experience domain 穿越 | ok ✓ |
-| handles unquoted ISO date frontmatter as Date object (L-1) | [read-only.test.ts:154](file:///D:/s0611/code/Continuous-learning/server/src/tests/read-only.test.ts#L154) | normalizeDate Date 对象转换 | ok ✓ |
+| rejects path traversal in domain parameter (S-1) | [write.test.ts:103](../../server/src/tests/write.test.ts#L103) | kb_ingest_source domain 穿越 | ok ✓ |
+| rejects path traversal in domain parameter (S-1) | [write.test.ts:168](../../server/src/tests/write.test.ts#L168) | kb_write_experience domain 穿越 | ok ✓ |
+| handles unquoted ISO date frontmatter as Date object (L-1) | [read-only.test.ts:154](../../server/src/tests/read-only.test.ts#L154) | normalizeDate Date 对象转换 | ok ✓ |
 
 **测试覆盖充分性评估**：
 

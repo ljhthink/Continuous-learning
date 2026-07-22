@@ -3,7 +3,7 @@
 > **研究日期**：2026-07-22
 > **研究执行 Agent**：技术选型调研专家（tech-selection-researcher）
 > **调研方法**：定标尺 → 广撒网 → 深验证 → 出报告（强制 web-access 网络搜索验证 2026 年最新现状）
-> **Baseline**：Andrej Karpathy「LLM Wiki」模式（见 [karpathy-LLM.md](file:///D:/s0611/code/Continuous-learning/karpathy-LLM.md)）
+> **Baseline**：Andrej Karpathy「LLM Wiki」模式（见 [karpathy-LLM.md](../../karpathy-LLM.md)）
 > **信息时效提醒**：本报告基于 2026-07-22 的公开信息。MCP 生态、解析库迭代极快，若决策时间距本报告超过 3 个月，建议针对 MCP 规范（2026-07-28 候选版）与解析库版本重新核验。
 
 ---
@@ -581,7 +581,7 @@ sources: 3
 
 ### Baseline
 
-- Karpathy LLM Wiki 原方案：见本项目 [karpathy-LLM.md](file:///D:/s0611/code/Continuous-learning/karpathy-LLM.md)
+- Karpathy LLM Wiki 原方案：见本项目 [karpathy-LLM.md](../../karpathy-LLM.md)
 
 ---
 

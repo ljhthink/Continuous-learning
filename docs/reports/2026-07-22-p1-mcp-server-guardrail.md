@@ -37,7 +37,7 @@
 
 #### 发现 L-1：kb_list_categories 存在 js-yaml Date 解析 latent bug（高风险）
 
-**位置**：[read-only.ts:94-95](file:///D:/s0611/code/Continuous-learning/server/src/tools/read-only.ts#L94-L95)
+**位置**：[read-only.ts:94-95](../../server/src/tools/read-only.ts#L94-L95)
 
 ```typescript
 const date = frontmatter.date as string | undefined;
@@ -63,7 +63,7 @@ if (date && (!lastUpdate || date > lastUpdate)) {
 
 #### 发现 L-2：missing_xref 检查 O(N^2) 复杂度（低风险，已知技术债）
 
-**位置**：[lint.ts:474-505](file:///D:/s0611/code/Continuous-learning/server/src/tools/lint.ts#L474-L505)
+**位置**：[lint.ts:474-505](../../server/src/tools/lint.ts#L474-L505)
 
 双重循环遍历所有页面对。对于 N 个页面，最坏情况 N*(N-1)/2 次比较。当前规模 <200 页时可接受（最多约 19900 次比较），但 P2+ 阶段（200-5000 页）会显著变慢。主 Agent 已在已知风险中记录此技术债，不需当前修复，但应在 P2 规划中纳入优化。
 
@@ -71,8 +71,8 @@ if (date && (!lastUpdate || date > lastUpdate)) {
 
 **位置**：
 
-- [read-only.ts:72](file:///D:/s0611/code/Continuous-learning/server/src/tools/read-only.ts#L72)：`catch { return jsonResult({ categories: [] }); }`
-- [search.ts:51](file:///D:/s0611/code/Continuous-learning/server/src/tools/search.ts#L51)：`catch { return jsonResult({ results: [] }); }`
+- [read-only.ts:72](../../server/src/tools/read-only.ts#L72)：`catch { return jsonResult({ categories: [] }); }`
+- [search.ts:51](../../server/src/tools/search.ts#L51)：`catch { return jsonResult({ results: [] }); }`
 
 **问题**：当 `listMarkdownFiles` 或 `fs.readdir` 因权限问题、磁盘错误等非 ENOENT 原因失败时，直接返回空结果而非报错。用户/Agent 无法区分"知识库确实为空"和"读取失败"。违反 CLAUDE.md 19.4 "不吞异常"原则。
 
@@ -125,9 +125,9 @@ if (date && (!lastUpdate || date > lastUpdate)) {
 
 | # | 类别 | CWE | 标题 | 严重度 | 置信度 | 位置 |
 | --- | --- | --- | --- | --- | --- | --- |
-| S-1 | 路径穿越 | CWE-22 | `domain` 参数未做路径穿越校验，可写入任意文件系统位置 | **阻断** | 0.95 | [write.ts:83](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L83)、[write.ts:143-149](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L143-L149) |
-| S-2 | 日志注入 | CWE-117 | `appendLogEntry` 中 title 和 detail 值未转义换行符，可注入伪造日志条目 | 高 | 0.90 | [log.ts:53-58](file:///D:/s0611/code/Continuous-learning/server/src/utils/log.ts#L53-L58) |
-| S-3 | 输入校验不足 | CWE-20 | Zod schema 对 string 类型未设长度上限，`domain` 未做安全字符校验 | 中 | 0.85 | [schemas.ts:46-47](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L46-L47)、[schemas.ts:56-57](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L56-L57) |
+| S-1 | 路径穿越 | CWE-22 | `domain` 参数未做路径穿越校验，可写入任意文件系统位置 | **阻断** | 0.95 | [write.ts:83](../../server/src/tools/write.ts#L83)、[write.ts:143-149](../../server/src/tools/write.ts#L143-L149) |
+| S-2 | 日志注入 | CWE-117 | `appendLogEntry` 中 title 和 detail 值未转义换行符，可注入伪造日志条目 | 高 | 0.90 | [log.ts:53-58](../../server/src/utils/log.ts#L53-L58) |
+| S-3 | 输入校验不足 | CWE-20 | Zod schema 对 string 类型未设长度上限，`domain` 未做安全字符校验 | 中 | 0.85 | [schemas.ts:46-47](../../server/src/schemas.ts#L46-L47)、[schemas.ts:56-57](../../server/src/schemas.ts#L56-L57) |
 
 ### 3.2 输入与边界审计
 
@@ -189,7 +189,7 @@ experience: pending -> active -> archived / rejected
 
 **YAML 注入（CWE-502）**：
 
-**位置**：[frontmatter.ts:21](file:///D:/s0611/code/Continuous-learning/server/src/utils/frontmatter.ts#L21)
+**位置**：[frontmatter.ts:21](../../server/src/utils/frontmatter.ts#L21)
 
 ```typescript
 const frontmatter = (yaml.load(yamlText) ?? {}) as Record<string, unknown>;
@@ -226,7 +226,7 @@ const frontmatter = (yaml.load(yamlText) ?? {}) as Record<string, unknown>;
 
 - **硬编码密钥扫描**：全量源码中未发现任何 API key、password、token、secret 等硬编码敏感信息。`config.ts` 中仅包含路径配置和版本号。合格。
 - **环境变量**：`KB_ROOT` 是唯一的运行时环境变量，用于配置知识库根目录路径。非敏感信息。合格。
-- **`.gitignore`**：[server/.gitignore](file:///D:/s0611/code/Continuous-learning/server/.gitignore) 排除了 `node_modules/`、`dist/`、`*.tsbuildinfo`。但**缺少 `.env` 排除项**。虽然当前项目不使用 `.env` 文件，但 CLAUDE.md 20.1 要求 `.gitignore` 包含 `.env`。低风险建议。
+- **`.gitignore`**：[server/.gitignore](../../server/.gitignore) 排除了 `node_modules/`、`dist/`、`*.tsbuildinfo`。但**缺少 `.env` 排除项**。虽然当前项目不使用 `.env` 文件，但 CLAUDE.md 20.1 要求 `.gitignore` 包含 `.env`。低风险建议。
 - **日志脱敏**：代码中无日志输出敏感信息的路径。`console.error` 仅输出 `[kb-mcp] Server started` 和 fatal 错误信息。合格。
 
 ### 3.5 依赖与供应链风险
@@ -261,25 +261,25 @@ const frontmatter = (yaml.load(yamlText) ?? {}) as Record<string, unknown>;
 
 **证据链**：
 
-1. [schemas.ts:46-47](file:///D:/s0611/code/Continuous-learning/server/src/schemas.ts#L46-L47) — Zod schema 仅校验 `domain` 为 `z.string()`，无任何格式或字符限制：
+1. [schemas.ts:46-47](../../server/src/schemas.ts#L46-L47) — Zod schema 仅校验 `domain` 为 `z.string()`，无任何格式或字符限制：
 
 ```typescript
 domain: z.string().describe("Target domain (e.g., 'coding')"),
 ```
 
-1. [write.ts:83](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L83) — `domain` 直接拼入文件路径：
+1. [write.ts:83](../../server/src/tools/write.ts#L83) — `domain` 直接拼入文件路径：
 
 ```typescript
 const wikiFullPath = path.join(WIKI_DIR, domain, `${slug}.md`);
 ```
 
-1. [write.ts:101](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L101) — 拼接后的路径直接写入文件，**无路径穿越检查**：
+1. [write.ts:101](../../server/src/tools/write.ts#L101) — 拼接后的路径直接写入文件，**无路径穿越检查**：
 
 ```typescript
 await writeFile(wikiFullPath, serializeFrontmatter(frontmatter, body));
 ```
 
-1. [write.ts:143-149](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L143-L149) — `kb_write_experience` 同样存在此问题：
+1. [write.ts:143-149](../../server/src/tools/write.ts#L143-L149) — `kb_write_experience` 同样存在此问题：
 
 ```typescript
 const inboxFullPath = path.join(
@@ -301,7 +301,7 @@ kb_ingest_source({
 
 对于 `kb_write_experience`，由于路径中固定包含 `experiences/inbox/` 子目录，攻击者需要更长的 `../` 序列，但仍然可以逃逸。
 
-**对比**：同一文件中 `source_path` 参数有完善的路径穿越检查（[write.ts:41-45](file:///D:/s0611/code/Continuous-learning/server/src/tools/write.ts#L41-L45)），但 `domain` 参数完全缺失等价检查。`kb_get_page` 的 `path` 参数也有完善的检查（[read-only.ts:163-165](file:///D:/s0611/code/Continuous-learning/server/src/tools/read-only.ts#L163-L165)）。
+**对比**：同一文件中 `source_path` 参数有完善的路径穿越检查（[write.ts:41-45](../../server/src/tools/write.ts#L41-L45)），但 `domain` 参数完全缺失等价检查。`kb_get_page` 的 `path` 参数也有完善的检查（[read-only.ts:163-165](../../server/src/tools/read-only.ts#L163-L165)）。
 
 **修复建议**：
 
@@ -335,7 +335,7 @@ if (relWiki.startsWith("..") || path.isAbsolute(relWiki)) {
 
 **源**：`kb_ingest_source` 的 `source_path`（间接影响 `baseName`/`title`）和 `kb_write_experience` 的 `title` 参数，以及各种 `details` 值。
 
-**汇**：[log.ts:53-58](file:///D:/s0611/code/Continuous-learning/server/src/utils/log.ts#L53-L58) 中的 `appendLogEntry`：
+**汇**：[log.ts:53-58](../../server/src/utils/log.ts#L53-L58) 中的 `appendLogEntry`：
 
 ```typescript
 const lines: string[] = [

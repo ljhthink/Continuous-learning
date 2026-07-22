@@ -2,9 +2,21 @@
 # https://lychee.cli.rs/
 
 # 排除需要登录或会失效的域名
+# （regex 匹配 URL 子串；用 literal string '...' 避免 TOML 反斜杠转义）
 exclude = [
-  "localhost",
-  "127.0.0.1",
+  'localhost',
+  '127\.0\.0\.1',
+  # 素材库网站禁止 bot 访问（ARCH.md 中作为前端素材备选链接，返回 403/401）
+  'flaticon\.com',
+  'lottiefiles\.com',
+  'pixabay\.com',
+  'unsplash\.com',
+  # CSDN 博客不稳定（521 服务器宕机 / connection reset by peer）
+  'blog\.csdn\.net',
+  # claude.com 301 重定向未跟随
+  'support\.claude\.com',
+  # npmjs.com 包页面返回 403
+  'npmjs\.com',
 ]
 
 # 文件过滤由 docs.yml args '**/*.md' 处理
