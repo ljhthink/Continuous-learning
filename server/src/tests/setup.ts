@@ -74,12 +74,17 @@ export async function appendLog(
     details: Record<string, string>;
   },
 ): Promise<void> {
-  const lines = [`## [${entry.date}] ${entry.type} | ${entry.title}`];
-  for (const [k, v] of Object.entries(entry.details)) {
-    lines.push(`- ${k}: ${v}`);
-  }
-  lines.push("");
-  await fs.appendFile(path.join(kbRoot, "log.md"), lines.join("\n") + "\n");
+  const heading = `## [${entry.date}] ${entry.type} | ${entry.title}`;
+  const detailLines = Object.entries(entry.details).map(
+    ([k, v]) => `- ${k}: ${v}`,
+  );
+  // MD022/MD032: blank line between heading and list. Mirrors production
+  // appendLogEntry format so tests seeded via this helper stay lint-clean.
+  const block =
+    detailLines.length > 0
+      ? `\n${heading}\n\n${detailLines.join("\n")}\n`
+      : `\n${heading}\n`;
+  await fs.appendFile(path.join(kbRoot, "log.md"), block);
 }
 
 /** Parse a ToolResult's text content as JSON. Returns any by default for test ergonomics. */

@@ -7,15 +7,17 @@ import { readFile } from "./fileio.js";
  *
  * Log format (AGENTS.md §4.4, ARCH.md §4.4):
  *   ## [YYYY-MM-DD] <type> | <title>
+ *
  *   - key: value
  *   - key: value
  *
  * Entries are separated by blank lines. The file is append-only.
+ * MD022/MD032: blank line between heading and list (enforced by appendLogEntry).
  */
 
 export interface LogEntry {
   date: string; // YYYY-MM-DD
-  type: string; // ingest | query | lint | experience | init
+  type: string; // ingest | query | lint | experience | promote | init
   title: string;
   details: Record<string, string>;
 }
@@ -64,14 +66,16 @@ function sanitizeLogField(value: string): string {
 /** Append a log entry to log.md. Creates the file if it does not exist. */
 export async function appendLogEntry(entry: LogEntry): Promise<void> {
   const safeTitle = sanitizeLogField(entry.title);
-  const lines: string[] = [
-    `## [${entry.date}] ${entry.type} | ${safeTitle}`,
-  ];
-  for (const [key, value] of Object.entries(entry.details)) {
-    lines.push(`- ${sanitizeLogField(key)}: ${sanitizeLogField(value)}`);
-  }
-  // Leading newline separates from previous entry; trailing newline for spacing
-  const block = "\n" + lines.join("\n") + "\n";
+  const heading = `## [${entry.date}] ${entry.type} | ${safeTitle}`;
+  const detailLines = Object.entries(entry.details).map(
+    ([k, v]) => `- ${sanitizeLogField(k)}: ${sanitizeLogField(v)}`,
+  );
+  // MD022/MD032: blank line between heading and list. MD047: trailing newline.
+  // Leading newline separates from previous entry.
+  const block =
+    detailLines.length > 0
+      ? `\n${heading}\n\n${detailLines.join("\n")}\n`
+      : `\n${heading}\n`;
   await fs.appendFile(getLogFile(), block, "utf-8");
 }
 

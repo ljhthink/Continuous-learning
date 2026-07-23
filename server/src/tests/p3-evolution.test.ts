@@ -9,6 +9,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
+import { promises as fs } from "node:fs";
 import {
   createTempKB,
   cleanupKB,
@@ -281,6 +282,60 @@ test("kb_promote_experience: refuses non-pending experience (state-machine guard
     });
     assert.equal(p.isError, true);
     assert.match(p.content[0].text, /expected "pending"/);
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// DEF-005 regression: log.md markdownlint compliance after write+promote
+// ---------------------------------------------------------------------------
+
+test("DEF-005: log.md passes MD022/MD032 after write+promote; promote uses type='promote'", async () => {
+  const tmp = await createTempKB("def005");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { kbWriteExperience, kbPromoteExperience } = await import("../tools/write.js");
+
+    const w = await kbWriteExperience({
+      title: "DEF-005 Test",
+      domain: "coding",
+      content: "## Background\n...",
+      confidence: 0.85,
+      source_task: "task-def005",
+    });
+    await kbPromoteExperience({
+      inbox_path: parseResult(w).path,
+      action: "promote",
+    });
+
+    const logContent = await fs.readFile(path.join(tmp, "log.md"), "utf-8");
+    const lines = logContent.split("\n");
+
+    // MD032/MD022: every ## heading must be followed by a blank line before
+    // any list item. The pre-DEF-005 appendLogEntry emitted heading immediately
+    // followed by "- key: value" with no blank line.
+    for (let i = 0; i < lines.length - 1; i++) {
+      if (lines[i].startsWith("## ") && lines[i + 1].startsWith("- ")) {
+        assert.fail(
+          `MD032 violation at log.md line ${i + 1}: heading "${lines[i]}" ` +
+          `immediately followed by list item "${lines[i + 1]}" without blank line`
+        );
+      }
+    }
+
+    // MD047: file ends with a newline
+    assert.ok(logContent.endsWith("\n"), "MD047: log.md must end with a newline");
+
+    // DEF-005: promote action must emit type="promote" (not "experience"),
+    // so the heading differs from the original write entry and avoids
+    // MD024 duplicate-heading detection (siblings_only mode).
+    assert.match(
+      logContent,
+      /^## \[\d{4}-\d{2}-\d{2}\] promote \| DEF-005 Test$/m,
+      'promote action should log with type "promote", not "experience"'
+    );
   } finally {
     delete process.env.KB_ROOT;
     await cleanupKB(tmp);

@@ -257,6 +257,8 @@ tags: [python, async, context-manager]
 
 **重复检测**：标题相似度 > 0.9 或内容嵌入相似度 > 0.92 视为疑似重复，进 Tier 2。
 
+**提升日志**：promote 动作追加 `log.md`，格式 `## [YYYY-MM-DD] promote | <标题>`（type 用 `promote` 而非 `experience`，语义清晰且避免与原始 write 条目形成 MD024 重复 heading），记录 promoted 路径、from_inbox 路径、tier、confidence。
+
 ### 7.5 老化与淘汰
 
 - 每次 `kb_get_page` 被调用时，`use_count` +1。
