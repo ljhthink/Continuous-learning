@@ -246,4 +246,48 @@ describe("kb_get_page", () => {
     assert.equal(result.isError, true);
     assert.match(result.content[0].text, /traversal/i);
   });
+
+  it("degrades gracefully on empty frontmatter block (DEF-003)", async () => {
+    // js-yaml 5 throws YAMLException on `load("")` (v4 returned undefined).
+    // parseFrontmatter must catch this so an empty `---\n\n---\n` block degrades
+    // to empty frontmatter instead of crashing kb_get_page / promote / dream.
+    // kb_get_page then seeds use_count (ADR-006 D2) on the empty frontmatter.
+    await fs.writeFile(
+      path.join(tmp, "wiki/coding/empty-frontmatter.md"),
+      "---\n\n---\n# Empty Frontmatter\nBody with no metadata.\n",
+    );
+    const result = await tools.readOnly.kbGetPage({
+      path: "wiki/coding/empty-frontmatter",
+    });
+    assert.equal(result.isError, undefined);
+    const data = parseResult(result);
+    // No crash — frontmatter seeded with use_count by kb_get_page.
+    assert.equal(data.frontmatter.use_count, 1);
+    assert.match(data.body, /Empty Frontmatter/);
+  });
+
+  it("degrades gracefully on malformed YAML syntax error (DEF-003)", async () => {
+    // js-yaml 5 throws YAMLException on syntactically invalid YAML (e.g.,
+    // unclosed flow sequence "domain: [coding" → "unexpected end of the
+    // stream within a flow collection"). Unlike the empty-block case above
+    // (which throws "expected a document, but the input is empty"), this
+    // exercises a real YAML syntax-error path. parseFrontmatter must catch it
+    // so a malformed block degrades to empty frontmatter instead of crashing
+    // kb_get_page / promote / dream. console.error logs to stderr (L-1).
+    await fs.writeFile(
+      path.join(tmp, "wiki/coding/malformed-yaml.md"),
+      "---\n" +
+        "title: Malformed\n" +
+        "domain: [coding\n" +
+        "---\n# Malformed YAML\nBody after malformed frontmatter.\n",
+    );
+    const result = await tools.readOnly.kbGetPage({
+      path: "wiki/coding/malformed-yaml",
+    });
+    assert.equal(result.isError, undefined);
+    const data = parseResult(result);
+    // No crash — frontmatter seeded with use_count by kb_get_page.
+    assert.equal(data.frontmatter.use_count, 1);
+    assert.match(data.body, /Malformed YAML/);
+  });
 });

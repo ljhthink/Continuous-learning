@@ -17,7 +17,7 @@ Person_Ext(agent, "外部编码 Agent", "Claude Code / Trae CN / OpenCode")
 
 System_Boundary(kb, "知识库系统") {
     Container(gui, "Tauri GUI", "Tauri v2 + TypeScript", "拖拽上传、wiki 预览、经验审核")
-    Container(mcp, "MCP Server", "TypeScript SDK / enquire-mcp", "kb_search / kb_ingest / kb_write_experience 等 8 tools")
+    Container(mcp, "MCP Server", "TypeScript SDK / enquire-mcp", "kb_search / kb_ingest / kb_write_experience 等 9 tools")
     Container(parser, "解析管道", "Python: MinerU + office2md", "PDF/Word/Excel → markdown")
     Container(search, "检索引擎", "index.md / qmd / LanceDB", "分档递进检索")
     ContainerDb(repo, "知识库仓库", "markdown + git", "raw/ + wiki/ + index.md + log.md + AGENTS.md")
@@ -59,7 +59,7 @@ UpdateRelStyle(agent, mcp, "stdio")
 | 组件 | 职责 | 技术栈 | 关键依赖 |
 | --- | --- | --- | --- |
 | `repo` 知识库仓库 | 唯一事实来源，markdown + git | git ≥2.40、Obsidian ≥1.5 | 无（vendor-neutral） |
-| `mcp_server` | 暴露 8 个 MCP tools，stdio 传输 | TypeScript 5.x、@modelcontextprotocol/sdk | enquire-mcp（复用）/ Zod（校验） |
+| `mcp_server` | 暴露 9 个 MCP tools，stdio 传输 | TypeScript 7.x、@modelcontextprotocol/sdk | enquire-mcp（复用）/ Zod（校验） |
 | `parser` 解析管道 | PDF/Word/Excel → markdown | Python 3.11、MinerU 3.4+、office2md 0.5+ | mineru[pipeline]、mammoth、pandas |
 | `search_engine` | 分档检索 | 规模自适应：index.md / qmd / LanceDB | qmd（含 GGUF 模型 ~2GB）/ lancedb |
 | `tauri_gui` | 桌面 GUI | Tauri v2、React 18、TypeScript | @tauri-apps/api、isomorphic-git |
@@ -448,7 +448,7 @@ stateDiagram-v2
 | 阶段 | 范围 | 对应 PRD 里程碑 |
 | --- | --- | --- |
 | P0 | 治理脚手架（已完成）+ 知识库目录骨架 | P0 |
-| P1 | MCP server 8 tools + index.md/log.md + Ingest/Query 闭环 | P1 |
+| P1 | MCP server 8 tools + index.md/log.md + Ingest/Query 闭环（P3 增至 9 tools） | P1 |
 | P2 | 三 Agent（Claude Code/Trae/OpenCode）接入验证 + L-2 性能优化（已完成） | P2 |
 | P3 | 持续进化四件套 + 两 tier 审核门禁 | P3 |
 | P4 | Tauri GUI + 多格式上传 + **访问素材库下载资源** | P4 |

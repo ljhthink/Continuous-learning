@@ -1,4 +1,4 @@
-import yaml from "js-yaml";
+import { load, dump } from "js-yaml";
 
 /**
  * Frontmatter parsing and serialization for wiki markdown pages.
@@ -18,7 +18,22 @@ export function parseFrontmatter(content: string): {
     return { frontmatter: {}, body: content };
   }
   const [, yamlText, body] = match;
-  const frontmatter = (yaml.load(yamlText) ?? {}) as Record<string, unknown>;
+  // js-yaml 5 throws YAMLException on empty/invalid YAML (v4 returned
+  // undefined). Wrap in try/catch so a malformed frontmatter block degrades
+  // gracefully to empty frontmatter instead of crashing the calling tool
+  // (kb_get_page / kb_promote_experience / /dream). kb_lint has its own
+  // try/catch and will report the malformed page via the frontmatter check.
+  let frontmatter: Record<string, unknown> = {};
+  try {
+    frontmatter = (load(yamlText) ?? {}) as Record<string, unknown>;
+  } catch (err) {
+    // CLAUDE.md §19.4: no swallowed exceptions. Log to stderr (MCP uses
+    // stdout, so stderr never corrupts the protocol). Degrade to empty
+    // frontmatter so callers (kb_get_page / promote / dream) don't crash;
+    // kb_lint's frontmatter check will also report the malformed page.
+    console.error(`[frontmatter] malformed YAML, degrading to empty: ${err instanceof Error ? err.message : String(err)}`);
+    frontmatter = {};
+  }
   return { frontmatter, body };
 }
 
@@ -27,7 +42,7 @@ export function serializeFrontmatter(
   frontmatter: Record<string, unknown>,
   body: string
 ): string {
-  const yamlText = yaml.dump(frontmatter, { lineWidth: -1 });
+  const yamlText = dump(frontmatter, { lineWidth: -1 });
   return `---\n${yamlText}---\n${body}`;
 }
 

@@ -56,6 +56,7 @@
 | [docs/decisions/ADR-004-ci-docs-quality-workflow.md](docs/decisions/ADR-004-ci-docs-quality-workflow.md) | Explanation | CI docs-quality workflow（markdownlint + lychee + consistency-check） |
 | [docs/decisions/ADR-005-public-vs-private-repository.md](docs/decisions/ADR-005-public-vs-private-repository.md) | Explanation | public 仓库决策（vs private + Pro） |
 | [docs/decisions/ADR-006-continuous-evolution-loop.md](docs/decisions/ADR-006-continuous-evolution-loop.md) | Explanation | 持续进化闭环（config 函数化 + 两 tier 审核门禁 + /dream 老化） |
+| [docs/decisions/ADR-007-dependency-major-upgrade.md](docs/decisions/ADR-007-dependency-major-upgrade.md) | Explanation | 依赖 MAJOR 升级（zod 3→4 / js-yaml 4→5 / TypeScript 5→7 / actions v4→v7） |
 | [docs/integration/mcp-clients.md](docs/integration/mcp-clients.md) | How-to | MCP 客户端集成指南 |
 | [docs/reports/README.md](docs/reports/README.md) | Reference | 运行时报告索引 |
 | [docs/reports/2026-07-22-knowledge-base-tech-selection.md](docs/reports/2026-07-22-knowledge-base-tech-selection.md) | Reference | 技术选型对比分析报告（选型依据） |
@@ -86,7 +87,7 @@
 │  编码 Agent（Claude Code/Trae/OpenCode）  │
 │   └─ MCP stdio                            │
 ├─────────────────────────────────────────┤
-│  L3 访问层：MCP Server（8 tools）          │
+│  L3 访问层：MCP Server（9 tools）          │
 │  L4 GUI 层：Tauri v2                       │
 │  L5 进化层：AGENTS.md + Dream Loop         │
 ├─────────────────────────────────────────┤

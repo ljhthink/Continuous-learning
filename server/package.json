@@ -1,7 +1,7 @@
 {
   "name": "continuous-learning-mcp-server",
   "version": "0.1.0",
-  "description": "MCP server for the continuous-evolution knowledge base (8 tools: search, get_page, ingest, write_experience, list_categories, list_recent, lint, health)",
+  "description": "MCP server for the continuous-evolution knowledge base (9 tools: search, get_page, ingest, write_experience, promote_experience, list_categories, list_recent, lint, health)",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -14,13 +14,12 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "js-yaml": "^4.1.0",
-    "zod": "^3.23.0"
+    "js-yaml": "^5.2.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.9",
-    "@types/node": "^22.0.0",
+    "@types/node": "^26.1.1",
     "tsx": "^4.7.0",
-    "typescript": "^5.5.0"
+    "typescript": "^7.0.2"
   }
 }

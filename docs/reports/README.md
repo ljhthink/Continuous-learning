@@ -18,3 +18,7 @@
 | 2026-07-23 | P3 持续进化闭环第一轮安全与质量审计 | guardrail | [2026-07-23-p3-evolution-guardrail.md](2026-07-23-p3-evolution-guardrail.md) |
 | 2026-07-23 | P3 持续进化闭环第二轮安全与质量审计（修复后） | guardrail | [2026-07-23-p3-evolution-guardrail-r2.md](2026-07-23-p3-evolution-guardrail-r2.md) |
 | 2026-07-23 | P3 持续进化闭环验收测试 | acceptance | [2026-07-23-p3-evolution-acceptance.md](2026-07-23-p3-evolution-acceptance.md) |
+| 2026-07-23 | 依赖 MAJOR 升级安全与质量审计 | guardrail | [2026-07-23-deps-upgrade-guardrail.md](2026-07-23-deps-upgrade-guardrail.md) |
+| 2026-07-23 | 依赖 MAJOR 升级验收测试 | acceptance | [2026-07-23-deps-upgrade-acceptance.md](2026-07-23-deps-upgrade-acceptance.md) |
+| 2026-07-23 | DEF-003 修复聚焦复审 | guardrail | [2026-07-23-deps-upgrade-guardrail-r2.md](2026-07-23-deps-upgrade-guardrail-r2.md) |
+| 2026-07-23 | DEF-003 修复聚焦验收 | acceptance | [2026-07-23-deps-upgrade-acceptance-r2.md](2026-07-23-deps-upgrade-acceptance-r2.md) |
