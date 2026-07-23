@@ -22,7 +22,7 @@
 
 ### 当前状态
 
-本项目处于 **P2 完成阶段**。在 P1 基础上（8 个 kb_* tools + 31 单元测试 + 36 MCP E2E + 19 边缘场景 + 性能基线），P2 完成了三 Agent 接入验证（Claude Code / Trae CN / OpenCode 均可配置并成功调用 `kb_search`，见 [集成指南](docs/integration/mcp-clients.md)）与 L-2 性能优化（`missing_xref` 算法由 O(N²) 降为 O(N×K)，1000 页规模下 p95 < 500ms）。5 项低风险技术债（R2-1/R2-2/R2-3/R2-4/DEF-001）推迟 P3 处理。
+本项目处于 **P3 完成 + 依赖升级完成阶段**。在 P1/P2 基础上（9 个 kb_* tools + 45 单元测试 + 37 MCP E2E + 边缘场景 + 性能基线），P3 完成了持续进化闭环（`kb_write_experience` + `kb_promote_experience` 两 tier 审核门禁 + `/dream` 老化，见 [ADR-006](docs/decisions/ADR-006-continuous-evolution-loop.md)），并合并了 6 个 Dependabot MAJOR 依赖升级（zod 3→4 / js-yaml 4→5 / TypeScript 5→7 / actions v4→v7，见 [ADR-007](docs/decisions/ADR-007-dependency-major-upgrade.md)）。L-2 技术债已在 P2 解决；DEF-001（TOCTOU 竞态）、DEF-002（`@hono/node-server` 路径不可达）为低风险遗留技术债。下一阶段 P4 GUI。
 
 ### 阅读顺序（新人入门）
 

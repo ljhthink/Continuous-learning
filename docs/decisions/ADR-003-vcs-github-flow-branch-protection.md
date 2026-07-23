@@ -2,7 +2,7 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 状态 | Proposed |
+| 状态 | Accepted |
 | 日期 | 2026-07-23 |
 | 决策者 | 主 Agent（P2 VCS + 远程接续阶段） |
 | 关联文档 | [CLAUDE.md](../../CLAUDE.md) §12（版本管理） / [ADR-004](ADR-004-ci-docs-quality-workflow.md)（CI 状态检查） / [ADR-005](ADR-005-public-vs-private-repository.md)（仓库可见性） |

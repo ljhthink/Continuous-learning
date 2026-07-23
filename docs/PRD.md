@@ -27,32 +27,32 @@
 
 - **作为** 编码 Agent（Claude Code/Trae/OpenCode），**我希望** 在完成任务后发现可复用经验时能自动沉淀到知识库，**以便** 下次遇到同类问题时不再重复踩坑。
 - **验收标准**：
-  - [ ] Agent 完成一个任务后，若产生可复用经验，能通过 MCP `kb_write_experience` tool 写入 `wiki/<domain>/experiences/inbox/`
-  - [ ] 经验卡片含 frontmatter：`status=pending` / `domain` / `confidence` / `date` / `source_task`
-  - [ ] 高 confidence（≥0.8）单域经验经自动审核门禁提升为 `wiki/<domain>/` 正式页
-  - [ ] 低 confidence 或跨域经验进入人工审核队列
-  - [ ] 所有经验卡片经 git，可回滚
-  - [ ] 每日/按需 `/dream` 整理：去重、合并、质量评分、老化低 use_count 条目
+  - [x] Agent 完成一个任务后，若产生可复用经验，能通过 MCP `kb_write_experience` tool 写入 `wiki/<domain>/experiences/inbox/`
+  - [x] 经验卡片含 frontmatter：`status=pending` / `domain` / `confidence` / `date` / `source_task`
+  - [x] 高 confidence（≥0.8）单域经验经自动审核门禁提升为 `wiki/<domain>/` 正式页
+  - [x] 低 confidence 或跨域经验进入人工审核队列
+  - [x] 所有经验卡片经 git，可回滚
+  - [ ] 每日/按需 `/dream` 整理：去重、合并、质量评分、老化低 use_count 条目（⚠️ 部分完成：仅老化实现，去重/合并/质量评分见 ADR-006 D4 后续增强）
 
 ### US-002: 可被外部 Agent 调用
 
 - **作为** 外部编码 Agent，**我希望** 经 MCP 查询知识库并获取带引用的答案，**以便** 在编码时复用已有知识。
 - **验收标准**：
-  - [ ] MCP server 以 stdio 传输暴露，本地零网络面
-  - [ ] 至少暴露 tools：`kb_search` / `kb_get_page` / `kb_ingest_source` / `kb_list_categories` / `kb_list_recent` / `kb_lint`
-  - [ ] Claude Code、Trae CN、OpenCode 三者均能配置并成功调用 `kb_search` 返回结果
-  - [ ] 检索结果带页面路径引用
-  - [ ] 断网时本地检索（index.md / qmd）仍可用
+  - [x] MCP server 以 stdio 传输暴露，本地零网络面
+  - [x] 至少暴露 tools：`kb_search` / `kb_get_page` / `kb_ingest_source` / `kb_list_categories` / `kb_list_recent` / `kb_lint`
+  - [x] Claude Code、Trae CN、OpenCode 三者均能配置并成功调用 `kb_search` 返回结果
+  - [x] 检索结果带页面路径引用
+  - [x] 断网时本地检索（index.md / qmd）仍可用
 
 ### US-003: 多领域分类管理
 
 - **作为** 用户，**我希望** 编程、情感、读书等不同领域知识分类存放，**以便** 按领域浏览与检索。
 - **验收标准**：
-  - [ ] `wiki/` 下按领域建目录树（coding/ emotions/ reading/ ...）
-  - [ ] 每个 wiki 页含 frontmatter `domain`（可多归属）+ `type`（concept/entity/source/experience）+ `status`
-  - [ ] `index.md` 按领域分组列出所有页面
-  - [ ] Obsidian Dataview 可按 domain/type/status 生成动态视图
-  - [ ] 一篇笔记可同时归属多个领域（经 tags 实现）
+  - [x] `wiki/` 下按领域建目录树（coding/ emotions/ reading/ ...）
+  - [x] 每个 wiki 页含 frontmatter `domain`（可多归属）+ `type`（concept/entity/source/experience）+ `status`
+  - [x] `index.md` 按领域分组列出所有页面
+  - [x] Obsidian Dataview 可按 domain/type/status 生成动态视图
+  - [x] 一篇笔记可同时归属多个领域（经 tags 实现）
 
 ### US-004: 图形化界面 + 多格式上传
 
@@ -69,15 +69,15 @@
 
 - **作为** 用户，**我希望** 定期检查知识库健康度，**以便** 发现矛盾、孤儿页、过时声明。
 - **验收标准**：
-  - [ ] `kb_lint` tool 检测：页面间矛盾、孤儿页（无入链）、缺失交叉引用、过时声明
-  - [ ] 输出结构化报告，标注问题页与建议
-  - [ ] 可手动或定时触发
+  - [x] `kb_lint` tool 检测：页面间矛盾、孤儿页（无入链）、缺失交叉引用、过时声明
+  - [x] 输出结构化报告，标注问题页与建议
+  - [x] 可手动或定时触发
 
 ### US-006: 检索质量基线
 
 - **验收标准**：
-  - [ ] 小规模（<200 页）index.md 检索，LLM 先读索引再钻取，准确率人工评估 ≥80%
-  - [ ] 中规模接入 qmd 后，混合检索 P95 延迟 < 2s（含重排）
+  - [x] 小规模（<200 页）index.md 检索，LLM 先读索引再钻取，准确率人工评估 ≥80%
+  - [ ] 中规模接入 qmd 后，混合检索 P95 延迟 < 2s（含重排）（⚠️ 部分完成：qmd 未接入，当前 BM25+向量检索 p95 < 2s 已满足，见性能基线）
 
 ## 4. 非功能需求
 

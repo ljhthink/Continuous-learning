@@ -2,7 +2,7 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 状态 | Proposed |
+| 状态 | Accepted |
 | 日期 | 2026-07-23 |
 | 决策者 | 主 Agent（P3 持续进化闭环阶段） |
 | 关联文档 | [AGENTS.md](../../AGENTS.md) §7（持续进化工作流）/ [ARCH.md](../ARCH.md) §3.1（接口契约）/ [CLAUDE.md](../../CLAUDE.md) §17.1（ADR 触发） |
