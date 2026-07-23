@@ -10,7 +10,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import os from "node:os";
-import yaml from "js-yaml";
+import { dump } from "js-yaml";
 
 export interface ParsedToolResult {
   content: Array<{ type: "text"; text: string }>;
@@ -46,7 +46,7 @@ export async function writePage(
   frontmatter: Record<string, unknown>,
   body: string,
 ): Promise<void> {
-  const fmText = yaml.dump(frontmatter, { lineWidth: -1 });
+  const fmText = dump(frontmatter, { lineWidth: -1 });
   const content = `---\n${fmText}---\n${body}`;
   const fullPath = path.join(kbRoot, relPath);
   await fs.mkdir(path.dirname(fullPath), { recursive: true });
