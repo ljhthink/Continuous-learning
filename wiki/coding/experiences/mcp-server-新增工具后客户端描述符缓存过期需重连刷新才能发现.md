@@ -3,7 +3,7 @@ title: MCP server 新增工具后客户端描述符缓存过期：需重连刷�
 domain:
   - coding
 type: experience
-status: pending
+status: active
 confidence: 0.8
 date: '2026-07-24'
 source_task: TKN-MILESTONE-AUDIT-001

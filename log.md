@@ -36,3 +36,17 @@
 - from_inbox: wiki/coding/experiences/inbox/js-yaml-5-major-升级load-空字符串行为变化与-trycatch-降级.md
 - tier: auto
 - confidence: 0.9
+
+## [2026-07-24] promote | lychee 链接检查 CI：绝对路径、node_modules 引用与裸 URL 的处理
+
+- promoted: wiki/coding/experiences/lychee-链接检查-ci绝对路径node-modules-引用与裸-url-的处理.md
+- from_inbox: wiki/coding/experiences/inbox/lychee-链接检查-ci绝对路径node-modules-引用与裸-url-的处理.md
+- tier: auto
+- confidence: 0.85
+
+## [2026-07-24] promote | MCP server 新增工具后客户端描述符缓存过期：需重连刷新才能发现
+
+- promoted: wiki/coding/experiences/mcp-server-新增工具后客户端描述符缓存过期需重连刷新才能发现.md
+- from_inbox: wiki/coding/experiences/inbox/mcp-server-新增工具后客户端描述符缓存过期需重连刷新才能发现.md
+- tier: auto
+- confidence: 0.8

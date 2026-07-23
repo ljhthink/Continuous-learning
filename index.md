@@ -20,3 +20,5 @@
 ## experiences（最近正式经验卡片）
 
 - [[wiki/coding/experiences/js-yaml-5-major-升级load-空字符串行为变化与-trycatch-降级]] · js-yaml 5 MAJOR 升级：load() 空字符串行为变化与 try/catch 降级 · confidence=0.9 · 2026-07-24
+- [[wiki/coding/experiences/lychee-链接检查-ci绝对路径node-modules-引用与裸-url-的处理]] · lychee 链接检查 CI：绝对路径、node_modules 引用与裸 URL 的处理 · confidence=0.85 · 2026-07-24
+- [[wiki/coding/experiences/mcp-server-新增工具后客户端描述符缓存过期需重连刷新才能发现]] · MCP server 新增工具后客户端描述符缓存过期：需重连刷新才能发现 · confidence=0.8 · 2026-07-24

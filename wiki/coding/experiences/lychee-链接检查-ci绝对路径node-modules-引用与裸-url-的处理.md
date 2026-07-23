@@ -3,7 +3,7 @@ title: lychee 链接检查 CI：绝对路径、node_modules 引用与裸 URL 的
 domain:
   - coding
 type: experience
-status: pending
+status: active
 confidence: 0.85
 date: '2026-07-24'
 source_task: TKN-CI-LYCHEE-FIX
