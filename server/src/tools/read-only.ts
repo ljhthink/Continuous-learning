@@ -4,13 +4,27 @@
  *
  * Interface contracts: ARCH.md §3.1
  * Utils used: frontmatter, fileio, log
+ *
+ * Side effect: kb_get_page increments frontmatter.use_count (AGENTS.md §7.5
+ * aging-mechanism input) and writes it back. Page content is never modified
+ * — only the use_count metadata field is touched, and the full original body
+ * is preserved on writeback.
  */
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { KB_ROOT, WIKI_DIR, INDEX_FILE, LOG_FILE } from "../config.js";
-import { readFile, fileExists, listMarkdownFiles } from "../utils/fileio.js";
-import { parseFrontmatter, normalizeDate } from "../utils/frontmatter.js";
+import { getKbRoot, getWikiDir, getIndexFile, getLogFile } from "../config.js";
+import {
+  readFile,
+  writeFile,
+  fileExists,
+  listMarkdownFiles,
+} from "../utils/fileio.js";
+import {
+  parseFrontmatter,
+  normalizeDate,
+  serializeFrontmatter,
+} from "../utils/frontmatter.js";
 import { parseLog } from "../utils/log.js";
 import { extractLinks, extractSection } from "../utils/markdown.js";
 import { jsonResult, errorResult } from "./helpers.js";
@@ -21,15 +35,15 @@ import type { ToolResult } from "./helpers.js";
 // ---------------------------------------------------------------------------
 
 export async function kbHealth(): Promise<ToolResult> {
-  const files = await listMarkdownFiles(WIKI_DIR);
+  const files = await listMarkdownFiles(getWikiDir());
   const totalPages = files.length;
 
-  const indexExists = await fileExists(INDEX_FILE);
+  const indexExists = await fileExists(getIndexFile());
 
   let lastIngest: string | null = null;
   let lastLint: string | null = null;
   try {
-    const logContent = await readFile(LOG_FILE);
+    const logContent = await readFile(getLogFile());
     const entries = parseLog(logContent);
     for (let i = entries.length - 1; i >= 0; i--) {
       const entry = entries[i];
@@ -61,10 +75,11 @@ export async function kbListCategories(args: {
   include_stats?: boolean;
 }): Promise<ToolResult> {
   const { include_stats } = args;
+  const wikiDir = getWikiDir();
 
   let domains: string[] = [];
   try {
-    const entries = await fs.readdir(WIKI_DIR, { withFileTypes: true });
+    const entries = await fs.readdir(wikiDir, { withFileTypes: true });
     domains = entries
       .filter((e) => e.isDirectory() && !e.name.startsWith(".") && !e.name.startsWith("_"))
       .map((e) => e.name);
@@ -75,7 +90,7 @@ export async function kbListCategories(args: {
     // (CLAUDE.md §19.4 "不吞异常"). Either way we return an empty list so the
     // tool stays usable, but the operator can see real failures in logs.
     if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-      console.error("[kb-mcp] kb_list_categories: failed to read WIKI_DIR:", err);
+      console.error("[kb-mcp] kb_list_categories: failed to read wiki directory:", err);
     }
     return jsonResult({ categories: [] });
   }
@@ -91,7 +106,7 @@ export async function kbListCategories(args: {
   }> = [];
 
   for (const domain of domains) {
-    const domainDir = path.join(WIKI_DIR, domain);
+    const domainDir = path.join(wikiDir, domain);
     const files = await listMarkdownFiles(domainDir);
 
     let lastUpdate: string | null = null;
@@ -103,8 +118,9 @@ export async function kbListCategories(args: {
         if (date && (!lastUpdate || date > lastUpdate)) {
           lastUpdate = date;
         }
-      } catch {
-        // Skip unreadable files
+      } catch (err) {
+        // Skip unreadable files, but surface to stderr (CLAUDE.md §19.4).
+        console.error(`[kb-mcp] kb_list_categories: skipping unreadable file ${file}:`, err);
       }
     }
 
@@ -131,7 +147,7 @@ export async function kbListRecent(args: {
 
   let entries: ReturnType<typeof parseLog> = [];
   try {
-    const logContent = await readFile(LOG_FILE);
+    const logContent = await readFile(getLogFile());
     entries = parseLog(logContent);
   } catch {
     return jsonResult({ entries: [] });
@@ -162,13 +178,14 @@ export async function kbGetPage(args: {
   section?: string;
 }): Promise<ToolResult> {
   const { path: pagePath, section } = args;
+  const kbRoot = getKbRoot();
 
   // Resolve path relative to KB root
   const withExt = pagePath.endsWith(".md") ? pagePath : `${pagePath}.md`;
-  const fullPath = path.resolve(KB_ROOT, withExt);
+  const fullPath = path.resolve(kbRoot, withExt);
 
   // Security: prevent path traversal outside KB root
-  const relativePath = path.relative(KB_ROOT, fullPath);
+  const relativePath = path.relative(kbRoot, fullPath);
   if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
     return errorResult(`Path traversal detected: ${pagePath}`);
   }
@@ -179,6 +196,23 @@ export async function kbGetPage(args: {
 
   const content = await readFile(fullPath);
   const { frontmatter, body } = parseFrontmatter(content);
+
+  // Increment use_count (AGENTS.md §7.5 aging-mechanism input). We write back
+  // the FULL original body — never the section-truncated view — so a section
+  // read can never truncate the stored page. Write failure is non-fatal: the
+  // read still returns content even if the counter cannot persist (e.g., a
+  // read-only filesystem during a CI lint pass).
+  const useCount =
+    typeof frontmatter.use_count === "number" ? frontmatter.use_count : 0;
+  frontmatter.use_count = useCount + 1;
+  try {
+    await writeFile(fullPath, serializeFrontmatter(frontmatter, body));
+  } catch (err) {
+    // Non-fatal: use_count persistence is best-effort, but surface real
+    // failures (e.g., read-only filesystem during a CI lint pass) to stderr
+    // instead of silently swallowing them (CLAUDE.md §19.4 "不吞异常").
+    console.error(`[kb-mcp] kb_get_page: failed to persist use_count for ${fullPath}:`, err);
+  }
 
   const finalBody = section ? extractSection(body, section) : body;
   const links = extractLinks(finalBody);

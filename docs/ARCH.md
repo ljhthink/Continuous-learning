@@ -75,9 +75,10 @@ UpdateRelStyle(agent, mcp, "stdio")
 | Tool | 对应 Karpathy 操作 | 输入 | 输出 | 副作用 |
 | --- | --- | --- | --- | --- |
 | `kb_search` | Query | `{ query: string, domain?: string, limit?: number }` | `{ results: [{ path, title, snippet, score }] }` | 无（只读） |
-| `kb_get_page` | Query | `{ path: string, section?: string }` | `{ frontmatter, body, links }` | 无 |
+| `kb_get_page` | Query | `{ path: string, section?: string }` | `{ frontmatter, body, links }` | use_count+1 并回写 frontmatter（body 不变；AGENTS.md §7.5） |
 | `kb_ingest_source` | Ingest | `{ source_path: string, domain: string, type?: "source" }` | `{ wiki_path, status: "staging" }` | 写 raw/、写 wiki/staging/、追加 log |
 | `kb_write_experience` | 持续进化 | `{ title, domain, content, confidence: 0-1, source_task: string }` | `{ path, status: "pending" }` | 写 wiki/`<domain>`/experiences/inbox/ |
+| `kb_promote_experience` | 持续进化 | `{ inbox_path: string, action: "promote"\|"reject" }` | `{ path, status, tier? }` | promote: 移动 inbox→active + 更新 index/log；reject: 标记 rejected + log（AGENTS.md §7.4） |
 | `kb_list_categories` | 导航 | `{ include_stats?: boolean }` | `{ categories: [{ name, page_count, last_update }] }` | 无 |
 | `kb_list_recent` | Query | `{ limit?: number, type?: "ingest"/"query"/"lint"/"experience"/"init" }` | `{ entries: [{ date, type, title, path }] }` | 无 |
 | `kb_lint` | Lint | `{ checks?: ["frontmatter","contradictions","orphans","stale","missing_xref"] }` | `{ issues: [{ type, severity: "high"/"mid", page, detail, suggestion }], summary: { total, by_type, pages_scanned, checks_run } }` | 无 |
@@ -133,7 +134,7 @@ Continuous-learning/
 title: "页面标题"               # 必填
 domain: [coding]                # 必填，数组，可多归属
 type: concept                   # 必填：concept | entity | source | experience
-status: active                  # 必填：active | staging | pending | archived
+status: active                  # 必填：active | staging | pending | archived | rejected
 confidence: 0.9                 # experience 必填：0-1
 date: 2026-07-22                # 必填：创建/最后更新日期
 source_task: "task-xxx"         # experience 必填：来源任务标识

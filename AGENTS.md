@@ -85,7 +85,7 @@ Continuous-learning/
 title: "页面标题"           # 字符串
 domain: [coding]            # 字符串数组，至少一个领域
 type: concept               # 枚举：concept | entity | source | experience
-status: active              # 枚举：active | staging | pending | archived
+status: active              # 枚举：active | staging | pending | archived | rejected
 date: 2026-07-22            # ISO 日期：创建或最后更新日期
 ---
 ```

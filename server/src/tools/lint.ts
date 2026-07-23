@@ -13,7 +13,7 @@
  */
 
 import path from "node:path";
-import { KB_ROOT, WIKI_DIR } from "../config.js";
+import { getKbRoot, getWikiDir } from "../config.js";
 import { listMarkdownFiles, readFile } from "../utils/fileio.js";
 import { parseFrontmatter, normalizeDate } from "../utils/frontmatter.js";
 import { extractLinks } from "../utils/markdown.js";
@@ -185,14 +185,19 @@ export async function kbLint(args: {
 // ---------------------------------------------------------------------------
 
 async function loadAllPages(): Promise<PageInfo[]> {
-  const files = await listMarkdownFiles(WIKI_DIR);
+  const files = await listMarkdownFiles(getWikiDir());
+  // Hoist getKbRoot() out of the per-page loop: it reads process.env + resolves
+  // a path on every call, which on a 1000-page scan added ~100ms of overhead
+  // vs the old const (perf baseline lint-perf.test.ts). KB_ROOT is stable for
+  // the duration of one lint run, so a single snapshot is correct.
+  const kbRoot = getKbRoot();
   const pages: PageInfo[] = [];
   for (const absPath of files) {
     try {
       const content = await readFile(absPath);
       const { frontmatter, body } = parseFrontmatter(content);
       const relPath = path
-        .relative(KB_ROOT, absPath)
+        .relative(kbRoot, absPath)
         .replace(/\\/g, "/")
         .replace(/\.md$/, "");
       const basename = path.basename(absPath, ".md");
@@ -225,8 +230,10 @@ async function loadAllPages(): Promise<PageInfo[]> {
         tags,
         confidence,
       });
-    } catch {
-      // Skip unreadable or malformed pages
+    } catch (err) {
+      // Skip unreadable or malformed pages, but log to stderr so the
+      // operator can see which page is corrupt (CLAUDE.md §19.4 不吞异常).
+      console.error(`[kb-mcp] kb_lint: skipping unreadable page ${absPath}:`, err);
     }
   }
   return pages;

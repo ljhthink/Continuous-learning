@@ -2,9 +2,9 @@
 /**
  * MCP Server entry point for the continuous-evolution knowledge base.
  *
- * Registers all 8 tools defined in ARCH.md §3.1:
+ * Registers all tools defined in ARCH.md §3.1:
  *   Read-only:  kb_health, kb_list_categories, kb_list_recent, kb_get_page, kb_search
- *   Write:      kb_ingest_source, kb_write_experience
+ *   Write:      kb_ingest_source, kb_write_experience, kb_promote_experience
  *   Lint:       kb_lint
  *
  * US-001: Scaffolding with stub handlers. ✅
@@ -12,6 +12,7 @@
  * US-003: kb_search implemented (full-text scan + term-overlap scoring). ✅
  * US-004: Write tools implemented (kb_ingest_source, kb_write_experience). ✅
  * US-005: kb_lint implemented (frontmatter, contradictions, orphans, stale, missing_xref). ✅
+ * P3:     kb_get_page use_count increment + kb_promote_experience two-tier gate. ✅
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -22,6 +23,7 @@ import {
   kbGetPageSchema,
   kbIngestSourceSchema,
   kbWriteExperienceSchema,
+  kbPromoteExperienceSchema,
   kbListCategoriesSchema,
   kbListRecentSchema,
   kbLintSchema,
@@ -33,8 +35,12 @@ import {
   kbListRecent,
   kbGetPage,
 } from "./tools/read-only.js";
+import {
+  kbIngestSource,
+  kbWriteExperience,
+  kbPromoteExperience,
+} from "./tools/write.js";
 import { kbSearch } from "./tools/search.js";
-import { kbIngestSource, kbWriteExperience } from "./tools/write.js";
 import { kbLint } from "./tools/lint.js";
 
 const server = new McpServer({
@@ -72,6 +78,13 @@ server.tool(
   "Write a reusable experience card to the inbox for review.",
   kbWriteExperienceSchema,
   async (args) => kbWriteExperience(args)
+);
+
+server.tool(
+  "kb_promote_experience",
+  "Promote an inbox experience card to active (two-tier review gate), or reject it.",
+  kbPromoteExperienceSchema,
+  async (args) => kbPromoteExperience(args)
 );
 
 server.tool(

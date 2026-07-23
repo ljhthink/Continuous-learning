@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * Zod input schemas for all 8 MCP tools.
+ * Zod input schemas for all 9 MCP tools.
  * These are ZodRawShape objects (plain objects of Zod types),
  * passed directly to server.tool(name, description, schema, handler).
  *
@@ -13,6 +13,7 @@ export const kbSearchSchema = {
   query: z.string().max(1000).describe("Search query string"),
   domain: z
     .string()
+    .max(64)
     .optional()
     .describe("Filter by domain (e.g., 'coding', 'emotions')"),
   limit: z
@@ -93,6 +94,24 @@ export const kbWriteExperienceSchema = {
     .string()
     .max(200)
     .describe("Source task identifier (e.g., 'task-async-refactor-001')"),
+};
+
+/**
+ * kb_promote_experience: Two-tier review gate (AGENTS.md §7.4).
+ * Moves an inbox experience card to active (promote) or marks it rejected.
+ */
+export const kbPromoteExperienceSchema = {
+  inbox_path: z
+    .string()
+    .max(512)
+    .describe(
+      "Path to the inbox experience card relative to KB root (e.g., 'wiki/coding/experiences/inbox/foo')"
+    ),
+  action: z
+    .enum(["promote", "reject"])
+    .describe(
+      "promote = move to wiki/<domain>/experiences/ with status=active; reject = mark status=rejected (stays in inbox)"
+    ),
 };
 
 /** kb_list_categories: Browse knowledge base domain structure. */
