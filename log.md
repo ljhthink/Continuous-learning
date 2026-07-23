@@ -50,3 +50,24 @@
 - from_inbox: wiki/coding/experiences/inbox/mcp-server-新增工具后客户端描述符缓存过期需重连刷新才能发现.md
 - tier: auto
 - confidence: 0.8
+
+## [2026-07-24] ingest | Route A 首批 9 张 concept 页（KB 核心模型 + 元规则 + 工作流核心）
+
+- source: agent-authored（基于 AGENTS.md schema 文档）
+- domain: coding
+- pages_affected: 9
+- pages:
+  - wiki/coding/three-layer-architecture.md
+  - wiki/coding/dual-index-mechanism.md
+  - wiki/coding/page-types-and-state-machine.md
+  - wiki/coding/frontmatter-schema.md
+  - wiki/coding/multi-domain-classification.md
+  - wiki/coding/continuous-evolution-review-gate.md
+  - wiki/coding/ingest-workflow.md
+  - wiki/coding/query-workflow.md
+  - wiki/coding/lint-workflow.md
+- batch: Route A
+- groups:
+  - KB 核心模型(3): three-layer-architecture, dual-index-mechanism, page-types-and-state-machine
+  - 元规则(3): frontmatter-schema, multi-domain-classification, continuous-evolution-review-gate
+  - 工作流核心(3): ingest-workflow, query-workflow, lint-workflow
