@@ -309,7 +309,7 @@ export async function kbPromoteExperience(args: {
 
     await appendLogEntry({
       date: today,
-      type: "experience",
+      type: "promote",
       title,
       details: {
         promoted: activeRelPath,

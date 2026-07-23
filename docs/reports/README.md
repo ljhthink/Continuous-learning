@@ -24,3 +24,6 @@
 | 2026-07-23 | DEF-003 修复聚焦验收 | acceptance | [2026-07-23-deps-upgrade-acceptance-r2.md](2026-07-23-deps-upgrade-acceptance-r2.md) |
 | 2026-07-24 | P1-P3 里程碑文档与规则一致性审计 | audit | [2026-07-24-milestone-audit.md](2026-07-24-milestone-audit.md) |
 | 2026-07-24 | KB 内容固化 P0 安全与质量审计（R2 通过） | guardrail | [2026-07-24-kb-content-p0-guardrail.md](2026-07-24-kb-content-p0-guardrail.md) |
+| 2026-07-24 | DEF-005 log.md markdownlint 合规性 bug 修复 | bugfix | [2026-07-24-def-005-log-format-bug.md](2026-07-24-def-005-log-format-bug.md) |
+| 2026-07-24 | DEF-005 修复安全与质量审计 | guardrail | [2026-07-24-def-005-guardrail.md](2026-07-24-def-005-guardrail.md) |
+| 2026-07-24 | DEF-005 修复验收测试 | acceptance | [2026-07-24-def-005-acceptance.md](2026-07-24-def-005-acceptance.md) |
