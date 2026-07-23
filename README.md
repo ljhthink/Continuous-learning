@@ -52,6 +52,9 @@
 | [docs/decisions/README.md](docs/decisions/README.md) | Explanation | ADR 索引 |
 | [docs/decisions/ADR-001-knowledge-base-tech-stack.md](docs/decisions/ADR-001-knowledge-base-tech-stack.md) | Explanation | 技术栈决策：七决策点 A-G |
 | [docs/decisions/ADR-002-mcp-client-integration.md](docs/decisions/ADR-002-mcp-client-integration.md) | Explanation | MCP 客户端集成决策（Claude Code/Trae CN/OpenCode） |
+| [docs/decisions/ADR-003-vcs-github-flow-branch-protection.md](docs/decisions/ADR-003-vcs-github-flow-branch-protection.md) | Explanation | VCS + GitHub Flow + 分支保护策略 |
+| [docs/decisions/ADR-004-ci-docs-quality-workflow.md](docs/decisions/ADR-004-ci-docs-quality-workflow.md) | Explanation | CI docs-quality workflow（markdownlint + lychee + consistency-check） |
+| [docs/decisions/ADR-005-public-vs-private-repository.md](docs/decisions/ADR-005-public-vs-private-repository.md) | Explanation | public 仓库决策（vs private + Pro） |
 | [docs/integration/mcp-clients.md](docs/integration/mcp-clients.md) | How-to | MCP 客户端集成指南 |
 | [docs/reports/README.md](docs/reports/README.md) | Reference | 运行时报告索引 |
 | [docs/reports/2026-07-22-knowledge-base-tech-selection.md](docs/reports/2026-07-22-knowledge-base-tech-selection.md) | Reference | 技术选型对比分析报告（选型依据） |

@@ -11,6 +11,9 @@ exclude = [
   'lottiefiles\.com',
   'pixabay\.com',
   'unsplash\.com',
+  'pexels\.com',
+  # texturelabs.org 返回 202 Accepted（lychee accept 列表未含 202），素材库网站可达但不稳定
+  'texturelabs\.org',
   # CSDN 博客不稳定（521 服务器宕机 / connection reset by peer）
   'blog\.csdn\.net',
   # claude.com 301 重定向未跟随

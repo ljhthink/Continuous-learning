@@ -13,3 +13,5 @@
 | 2026-07-23 | P2 三 Agent 接入安全与质量审计 | guardrail | [2026-07-23-p2-three-agent-integration-guardrail.md](2026-07-23-p2-three-agent-integration-guardrail.md) |
 | 2026-07-23 | P2 三 Agent 接入验收测试 | acceptance | [2026-07-23-p2-three-agent-integration-acceptance.md](2026-07-23-p2-three-agent-integration-acceptance.md) |
 | 2026-07-23 | markdownlint baseline 调校安全审计 | guardrail | [2026-07-23-markdownlint-baseline-guardrail.md](2026-07-23-markdownlint-baseline-guardrail.md) |
+| 2026-07-23 | CI lychee 链接修复 P0 审计 | guardrail | [2026-07-23-ci-lychee-link-fix-guardrail.md](2026-07-23-ci-lychee-link-fix-guardrail.md) |
+| 2026-07-23 | ADR-003/004/005 新增 P0 审计 | guardrail | [2026-07-23-adr-003-004-005-guardrail.md](2026-07-23-adr-003-004-005-guardrail.md) |
