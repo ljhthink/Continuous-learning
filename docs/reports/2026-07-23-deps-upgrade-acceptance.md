@@ -237,7 +237,7 @@ ac-verifier 独立运行 2 次 + 完整套件 1 次 + 主 Agent/guardrail 各 1 
 | 检查项 | 方法 | 结果 | 状态 |
 | --- | --- | --- | --- |
 | @types/js-yaml 已移除 | `Test-Path node_modules/@types/js-yaml` | False（不存在） | ✅ |
-| js-yaml 5 自带类型 | [package.json:38](../../server/node_modules/js-yaml/package.json#L38) `types: "./dist/js-yaml.d.ts"` + exports.types | 自带 | ✅ |
+| js-yaml 5 自带类型 | `package.json` 第 38 行 `types: "./dist/js-yaml.d.ts"` + exports.types | 自带 | ✅ |
 | load/dump 命名导出 | d.ts L267 `declare function load(...)` + L381 `export { ..., dump, ..., load, ... }` | 纯命名导出，无 default | ✅ |
 | typecheck 覆盖 | `npm run typecheck`（TS 7 + types:["node"]） | exit 0 | ✅ |
 | 调用点覆盖 | frontmatter.ts L1/L21/L30 + setup.ts L13/L49 | load/dump 全部解析为 js-yaml 5 自带类型 | ✅ |
