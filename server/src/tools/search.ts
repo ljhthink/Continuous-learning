@@ -12,7 +12,7 @@
  */
 
 import path from "node:path";
-import { KB_ROOT, WIKI_DIR } from "../config.js";
+import { getKbRoot, getWikiDir } from "../config.js";
 import { readFile, listMarkdownFiles } from "../utils/fileio.js";
 import { parseFrontmatter } from "../utils/frontmatter.js";
 import { jsonResult } from "./helpers.js";
@@ -47,7 +47,7 @@ export async function kbSearch(args: {
 
   let allFiles: string[] = [];
   try {
-    allFiles = await listMarkdownFiles(WIKI_DIR);
+    allFiles = await listMarkdownFiles(getWikiDir());
   } catch (err) {
     // See note in kb_list_categories: ENOENT on a fresh KB is expected;
     // other failures are logged per CLAUDE.md §19.4.
@@ -58,6 +58,8 @@ export async function kbSearch(args: {
   }
 
   const results: SearchResult[] = [];
+  // Hoist getKbRoot() out of the per-file loop (see lint.ts for rationale).
+  const kbRoot = getKbRoot();
 
   for (const file of allFiles) {
     try {
@@ -85,12 +87,13 @@ export async function kbSearch(args: {
       }
 
       if (score > 0) {
-        const relPath = path.relative(KB_ROOT, file).replace(/\\/g, "/");
+        const relPath = path.relative(kbRoot, file).replace(/\\/g, "/");
         const snippet = extractSnippet(body, terms, SNIPPET_MAX_LEN);
         results.push({ path: relPath, title, snippet, score });
       }
-    } catch {
-      // Skip unreadable or malformed pages.
+    } catch (err) {
+      // Skip unreadable or malformed pages, but surface to stderr (CLAUDE.md §19.4).
+      console.error(`[kb-mcp] kb_search: skipping unreadable page ${file}:`, err);
     }
   }
 

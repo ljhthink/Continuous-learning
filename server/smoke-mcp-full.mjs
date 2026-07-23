@@ -1,12 +1,12 @@
 /**
- * Comprehensive MCP protocol end-to-end test for all 8 kb_* tools.
+ * Comprehensive MCP protocol end-to-end test for all 9 kb_* tools.
  *
  * Verifies the full JSON-RPC over stdio path, including the MCP SDK's
  * Zod schema validation layer that the unit tests bypass by calling
  * tool handlers directly.
  *
  * Coverage:
- *   1. initialize + tools/list (all 8 tools registered)
+ *   1. initialize + tools/list (all 9 tools registered)
  *   2. Schema validation: invalid domain (path traversal) rejected by SDK
  *   3. Workflow: ingest → search → get_page → list_categories →
  *                list_recent → write_experience → lint → health
@@ -153,7 +153,7 @@ try {
   );
   sendNotification("notifications/initialized");
 
-  // 2. tools/list — all 8 tools registered
+  // 2. tools/list — all 9 tools registered
   const toolsList = await send("tools/list", {});
   const toolNames = (toolsList?.result?.tools ?? []).map((t) => t.name);
   const expectedTools = [
@@ -161,6 +161,7 @@ try {
     "kb_get_page",
     "kb_ingest_source",
     "kb_write_experience",
+    "kb_promote_experience",
     "kb_list_categories",
     "kb_list_recent",
     "kb_lint",
@@ -170,8 +171,8 @@ try {
     check(`tools/list contains ${name}`, toolNames.includes(name));
   }
   check(
-    "tools/list returns exactly 8 tools",
-    toolNames.length === 8,
+    "tools/list returns exactly 9 tools",
+    toolNames.length === 9,
     `got ${toolNames.length}`,
   );
 

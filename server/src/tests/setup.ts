@@ -1,9 +1,10 @@
 /**
  * Shared test utilities for MCP server unit tests (US-006).
  *
- * Each test file creates an isolated temp KB, sets KB_ROOT BEFORE dynamically
- * importing tool modules (config.ts reads KB_ROOT at module load time),
- * runs tests, then cleans up.
+ * Each test file creates an isolated temp KB and sets KB_ROOT. config.ts now
+ * resolves paths at call time (functions, not module-load consts), so a test
+ * can set KB_ROOT in before() and have every tool pick it up immediately —
+ * no subprocess workaround needed.
  */
 
 import { promises as fs } from "node:fs";

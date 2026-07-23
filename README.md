@@ -55,6 +55,7 @@
 | [docs/decisions/ADR-003-vcs-github-flow-branch-protection.md](docs/decisions/ADR-003-vcs-github-flow-branch-protection.md) | Explanation | VCS + GitHub Flow + 分支保护策略 |
 | [docs/decisions/ADR-004-ci-docs-quality-workflow.md](docs/decisions/ADR-004-ci-docs-quality-workflow.md) | Explanation | CI docs-quality workflow（markdownlint + lychee + consistency-check） |
 | [docs/decisions/ADR-005-public-vs-private-repository.md](docs/decisions/ADR-005-public-vs-private-repository.md) | Explanation | public 仓库决策（vs private + Pro） |
+| [docs/decisions/ADR-006-continuous-evolution-loop.md](docs/decisions/ADR-006-continuous-evolution-loop.md) | Explanation | 持续进化闭环（config 函数化 + 两 tier 审核门禁 + /dream 老化） |
 | [docs/integration/mcp-clients.md](docs/integration/mcp-clients.md) | How-to | MCP 客户端集成指南 |
 | [docs/reports/README.md](docs/reports/README.md) | Reference | 运行时报告索引 |
 | [docs/reports/2026-07-22-knowledge-base-tech-selection.md](docs/reports/2026-07-22-knowledge-base-tech-selection.md) | Reference | 技术选型对比分析报告（选型依据） |

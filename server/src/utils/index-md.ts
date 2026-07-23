@@ -1,4 +1,4 @@
-import { INDEX_FILE } from "../config.js";
+import { getIndexFile } from "../config.js";
 import { readFile, writeFile } from "./fileio.js";
 
 /**
@@ -25,7 +25,7 @@ export interface IndexPageEntry {
 
 /** Read the raw index.md content. */
 export async function readIndexContent(): Promise<string> {
-  return readFile(INDEX_FILE);
+  return readFile(getIndexFile());
 }
 
 /**
@@ -44,7 +44,7 @@ export async function addPageToIndex(
   domain: string,
   entry: IndexPageEntry
 ): Promise<void> {
-  const content = await readFile(INDEX_FILE);
+  const content = await readFile(getIndexFile());
   const lines = content.split("\n");
 
   const safeDomain = sanitizeIndexField(domain);
@@ -86,16 +86,16 @@ export async function addPageToIndex(
     lines.push(entryLine);
   }
 
-  await writeFile(INDEX_FILE, lines.join("\n"));
+  await writeFile(getIndexFile(), lines.join("\n"));
 }
 
 /** Remove all entries matching the given page path from index.md. */
 export async function removePageFromIndex(pagePath: string): Promise<void> {
-  const content = await readFile(INDEX_FILE);
+  const content = await readFile(getIndexFile());
   const lines = content
     .split("\n")
     .filter((line) => !line.includes(`[[${pagePath}]]`));
-  await writeFile(INDEX_FILE, lines.join("\n"));
+  await writeFile(getIndexFile(), lines.join("\n"));
 }
 
 /** Update the header metadata line (last update date and total page count). */
@@ -103,7 +103,7 @@ export async function updateIndexHeader(
   totalPages: number,
   lastUpdate: string
 ): Promise<void> {
-  const content = await readFile(INDEX_FILE);
+  const content = await readFile(getIndexFile());
   const lines = content.split("\n");
 
   for (let i = 0; i < lines.length; i++) {
@@ -113,5 +113,5 @@ export async function updateIndexHeader(
     }
   }
 
-  await writeFile(INDEX_FILE, lines.join("\n"));
+  await writeFile(getIndexFile(), lines.join("\n"));
 }

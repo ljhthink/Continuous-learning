@@ -1,5 +1,5 @@
 import { promises as fs } from "node:fs";
-import { LOG_FILE } from "../config.js";
+import { getLogFile } from "../config.js";
 import { readFile } from "./fileio.js";
 
 /**
@@ -72,7 +72,7 @@ export async function appendLogEntry(entry: LogEntry): Promise<void> {
   }
   // Leading newline separates from previous entry; trailing newline for spacing
   const block = "\n" + lines.join("\n") + "\n";
-  await fs.appendFile(LOG_FILE, block, "utf-8");
+  await fs.appendFile(getLogFile(), block, "utf-8");
 }
 
 /** Read and parse recent log entries (newest first). */
@@ -80,7 +80,7 @@ export async function readRecentLog(
   limit = 10,
   typeFilter?: string
 ): Promise<LogEntry[]> {
-  const content = await readFile(LOG_FILE);
+  const content = await readFile(getLogFile());
   const entries = parseLog(content);
 
   const filtered = typeFilter
