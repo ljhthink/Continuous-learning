@@ -96,6 +96,8 @@ exclude = [
   'lottiefiles\.com',
   'pixabay\.com',
   'unsplash\.com',
+  'pexels\.com',
+  'texturelabs\.org',
   'blog\.csdn\.net',
   'support\.claude\.com',
   'npmjs\.com',
@@ -137,7 +139,7 @@ include_fragments = "none"
 
 ### 负面后果 / 代价
 
-1. **lychee exclude 维护**：每遇到一个新的"返回 403 但实际可访问"的域名，都需追加到 `lychee.toml` exclude 列表。当前 9 个域名（`localhost`、`127.0.0.1`、`flaticon.com`、`lottiefiles.com`、`pixabay.com`、`unsplash.com`、`blog.csdn.net`、`support.claude.com`、`npmjs.com`）是历史经验沉淀。
+1. **lychee exclude 维护**：每遇到一个新的"返回 403 但实际可访问"的域名，都需追加到 `lychee.toml` exclude 列表。当前 11 个域名（`localhost`、`127.0.0.1`、`flaticon.com`、`lottiefiles.com`、`pixabay.com`、`unsplash.com`、`pexels.com`、`texturelabs.org`、`blog.csdn.net`、`support.claude.com`、`npmjs.com`）是历史经验沉淀。其中 `pexels.com` 与 `texturelabs.org` 是 ARCH.md §7.2.2 图像资源表格中的素材库链接，分别返回 403（禁止 bot）与 202（Accepted，未在 `accept` 列表中），按素材库同类策略 exclude。
 2. **版本差异**：本地 markdownlint v0.41 与 CI v0.40 在 MD032 判定上有细微差异，需以 CI 为准。
 3. **本地预验负担**：开发者（或子 Agent）在 push 前需运行 `markdownlint-cli2` + `node scripts/consistency-check.js`，否则 CI 失败阻塞合并。
 4. **`**/*.md` 扫描 `server/node_modules/`**：本地若误用 `**/*.md` 会扫到第三方库 README 报无关错误；需用 `git ls-files "*.md"` 模拟 CI 行为。
