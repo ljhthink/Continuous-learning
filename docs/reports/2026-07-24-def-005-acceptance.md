@@ -27,7 +27,7 @@
 | AC ID | 验收标准 | 验证方法 | 结果 | 证据 |
 | --- | --- | --- | --- | --- |
 | AC-1 | `appendLogEntry` 写入后 heading 与首条 list 项间有空行（MD022/MD032） | 调用 write+promote，读取 log.md 逐行扫描 | ✅ 通过 | p3-evolution.test.ts:295-343 DEF-005 回归测试；EDGE 连续 promote 测试；EDGE ingest 路径测试；综合 log.md markdownlint 0 issues |
-| AC-2 | `kbPromoteExperience` promote 用 `type:"promote"` | 正则匹配 `^## \[\d{4}-\d{2}-\d{2}\] promote \| .+$` | ✅ 通过 | p3-evolution.test.ts:334-338 正则断言；生产 log.md:33 `## [2026-07-24] promote | ...`；AC-4 parseLog 测试 |
+| AC-2 | `kbPromoteExperience` promote 用 `type:"promote"` | 正则匹配 `^## \[\d{4}-\d{2}-\d{2}\] promote \| .+$` | ✅ 通过 | p3-evolution.test.ts:334-338 正则断言；生产 log.md:33 `## [2026-07-24] promote \| ...`；AC-4 parseLog 测试 |
 | AC-3 | log.md 以 `\n` 结尾（MD047） | `logContent.endsWith("\n")` | ✅ 通过 | p3-evolution.test.ts:329；EDGE 所有场景 endsWith("\n")；生产 log.md markdownlint MD047 通过 |
 | AC-4 | `parseLog` 能解析 promote 条目（不破坏现有解析） | 调用 parseLog 解析含 promote 的 log.md，验证 type/title/details | ✅ 通过 | AC-4 专项测试：parseLog 返回 2 entries，promote 的 type/title/4 个 detail 字段完整正确 |
 | AC-5 | 现有测试无回归（除预存在 lint-perf flaky） | `npx tsx --test src/tests/*.test.ts` | ✅ 通过 | 45/46 通过；1 个预存在 lint-perf 失败已证明非回归（见 §5） |
@@ -62,6 +62,7 @@
 | markdownlint-cli2（综合 log.md） | `npx markdownlint-cli2 --config .markdownlint.json server/src/tests/def005-comprehensive-log.md` | 0 | 0 | ✅ 通过（0 issues） |
 
 **综合 log.md 覆盖的 type 与分支**：
+
 - `init`（有 details）
 - `ingest`（write.ts:126 调用路径）
 - `experience`（write.ts:192 调用路径）
@@ -76,12 +77,14 @@
 | node:test (tsx) | 10 | 10 | 0 | ✅ 通过 |
 
 **DEF-005 专项测试**（p3-evolution.test.ts:295-343）：
-```
+
+```text
 ok 9 - DEF-005: log.md passes MD022/MD032 after write+promote; promote uses type='promote'
   duration_ms: 58.8456 (单独运行) / 76.0827 (全套运行)
 ```
 
 **AC-4 专项验证**（parseLog 解析 promote）：
+
 - 构造 experience + promote 双条目 log.md
 - parseLog 返回 2 entries
 - promote entry: type="promote", title 正确, 4 个 detail 字段（promoted/from_inbox/tier/confidence）完整
@@ -184,6 +187,7 @@ N/A — DEF-005 修复不涉及前端交互（MCP server 后端 log 写入），
 ### 6.2 新 block 拼接注入风险审计
 
 **新代码**（log.ts:75-78）：
+
 ```typescript
 const block =
   detailLines.length > 0
@@ -193,7 +197,7 @@ const block =
 
 | 检查项 | 结果 | 依据 |
 | --- | --- | --- |
-| heading 含用户输入？ | ✅ 安全 | heading = `## [date] type | safeTitle`，safeTitle 已 sanitize |
+| heading 含用户输入？ | ✅ 安全 | heading = `## [date] type \| safeTitle`，safeTitle 已 sanitize |
 | detailLines 含用户输入？ | ✅ 安全 | 每个 detail = `- sanitizeKey: sanitizeValue`，k/v 均 sanitize |
 | 拼接逻辑引入新注入点？ | ✅ 无 | 拼接仅插入 `\n\n`（空行）和 `\n`（换行），为系统控制字面量 |
 
@@ -204,7 +208,7 @@ const block =
 | 断言 | 结果 | 说明 |
 | --- | --- | --- |
 | 无伪造 heading 行（行首 `^## [date] fake`） | ✅ | `\n` 替换为空格，攻击者文本合并进 title 同一行 |
-| 仅 1 个合法 heading 行 | ✅ | `## [2026-07-24] experience | Legit ## [2026-07-24] fake ...`（单行） |
+| 仅 1 个合法 heading 行 | ✅ | `## [2026-07-24] experience \| Legit ## [2026-07-24] fake ...`（单行） |
 | 无伪造 list item 行（行首 `^- evil`） | ✅ | 攻击者的 `- evil: yes` 被合并进 title 行 |
 | parseLog 仅返回 1 entry | ✅ | 攻击者无法伪造新 log entry |
 
@@ -235,6 +239,7 @@ const block =
 ### 8.1 log.ts: appendLogEntry 重构
 
 **修复前（bug）**：
+
 ```typescript
 const lines: string[] = [`## [${entry.date}] ${entry.type} | ${safeTitle}`];
 for (const [key, value] of Object.entries(entry.details)) {
@@ -245,6 +250,7 @@ const block = "\n" + lines.join("\n") + "\n";
 ```
 
 **修复后**：
+
 ```typescript
 const heading = `## [${entry.date}] ${entry.type} | ${safeTitle}`;
 const detailLines = Object.entries(entry.details).map(
@@ -350,6 +356,7 @@ const block =
 7. **AC-7 ✅**：实际 markdownlint-cli2 验证 — 生产 log.md + 综合 log.md（所有 type + 空 details + 多轮）均 0 issues
 
 **附加验证**：
+
 - 边缘场景（空 details、连续 promote、ingest 路径）全部通过
 - 安全（CWE-117 日志注入）防护完整，新 block 拼接无注入风险
 - 跨模块影响（parseLog、readRecentLog、read-only.ts 类型检查）全部兼容

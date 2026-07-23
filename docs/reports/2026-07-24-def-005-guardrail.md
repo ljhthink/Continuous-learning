@@ -59,7 +59,7 @@
 
 | 断言 | 覆盖规则 | 充分性 |
 | --- | --- | --- |
-| 逐行扫描 `## ` 后不可紧跟 `- ` | MD032/MD022 | ✅ 等价于 markdownlint MD032 检查 |
+| 逐行扫描 `##` 后不可紧跟 `-` | MD032/MD022 | ✅ 等价于 markdownlint MD032 检查 |
 | `logContent.endsWith("\n")` | MD047 | ✅ |
 | 正则 `^## \[\d{4}-\d{2}-\d{2}\] promote \| .+$` | type='promote' | ✅ 精确匹配 promote 类型 |
 
@@ -67,7 +67,7 @@
 
 | 调用方/解析器 | 影响 | 验证结果 |
 | --- | --- | --- |
-| `parseLog`（log.ts:25）正则 `(\w+)` | 捕获 `promote` | ✅ 实测 `'## [2026-07-24] promote | DEF-005 Test'.match(re)` → `['2026-07-24','promote','DEF-005 Test']` |
+| `parseLog`（log.ts:25）正则 `(\w+)` | 捕获 `promote` | ✅ 实测 `'## [2026-07-24] promote \| DEF-005 Test'.match(re)` → `['2026-07-24','promote','DEF-005 Test']` |
 | `readRecentLog`（log.ts:83）typeFilter | 通用字符串过滤 | ✅ 无类型硬编码，`typeFilter` 任意字符串均可用 |
 | `read-only.ts:50` `entry.type === "ingest"` | promote 不匹配 | ✅ 正确（promote 不是 ingest） |
 | `read-only.ts:53` `entry.type === "lint"` | promote 不匹配 | ✅ 正确（promote 不是 lint） |
@@ -164,6 +164,7 @@ Multiple headings with the same content [Context: "[2026-07-24] experience | Rej
 错误：`1000-page missing_xref scan p50=1465.79ms, expected < 1000ms`
 
 **非回归证据**：
+
 - `git status` 显示 DEF-005 改动文件为：`AGENTS.md`、`docs/reports/README.md`、`p3-evolution.test.ts`、`setup.ts`、`write.ts`、`log.ts`
 - `lint-perf.test.ts` 与 `lint.ts` 均不在改动文件列表中
 - `git log --oneline -- server/src/tests/lint-perf.test.ts server/src/tools/lint.ts` 显示最近一次改动是 `25f38f9`（P3 里程碑），早于 DEF-005
