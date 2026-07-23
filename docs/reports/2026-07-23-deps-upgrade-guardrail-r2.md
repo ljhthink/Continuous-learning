@@ -70,19 +70,19 @@
 
 | 调用点 | 文件:行 | 修复前行为 | 修复后行为 | 数据风险 | 评判 |
 | --- | --- | --- | --- | --- | --- |
-| kb_get_page | [read-only.ts:198](server/src/tools/read-only.ts#L198) | YAMLException 未捕获 → 工具崩溃（500） | 降级空 frontmatter → use_count seeding 为 1 → 写回 `{use_count:1}`+原始 body | 无（malformed frontmatter 本就无效，丢弃合理；读取操作尽力返回 body 正确） | 正确 |
-| kb_promote_experience | [write.ts:230](server/src/tools/write.ts#L230) | YAMLException 未捕获 → 工具崩溃 | 降级空 frontmatter → [write.ts:237](server/src/tools/write.ts#L237) 状态机检查 `type !== "experience"` fail-fast 返回错误 | 无（状态机在写操作前 fail-fast，malformed frontmatter 不会被覆盖） | 正确 |
-| /dream | [dream.ts:109](server/src/dream.ts#L109) | YAMLException 未捕获 → 中断整个批处理，后续卡片全部跳过 | 降级空 frontmatter → [dream.ts:110](server/src/dream.ts#L110) `type !== "experience"` continue 跳过该页，批处理继续 | 无（malformed 页面被安全跳过，不触发 demote 写操作） | 正确（批处理健壮性显著改善） |
-| kb_lint | [lint.ts:198](server/src/tools/lint.ts#L198) | loadAllPages 的 try/catch 捕获 → stderr 记录 → 跳过该页（不在 pages 列表）→ checkFrontmatter 看不到 → 不报告 | 降级空 frontmatter → 页面加入 pages 列表 → checkFrontmatter 报告 "Missing required fields"（high） | 无（lint 只读分析） | 改善（malformed 页面从静默跳过变为显式 high 报告） |
-| kb_list_categories | [read-only.ts:116](server/src/tools/read-only.ts#L116) | 已有 try/catch 包裹 | 行为不变（原本就降级） | 无 | 无影响 |
-| kb_search | [search.ts:67](server/src/tools/search.ts#L67) | 需确认是否有保护 | 修复后同样受益于降级 | 无 | 改善 |
+| kb_get_page | [read-only.ts:198](../../server/src/tools/read-only.ts#L198) | YAMLException 未捕获 → 工具崩溃（500） | 降级空 frontmatter → use_count seeding 为 1 → 写回 `{use_count:1}`+原始 body | 无（malformed frontmatter 本就无效，丢弃合理；读取操作尽力返回 body 正确） | 正确 |
+| kb_promote_experience | [write.ts:230](../../server/src/tools/write.ts#L230) | YAMLException 未捕获 → 工具崩溃 | 降级空 frontmatter → [write.ts:237](../../server/src/tools/write.ts#L237) 状态机检查 `type !== "experience"` fail-fast 返回错误 | 无（状态机在写操作前 fail-fast，malformed frontmatter 不会被覆盖） | 正确 |
+| /dream | [dream.ts:109](../../server/src/dream.ts#L109) | YAMLException 未捕获 → 中断整个批处理，后续卡片全部跳过 | 降级空 frontmatter → [dream.ts:110](../../server/src/dream.ts#L110) `type !== "experience"` continue 跳过该页，批处理继续 | 无（malformed 页面被安全跳过，不触发 demote 写操作） | 正确（批处理健壮性显著改善） |
+| kb_lint | [lint.ts:198](../../server/src/tools/lint.ts#L198) | loadAllPages 的 try/catch 捕获 → stderr 记录 → 跳过该页（不在 pages 列表）→ checkFrontmatter 看不到 → 不报告 | 降级空 frontmatter → 页面加入 pages 列表 → checkFrontmatter 报告 "Missing required fields"（high） | 无（lint 只读分析） | 改善（malformed 页面从静默跳过变为显式 high 报告） |
+| kb_list_categories | [read-only.ts:116](../../server/src/tools/read-only.ts#L116) | 已有 try/catch 包裹 | 行为不变（原本就降级） | 无 | 无影响 |
+| kb_search | [search.ts:67](../../server/src/tools/search.ts#L67) | 需确认是否有保护 | 修复后同样受益于降级 | 无 | 改善 |
 
 #### 3.1.3 与 kb_lint 的 try/catch 是否冲突
 
 **不冲突，职责分离**：
 
 - `parseFrontmatter` 的 try/catch（本轮新增）：防止 YAML 解析错误传播，降级为空 frontmatter。
-- `loadAllPages` 的 try/catch（[lint.ts:196-237](server/src/tools/lint.ts#L196-L237)，已有）：捕获 `readFile` I/O 错误（文件权限、磁盘错误），跳过不可读页面并 stderr 记录。
+- `loadAllPages` 的 try/catch（[lint.ts:196-237](../../server/src/tools/lint.ts#L196-L237)，已有）：捕获 `readFile` I/O 错误（文件权限、磁盘错误），跳过不可读页面并 stderr 记录。
 
 修复后，`loadAllPages` 的 try/catch 不再捕获 YAML 错误（已被 parseFrontmatter 内部处理），但仍捕获 I/O 错误。注释中"kb_lint has its own try/catch and will report the malformed page via the frontmatter check"**描述准确**：malformed 页面经降级后进入 pages 列表，checkFrontmatter 检测到必填字段缺失并报告 high severity issue。
 
@@ -105,7 +105,7 @@
 | 验证项 | 证据 | 结论 |
 | --- | --- | --- |
 | js-yaml 5 自带类型 | `node_modules/js-yaml/package.json` 的 `types: "./dist/js-yaml.d.ts"` | 自带类型，@types/js-yaml 冗余 |
-| tsconfig 加载策略 | [tsconfig.json:6](server/tsconfig.json#L6) `types: ["node"]` | 仅加载 @types/node，@types/* 不自动加载 |
+| tsconfig 加载策略 | [tsconfig.json:6](../../server/tsconfig.json#L6) `types: ["node"]` | 仅加载 @types/node，@types/* 不自动加载 |
 | 类型回归 | typecheck (TS 7) 通过 | 无类型回归 |
 | 调用点类型 | `load(yamlText): unknown`、`dump(frontmatter, opts): string` | 类型推导正确，`as Record<string, unknown>` 断言合法 |
 
@@ -132,7 +132,7 @@
 | --- | --- |
 | SQL/命令/代码注入 | 不适用（无 SQL/命令/eval 调用） |
 | catch {} 信息泄露 | 不成立（catch 不输出任何信息，无泄露） |
-| 路径遍历 | 不在本轮范围（调用方已有 traversal 检查，如 [read-only.ts:188-191](server/src/tools/read-only.ts#L188-L191)） |
+| 路径遍历 | 不在本轮范围（调用方已有 traversal 检查，如 [read-only.ts:188-191](../../server/src/tools/read-only.ts#L188-L191)） |
 | ReDoS / billion laughs | 按 TRAE-security-review §8.1 硬排除（DoS 类不报告）；且输入为本地文件，非网络请求 |
 | 密钥/配置 | 不适用（无配置/密钥变更） |
 | 移除 @types/js-yaml 类型安全降级 | 不成立（自带类型，typecheck 通过） |
@@ -145,13 +145,13 @@
 
 ### L-1：catch 块无运维可见性日志
 
-**位置**：[frontmatter.ts:29-31](server/src/utils/frontmatter.ts#L29-L31)
+**位置**：[frontmatter.ts:29-31](../../server/src/utils/frontmatter.ts#L29-L31)
 
 **现状**：`catch {}` 完全静默，malformed frontmatter 在 kb_get_page / promote / dream 路径被静默降级，运维人员无法从日志感知哪些页面 frontmatter 损坏。
 
 **风险**：低。kb_lint 是定期健康检查工具，会发现 frontmatter 缺失（high issue），提供补偿性可见性。但读取/写入路径上的 malformed 事件无即时记录。
 
-**建议**（可选，非强制）：在 catch 块添加 `console.error` debug 日志，与项目其他路径（如 [read-only.ts:214](server/src/tools/read-only.ts#L214)、[lint.ts:236](server/src/tools/lint.ts#L236)）的"不吞异常"模式一致（CLAUDE.md §19.4）。示例方向：
+**建议**（可选，非强制）：在 catch 块添加 `console.error` debug 日志，与项目其他路径（如 [read-only.ts:214](../../server/src/tools/read-only.ts#L214)、[lint.ts:236](../../server/src/tools/lint.ts#L236)）的"不吞异常"模式一致（CLAUDE.md §19.4）。示例方向：
 
 ```typescript
 } catch (err) {
@@ -164,7 +164,7 @@
 
 ### L-2：测试可补充 malformed YAML 语法错误场景
 
-**位置**：[read-only.test.ts:250-267](server/src/tests/read-only.test.ts#L250-L267)
+**位置**：[read-only.test.ts:250-267](../../server/src/tests/read-only.test.ts#L250-L267)
 
 **现状**：DEF-003 测试仅验证空 frontmatter block（`load("")` 抛错场景）。未验证 YAML 语法错误（如未闭合引号 `title: "unclosed`、错误缩进、tab 字符）的降级。
 
