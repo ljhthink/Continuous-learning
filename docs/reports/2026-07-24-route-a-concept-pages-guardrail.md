@@ -95,7 +95,7 @@
 
 根据 AGENTS.md §6.2，孤儿页是"中"严重度 lint 项，处理方式为"列出建议，由用户裁决"，非阻断。但作为知识库奠基性内容，9 张页面应形成完整交叉引用网络。
 
-**修复建议**：在 [ingest-workflow.md](file:///D:/s0611/code/Continuous-learning/wiki/coding/ingest-workflow.md) 的"与其他工作流的关系"表格或"相关概念"段，以及 [lint-workflow.md](file:///D:/s0611/code/Continuous-learning/wiki/coding/lint-workflow.md) 的"相关概念"段，补充 `[[wiki/coding/query-workflow]]` 链接。ingest-workflow.md L75-81 的"与其他工作流的关系"表格已用纯文本提及 Query 工作流，但未使用 wiki 链接格式，建议改为链接。
+**修复建议**：在 [ingest-workflow.md](../../wiki/coding/ingest-workflow.md) 的"与其他工作流的关系"表格或"相关概念"段，以及 [lint-workflow.md](../../wiki/coding/lint-workflow.md) 的"相关概念"段，补充 `[[wiki/coding/query-workflow]]` 链接。ingest-workflow.md L75-81 的"与其他工作流的关系"表格已用纯文本提及 Query 工作流，但未使用 wiki 链接格式，建议改为链接。
 
 **F-2（低风险/信息性）代码块内示例断链**：
 
