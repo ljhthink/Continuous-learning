@@ -90,6 +90,7 @@ Lint 时还需检查：
 - [[wiki/coding/multi-domain-classification]] — 缺失交叉引用是中严重度 lint 项。
 - [[wiki/coding/page-types-and-state-machine]] — 状态机违规是 lint 检查项。
 - [[wiki/coding/dual-index-mechanism]] — Lint 事件写入 log.md。
+- [[wiki/coding/query-workflow]] — Lint 保障 Query 检索结果的质量。
 
 ## 来源
 
