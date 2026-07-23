@@ -71,3 +71,16 @@
   - KB 核心模型(3): three-layer-architecture, dual-index-mechanism, page-types-and-state-machine
   - 元规则(3): frontmatter-schema, multi-domain-classification, continuous-evolution-review-gate
   - 工作流核心(3): ingest-workflow, query-workflow, lint-workflow
+
+## [2026-07-24] experience | 子 Agent 生成报告的 file:/// 绝对路径陷阱与 CI 兼容性审查
+
+- inbox: wiki/coding/experiences/inbox/子-agent-生成报告的-file-绝对路径陷阱与-ci-兼容性审查.md
+- confidence: 0.8
+- source_task: TKN-P0-ROUTE-A-001
+
+## [2026-07-24] promote | 子 Agent 生成报告的 file:/// 绝对路径陷阱与 CI 兼容性审查
+
+- promoted: wiki/coding/experiences/子-agent-生成报告的-file-绝对路径陷阱与-ci-兼容性审查.md
+- from_inbox: wiki/coding/experiences/inbox/子-agent-生成报告的-file-绝对路径陷阱与-ci-兼容性审查.md
+- tier: auto
+- confidence: 0.8
