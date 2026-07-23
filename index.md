@@ -1,6 +1,6 @@
 # 知识库索引
 
-> 最后更新：2026-07-24 · 总页数：3
+> 最后更新：2026-07-24 · 总页数：12
 > 本文件是知识库的内容索引（内容导向），LLM 回答问题前先读此文件定位。
 > 时间日志见 [log.md](log.md)。结构约定见 [AGENTS.md](AGENTS.md)。
 
@@ -8,6 +8,16 @@
 
 <!-- 在此追加编程领域页面（概念/实体/来源页），格式：- [[wiki/coding/<page>]] · 一句话摘要 · YYYY-MM-DD -->
 <!-- 经验卡片统一列入下方 experiences 段，不在此重复 -->
+
+- [[wiki/coding/three-layer-architecture]] · 三层架构：Raw / Wiki / Schema · 2026-07-24
+- [[wiki/coding/dual-index-mechanism]] · 双索引机制：内容索引 + 时间日志 · 2026-07-24
+- [[wiki/coding/page-types-and-state-machine]] · 页面类型与状态机 · 2026-07-24
+- [[wiki/coding/frontmatter-schema]] · frontmatter Schema 规约 · 2026-07-24
+- [[wiki/coding/multi-domain-classification]] · 多领域分类规范 · 2026-07-24
+- [[wiki/coding/continuous-evolution-review-gate]] · 持续进化门禁：两 Tier 审核与老化 · 2026-07-24
+- [[wiki/coding/ingest-workflow]] · Ingest 工作流：从 raw 到 wiki · 2026-07-24
+- [[wiki/coding/query-workflow]] · Query 工作流：检索与综合答案 · 2026-07-24
+- [[wiki/coding/lint-workflow]] · Lint 工作流：健康检查 · 2026-07-24
 
 ## emotions
 
