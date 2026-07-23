@@ -2,7 +2,7 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 状态 | Proposed |
+| 状态 | Accepted |
 | 日期 | 2026-07-23 |
 | 决策者 | 主 Agent（P2 CI 落地阶段） |
 | 关联文档 | [CLAUDE.md](../../CLAUDE.md) §5.5（文档质量 CI）/ §14.1（一致性检查） / [ADR-003](ADR-003-vcs-github-flow-branch-protection.md)（分支保护必需状态检查） |

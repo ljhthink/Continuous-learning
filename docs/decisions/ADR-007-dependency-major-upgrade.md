@@ -2,7 +2,7 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 状态 | Proposed |
+| 状态 | Accepted |
 | 日期 | 2026-07-23 |
 | 决策者 | 主 Agent（依赖维护阶段） |
 | 关联文档 | [CLAUDE.md](../../CLAUDE.md) §18（依赖管理与供应链安全）/ [ARCH.md](../ARCH.md) §3.1（接口契约）/ [ADR-001](ADR-001-knowledge-base-tech-stack.md)（技术栈） |

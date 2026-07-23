@@ -2,7 +2,7 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 状态 | Proposed |
+| 状态 | Accepted |
 | 日期 | 2026-07-23 |
 | 决策者 | 主 Agent（P2 三 Agent 接入验证） |
 | 关联文档 | [PRD](../PRD.md) US-002 / [ARCH](../ARCH.md) §3.1、§10 / [集成指南](../integration/mcp-clients.md) |

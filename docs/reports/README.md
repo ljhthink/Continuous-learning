@@ -22,3 +22,4 @@
 | 2026-07-23 | 依赖 MAJOR 升级验收测试 | acceptance | [2026-07-23-deps-upgrade-acceptance.md](2026-07-23-deps-upgrade-acceptance.md) |
 | 2026-07-23 | DEF-003 修复聚焦复审 | guardrail | [2026-07-23-deps-upgrade-guardrail-r2.md](2026-07-23-deps-upgrade-guardrail-r2.md) |
 | 2026-07-23 | DEF-003 修复聚焦验收 | acceptance | [2026-07-23-deps-upgrade-acceptance-r2.md](2026-07-23-deps-upgrade-acceptance-r2.md) |
+| 2026-07-24 | P1-P3 里程碑文档与规则一致性审计 | audit | [2026-07-24-milestone-audit.md](2026-07-24-milestone-audit.md) |

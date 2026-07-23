@@ -2,10 +2,10 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 状态 | Proposed |
+| 状态 | Accepted |
 | 日期 | 2026-07-22 |
 | 决策者 | 主 Agent（基于 tech-selection-researcher 报告） |
-| 关联文档 | [PRD](../templates/prd-template.md) / [ARCH](../templates/arch-template.md) / [选型报告](../reports/2026-07-22-knowledge-base-tech-selection.md) |
+| 关联文档 | [PRD](../PRD.md) / [ARCH](../ARCH.md) / [选型报告](../reports/2026-07-22-knowledge-base-tech-selection.md) |
 | 风险等级 | P3（引入新框架/中间件，新建架构） |
 | Baseline | [karpathy-LLM.md](../../karpathy-LLM.md) LLM Wiki 模式 |
 
