@@ -143,3 +143,31 @@
   - AGENTS.md §2 目录结构和 §8.1 领域目录新增 kb-system
   - 修复 6 张文件的 UTF-8 BOM 问题（破坏 frontmatter 解析）
   - 修复 docs/reports/2026-07-24-route-a-concept-pages-guardrail.md 中 2 处断链
+
+## [2026-07-24] ingest | DEF-010：算法深化第一批（quick-sort + binary-search 跨语言实现模式）
+
+- source: GitHub MCP（get_file_contents 读取 TheAlgorithms 真实代码）
+- sources:
+  - https://github.com/TheAlgorithms/Python/blob/master/sorts/quick_sort.py
+  - https://github.com/TheAlgorithms/Java/blob/master/src/main/java/com/thealgorithms/sorts/QuickSort.java
+  - https://github.com/TheAlgorithms/C-Plus-Plus/blob/master/sorting/quick_sort.cpp
+  - https://github.com/TheAlgorithms/C-Plus-Plus/blob/master/sorting/quick_sort_3.cpp
+  - https://github.com/TheAlgorithms/Python/blob/master/searches/binary_search.py
+  - https://github.com/TheAlgorithms/Java/blob/master/src/main/java/com/thealgorithms/searches/BinarySearch.java
+- domain: coding
+- pages_affected: 5
+- pages:
+  - wiki/coding/quick-sort-impl-patterns.md（新建，4 种分区策略对比）
+  - wiki/coding/binary-search-impl-patterns.md（新建，5 种实现对比）
+  - wiki/coding/thealgorithms-python.md（更新交叉引用）
+  - wiki/coding/thealgorithms-java.md（更新交叉引用）
+  - wiki/coding/thealgorithms-c-plus-plus.md（更新交叉引用）
+- batch: DEF-010
+- groups:
+  - 快速排序(4): Python 函数式 / Java Hoare / C++ Lomuto / C++ 3-way Dutch National Flag
+  - 二分搜索(5): Python 迭代 / Python 递归 / Python bisect_left / Python bisect_right / Java 递归泛型
+- notes:
+  - 通过 GitHub MCP get_file_contents 读取 6 个源代码文件
+  - 所有代码均标注 MIT License 归属
+  - 每页包含分区策略对比表、复杂度分析、工业实现对比、常见陷阱、选择指南
+  - ADR-008 决策 3 的第一批交付，后续可继续深化其他算法

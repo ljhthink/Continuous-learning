@@ -1,6 +1,6 @@
 # 知识库索引
 
-> 最后更新：2026-07-24 · 总页数：22
+> 最后更新：2026-07-24 · 总页数：24
 > 本文件是知识库的内容索引（内容导向），LLM 回答问题前先读此文件定位。
 > 时间日志见 [log.md](log.md)。结构约定见 [AGENTS.md](AGENTS.md)。
 
@@ -37,6 +37,13 @@
 - [[wiki/coding/thealgorithms-rust]] · TheAlgorithms/Rust — Rust 算法教育实现合集 · 2026-07-24
 - [[wiki/coding/thealgorithms-typescript]] · TheAlgorithms/TypeScript — TypeScript 算法教育实现合集 · 2026-07-24
 - [[wiki/coding/public-apis]] · public-apis/public-apis — GitHub 最大公益 API 仓库 · 2026-07-24
+
+### 算法实现模式（跨语言对比，基于 TheAlgorithms 真实代码）
+
+<!-- 在此追加算法实现模式 concept 页，格式：- [[wiki/coding/<page>]] · 一句话摘要 · YYYY-MM-DD -->
+
+- [[wiki/coding/quick-sort-impl-patterns]] · 快速排序跨语言实现模式对比（Python/Java/C++ 4 种分区策略） · 2026-07-24
+- [[wiki/coding/binary-search-impl-patterns]] · 二分搜索跨语言实现模式对比（迭代/递归/bisect/泛型） · 2026-07-24
 
 ## emotions
 
