@@ -84,3 +84,37 @@
 - from_inbox: wiki/coding/experiences/inbox/子-agent-生成报告的-file-绝对路径陷阱与-ci-兼容性审查.md
 - tier: auto
 - confidence: 0.8
+
+## [2026-07-24] ingest | Route B 9 张外部技术 entity 页（TheAlgorithms × 8 + public-apis）
+
+- source: GitHub MCP（get_file_contents README.md）
+- sources:
+  - https://github.com/TheAlgorithms/Python
+  - https://github.com/TheAlgorithms/Java
+  - https://github.com/TheAlgorithms/C-Plus-Plus
+  - https://github.com/TheAlgorithms/JavaScript
+  - https://github.com/TheAlgorithms/C
+  - https://github.com/TheAlgorithms/Go
+  - https://github.com/TheAlgorithms/Rust
+  - https://github.com/TheAlgorithms/TypeScript
+  - https://github.com/public-apis/public-apis
+- domain: coding
+- pages_affected: 9
+- pages:
+  - wiki/coding/thealgorithms-python.md
+  - wiki/coding/thealgorithms-java.md
+  - wiki/coding/thealgorithms-c-plus-plus.md
+  - wiki/coding/thealgorithms-javascript.md
+  - wiki/coding/thealgorithms-c.md
+  - wiki/coding/thealgorithms-go.md
+  - wiki/coding/thealgorithms-rust.md
+  - wiki/coding/thealgorithms-typescript.md
+  - wiki/coding/public-apis.md
+- batch: Route B
+- groups:
+  - TheAlgorithms 系列(8): Python, Java, C-Plus-Plus, JavaScript, C, Go, Rust, TypeScript
+  - 公益 API 索引(1): public-apis
+- notes:
+  - 通过 GitHub MCP get_file_contents 调研 9 个仓库 README
+  - C 版 License 为 GPLv3（与其他 MIT 兄弟仓库不同），已在页面显式标注
+  - public-apis README 达 221KB，仅在 wiki 页做分类摘要
