@@ -43,7 +43,7 @@
 | 外部 URL 格式合法性 | 通过 | 17+ 外部 URL（github.com/TheAlgorithms/*、TheAlgorithms.github.io/*、go.dev/tour、doc.rust-lang.org/book、en.wikipedia.org、apilayer.com、docs.astral.sh）格式均合法，无拼写错误或非法字符 |
 | License 标注准确性 | 有条件通过 | C 版 GPLv3 在标题/简介/使用建议/元数据 4 处显著标注 ✅；其余 8 仓库 MIT 标注一致。**但审查环境无网络访问 GitHub，无法独立验证 License 真实性**，见 §6 待澄清 |
 | 商业关联警告（public-apis） | 通过 | public-apis.md 在简介段（APILayer 商业广告提示）、使用建议段（区分免费/商业）、元数据表（商业关联字段）3 处清晰区分 ✅ |
-| log.md ingest 条目格式 | 通过 | 符合 AGENTS.md §4.4：`## [2026-07-24] ingest | <标题>`，含 source/sources/domain/pages_affected/pages/batch/groups/notes 字段 ✅ |
+| log.md ingest 条目格式 | 通过 | 符合 AGENTS.md §4.4：`## [2026-07-24] ingest \| <标题>`，含 source/sources/domain/pages_affected/pages/batch/groups/notes 字段 ✅ |
 | index.md 子段组织 | 通过 | coding 领域下分「核心 concept 页」与「外部开源资源」两个子段，组织清晰，总页数 13→22 已更新 ✅ |
 
 ### 2.3 跨模块影响识别
