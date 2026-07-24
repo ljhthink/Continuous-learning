@@ -103,6 +103,7 @@ flowchart TD
 **正则**：`/^(\s*\w[\w-]*:\s*)'(\d{4}-\d{2}-\d{2})'$/gm`
 
 **ReDoS 评估**：无灾难性回溯风险。
+
 - `\s*` 行首线性匹配
 - `\w[\w-]*` 贪心线性匹配，无重叠交替
 - `\d{4}-\d{2}-\d{2}` 固定模式
@@ -123,6 +124,7 @@ guardrail-enforcer 通过实证测试验证了以下场景：
 **关键发现：js-yaml v5.2.1 日期解析行为**：
 
 实证测试（js-yaml v5.2.1）表明：
+
 - `load("date: 2026-07-24")` → `{ date: "2026-07-24" }`（**string**，非 Date 对象）
 - `load("date: '2026-07-24'")` → `{ date: "2026-07-24" }`（string）
 - `load('date: "2026-07-24"')` → `{ date: "2026-07-24" }`（string）
@@ -130,6 +132,7 @@ guardrail-enforcer 通过实证测试验证了以下场景：
 即 js-yaml v5.2.1 的 `load()` 将 unquoted `YYYY-MM-DD` 解析为 **string**，而非 Date 对象。代码 JSDoc 注释中的陈述"js-yaml parses unquoted ISO dates into JavaScript Date objects at UTC midnight"描述的是 js-yaml v4 行为，在 v5 中已不成立。
 
 **影响**：
+
 1. 引号去除在 v5 中**语义安全**——quoted 和 unquoted `YYYY-MM-DD` 均解析为 string，类型不变。代码注释的核心结论"the quote-stripping is purely cosmetic and does not affect semantics"在 v5 中是**正确的**。
 2. `normalizeDate` 的 `value instanceof Date` 分支在 v5 中为防御性死代码（`load()` 不返回 Date 对象），但作为前向兼容保留是合理的。
 3. 过度匹配的**实际风险降低为低**——即使非 `date` 字段的日期格式字符串被去引号，类型仍为 string，不影响下游逻辑。
@@ -317,6 +320,7 @@ it("body remains stable across multiple serialize→parse cycles", () => {
    - frontmatter 与 body 间有空行
 
    示例 Semgrep 规则：
+
    ```yaml
    rules:
      - id: frontmatter-domain-flow-style

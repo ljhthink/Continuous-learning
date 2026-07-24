@@ -174,7 +174,7 @@ TC-E01 覆盖完整生命周期 4 个阶段，每个阶段读取磁盘文件断�
 
 | 测试用例 ID | AC ID | 技术 | 输入/前置条件 | 动作 | 预期行为 | 测试层级 |
 | --- | --- | --- | --- | --- | --- | --- |
-| TC-U01 | AC-1 | 等价类 | domain=["coding"], tags=["python"...] | serializeFrontmatter | `domain: [coding]` 单行 flow，无 block `  - ` | 单元 |
+| TC-U01 | AC-1 | 等价类 | domain=["coding"], tags=["python"...] | serializeFrontmatter | `domain: [coding]` 单行 flow，无 block 风格 | 单元 |
 | TC-U02 | AC-2 | 等价类 | date="2026-07-24" | serializeFrontmatter | `date: 2026-07-24` 无引号 | 单元 |
 | TC-U03 | AC-3 | 等价类 | body="## 背景" | serializeFrontmatter | `---\n\n## 背景` 有空行 | 单元 |
 | TC-U04 | AC-3 | 边界值 | body="\n\n## Body" | serializeFrontmatter | 折叠为恰好一个空行 | 单元 |
@@ -207,6 +207,7 @@ TC-E01 覆盖完整生命周期 4 个阶段，每个阶段读取磁盘文件断�
 ADR-008 决策 1 的全部 9 条验收标准均满足，每条标准有对应的自动化测试用例和具体证据支撑。82 个测试全部通过，0 失败，0 缺陷。性能无回退，安全专项全部通过。guardrail-enforcer 的 3 项改进建议（正则精确化、稳态测试、JSDoc 修正）均已在 commit `064eb6a`（R2）中采纳。
 
 主 Agent 签发的两个盲区均已消除：
+
 - **盲区 1**（端到端格式漂移）：TC-I01-I05 + TC-E01 在 5 个调用点的真实 MCP 路径上显式断言 3 个格式不变量，TC-I06 验证 kb_get_page 多次写回稳态。
 - **盲区 2**（手动 Edit 与 MCP 生成一致性）：TC-I01 验证 `kb_write_experience` 生成的卡片格式与手动修复的 4 张卡片格式一致（同一 `assertFormatInvariants` 函数断言相同不变量），消除双轨风险。
 
