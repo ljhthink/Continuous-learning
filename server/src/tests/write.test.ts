@@ -111,6 +111,25 @@ describe("kb_ingest_source", () => {
     assert.equal(result.isError, true);
     assert.match(result.content[0].text, /traversal/i);
   });
+
+  it("rejects duplicate page slug atomically via flag 'wx' (DEF-001)", async () => {
+    // DEF-001: kbIngestSource now uses fs.writeFile flag:'wx' instead of a
+    // fileExists pre-check (TOCTOU race). The atomic create must still
+    // surface a friendly "already exists" error when the slug collides,
+    // preserving the prior user-facing behavior.
+    await writeRawFile(tmp, "raw/markdown/dup-test.md", "# Dup Test\nContent.");
+    const first = await tools.write.kbIngestSource({
+      source_path: "raw/markdown/dup-test.md",
+      domain: "coding",
+    });
+    assert.equal(parseResult(first).status, "staging");
+    const second = await tools.write.kbIngestSource({
+      source_path: "raw/markdown/dup-test.md",
+      domain: "coding",
+    });
+    assert.equal(second.isError, true);
+    assert.match(second.content[0].text, /already exists/i);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -359,6 +378,46 @@ describe("kb_promote_experience", () => {
     });
     assert.equal(promoteResult.isError, true);
     assert.match(promoteResult.content[0].text, /expected "pending"/);
+  });
+
+  it("promote fails atomically when active card already exists (DEF-001 flag:'wx')", async () => {
+    // DEF-001: kbPromoteExperience promote branch now uses fs.writeFile
+    // flag:'wx' instead of a fileExists pre-check (TOCTOU race). When the
+    // active target already exists, the atomic create must fail and surface
+    // the friendly "already exists" error rather than silently clobbering.
+    //
+    // Scenario: promote card A → active. Then create a second inbox card
+    // with the SAME title (inbox slot is free again after promote unlinked
+    // it). Promoting card B must hit the existing active path atomically.
+    const writeResult1 = await tools.write.kbWriteExperience({
+      title: "Promote Dup Active DEF001",
+      domain: "coding",
+      content: "## Background\nFirst card.",
+      confidence: 0.85,
+      source_task: "task-promote-dup-def001-001",
+    });
+    const promote1 = await tools.write.kbPromoteExperience({
+      inbox_path: parseResult(writeResult1).path,
+      action: "promote",
+    });
+    assert.equal(parseResult(promote1).status, "active");
+
+    // Second inbox card with same title (inbox path is free now).
+    const writeResult2 = await tools.write.kbWriteExperience({
+      title: "Promote Dup Active DEF001",
+      domain: "coding",
+      content: "## Background\nSecond card.",
+      confidence: 0.85,
+      source_task: "task-promote-dup-def001-002",
+    });
+
+    // Promote the second → active path already exists → EEXIST → friendly error.
+    const promote2 = await tools.write.kbPromoteExperience({
+      inbox_path: parseResult(writeResult2).path,
+      action: "promote",
+    });
+    assert.equal(promote2.isError, true);
+    assert.match(promote2.content[0].text, /already exists/i);
   });
 });
 

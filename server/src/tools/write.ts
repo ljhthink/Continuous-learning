@@ -96,12 +96,6 @@ export async function kbIngestSource(args: {
   }
   const wikiRelPath = `wiki/${domain}/${slug}.md`;
 
-  if (await fileExists(wikiFullPath)) {
-    return errorResult(
-      `Page already exists at ${wikiRelPath}; remove it first or rename the source.`
-    );
-  }
-
   // Build staging page (AGENTS.md §3.4 status machine: staging → active).
   const frontmatter: Record<string, unknown> = {
     title: baseName,
@@ -111,7 +105,24 @@ export async function kbIngestSource(args: {
     date: today,
     source_file: rawRelPath,
   };
-  await writeFile(wikiFullPath, serializeFrontmatter(frontmatter, body));
+  // DEF-001: atomic create-only write (flag 'wx') removes the TOCTOU race
+  // that existed between the prior fileExists pre-check and writeFile. On
+  // EEXIST (POSIX/Windows) or EPERM (Windows target locked), surface the
+  // same friendly "already exists" error the pre-check used to return.
+  try {
+    await writeFile(
+      wikiFullPath,
+      serializeFrontmatter(frontmatter, body),
+      "wx"
+    );
+  } catch (err) {
+    if (isAlreadyExistsError(err)) {
+      return errorResult(
+        `Page already exists at ${wikiRelPath}; remove it first or rename the source.`
+      );
+    }
+    throw err;
+  }
 
   // Update index.md (AGENTS.md §4.2 step 6) + header.
   await addPageToIndex(domain, {
@@ -170,12 +181,6 @@ export async function kbWriteExperience(args: {
   }
   const inboxRelPath = `wiki/${domain}/experiences/inbox/${slug}.md`;
 
-  if (await fileExists(inboxFullPath)) {
-    return errorResult(
-      `Experience already exists at ${inboxRelPath}; a card with this title is already in the inbox.`
-    );
-  }
-
   const frontmatter: Record<string, unknown> = {
     title,
     domain: [domain],
@@ -185,7 +190,23 @@ export async function kbWriteExperience(args: {
     date: today,
     source_task,
   };
-  await writeFile(inboxFullPath, serializeFrontmatter(frontmatter, content));
+  // DEF-001: atomic create-only write (flag 'wx') removes the TOCTOU race
+  // between the prior fileExists pre-check and writeFile. EEXIST/EPERM is
+  // surfaced as the same friendly "already exists" error.
+  try {
+    await writeFile(
+      inboxFullPath,
+      serializeFrontmatter(frontmatter, content),
+      "wx"
+    );
+  } catch (err) {
+    if (isAlreadyExistsError(err)) {
+      return errorResult(
+        `Experience already exists at ${inboxRelPath}; a card with this title is already in the inbox.`
+      );
+    }
+    throw err;
+  }
 
   // Append log.md. Pending cards are NOT added to index.md until promoted
   // to active by the review gate (AGENTS.md §7.4).
@@ -285,16 +306,27 @@ export async function kbPromoteExperience(args: {
     }
     const activeRelPath = `wiki/${domain}/experiences/${slug}.md`;
 
-    if (await fileExists(activeFullPath)) {
-      return errorResult(
-        `Active experience already exists at ${activeRelPath}; cannot promote over it.`
-      );
-    }
-
     frontmatter.status = "active";
     frontmatter.date = today;
     await ensureDir(path.dirname(activeFullPath));
-    await writeFile(activeFullPath, serializeFrontmatter(frontmatter, body));
+    // DEF-001: atomic create-only write (flag 'wx') removes the TOCTOU race
+    // between the prior fileExists pre-check and writeFile. EEXIST/EPERM is
+    // surfaced as the same friendly "already exists" error so promote cannot
+    // silently clobber an existing active card.
+    try {
+      await writeFile(
+        activeFullPath,
+        serializeFrontmatter(frontmatter, body),
+        "wx"
+      );
+    } catch (err) {
+      if (isAlreadyExistsError(err)) {
+        return errorResult(
+          `Active experience already exists at ${activeRelPath}; cannot promote over it.`
+        );
+      }
+      throw err;
+    }
     // Remove from inbox now that it lives in the active location.
     await fs.unlink(fullPath);
 
@@ -346,6 +378,29 @@ export async function kbPromoteExperience(args: {
 // ---------------------------------------------------------------------------
 // Private helpers
 // ---------------------------------------------------------------------------
+
+/**
+ * Returns true if a filesystem error from an atomic create (`flag: 'wx'`)
+ * should be surfaced as a friendly "already exists" error.
+ *
+ * DEF-001: `flag: 'wx'` makes create-only writes atomic, removing the
+ * TOCTOU race between a `fileExists` pre-check and `writeFile`. On a
+ * collision Node.js reports `EEXIST` (POSIX + Windows). On Windows, when
+ * the existing target is locked (open handle, antivirus/indexer hook),
+ * `EPERM` may surface instead — treat both as "already exists" to keep
+ * user-facing behavior parity with the prior pre-check.
+ *
+ * Trade-off: a genuine permission failure on a non-existent target would
+ * also be reported as "already exists" rather than rethrown. This is
+ * acceptable inside the temp KB (where such failures are rare and the
+ * caller cannot act on a raw EPERM anyway), but means this helper is NOT
+ * suitable for paths where EPERM must be distinguished from EEXIST.
+ */
+function isAlreadyExistsError(err: unknown): boolean {
+  if (!(err instanceof Error) || !("code" in err)) return false;
+  const code = (err as { code?: string }).code;
+  return code === "EEXIST" || code === "EPERM";
+}
 
 /** Today's date as YYYY-MM-DD in the runtime's local timezone.
  *  Uses local time (not UTC) so a page written "today" is dated today

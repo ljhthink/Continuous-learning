@@ -31,3 +31,4 @@
 | 2026-07-24 | ADR-008 第二轮审查（修复 B-1/B-2/B-3 + S-1~S-5） | guardrail | [2026-07-24-adr-008-guardrail-r2.md](2026-07-24-adr-008-guardrail-r2.md) |
 | 2026-07-24 | DEF-007 reject log type 回归修复安全与质量审计 | guardrail | [2026-07-24-def-007-guardrail.md](2026-07-24-def-007-guardrail.md) |
 | 2026-07-24 | DEF-007 reject log type 回归修复验收测试 | acceptance | [2026-07-24-def-007-acceptance.md](2026-07-24-def-007-acceptance.md) |
+| 2026-07-24 | DEF-001 TOCTOU 竞态修复安全与质量审计 | guardrail | [2026-07-24-def-001-guardrail.md](2026-07-24-def-001-guardrail.md) |
