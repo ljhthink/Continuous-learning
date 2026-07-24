@@ -123,7 +123,7 @@ ADR-008 后续任务清单中记录了 **DEF-001（kb_write_experience TOCTOU �
 **B-2：参考部分循环引用**
 
 - 位置：ADR-008 第 139 行，参考第一条
-- 问题："[用户提问原始记录](file:///...ADR-008...)"链接指向 ADR 自身，形成循环引用
+- 问题：参考部分有一条指向 ADR 自身的 `file:///` 循环引用链接（占位符形式），形成自指
 - 修复：改为指向真实会话记录路径，或删除此条参考
 
 **B-3：serializeFrontmatter 影响面评估不完整**
@@ -176,12 +176,12 @@ ADR-008 后续任务清单中记录了 **DEF-001（kb_write_experience TOCTOU �
 
 | ADR 断言 | 源码核实结论 | 证据 |
 | --- | --- | --- |
-| serializeFrontmatter 用 js-yaml dump 生成多行数组/带引号 date/无空行 | ✅ 确认 | [frontmatter.ts:45-46](file:///d:/s0611/code/Continuous-learning/server/src/utils/frontmatter.ts#L45-L46) `dump(frontmatter, { lineWidth: -1 })` + `---\n${yamlText}---\n${body}` 确无空行 |
+| serializeFrontmatter 用 js-yaml dump 生成多行数组/带引号 date/无空行 | ✅ 确认 | [frontmatter.ts:45-46](../../server/src/utils/frontmatter.ts#L45-L46) `dump(frontmatter, { lineWidth: -1 })` + `---\n${yamlText}---\n${body}` 确无空行 |
 | experiences 卡片 4 张 | ✅ 确认 | `wiki/coding/experiences/` 下正好 4 个 .md 文件 |
 | KB 系统文档 9 张 | ✅ 确认 | `index.md` coding 段前 9 条均为元知识文档 |
 | thealgorithms + public-apis 9 张 | ✅ 确认 | `index.md` "外部开源资源"段 9 条 |
-| kb_search 对 domain 硬编码（主 Agent 盲区） | ❌ 不成立 | [search.ts:69-75](file:///d:/s0611/code/Continuous-learning/server/src/tools/search.ts#L69-L75) 基于 frontmatter.domain 动态过滤，无硬编码 |
-| kb_list_categories 对领域硬编码 | ❌ 不成立 | [read-only.ts:80-85](file:///d:/s0611/code/Continuous-learning/server/src/tools/read-only.ts#L80-L85) 基于 `fs.readdir` 动态扫描，无硬编码 |
+| kb_search 对 domain 硬编码（主 Agent 盲区） | ❌ 不成立 | [search.ts:69-75](../../server/src/tools/search.ts#L69-L75) 基于 frontmatter.domain 动态过滤，无硬编码 |
+| kb_list_categories 对领域硬编码 | ❌ 不成立 | [read-only.ts:80-85](../../server/src/tools/read-only.ts#L80-L85) 基于 `fs.readdir` 动态扫描，无硬编码 |
 | serializeFrontmatter 仅影响 experiences | ❌ 不成立 | 5 个调用点：read-only.ts:209 / write.ts:114 / write.ts:188 / write.ts:297 / write.ts:328 |
 
 ## 8. 自动化建议（CI/CD 集成）
