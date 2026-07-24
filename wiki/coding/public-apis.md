@@ -5,7 +5,7 @@ type: entity
 status: active
 date: 2026-07-24
 tags: [api, public-api, open-source, learning, reference, http]
-related: [[wiki/coding/query-workflow]]
+related: [[wiki/kb-system/query-workflow]]
 ---
 
 ## 简介
@@ -125,6 +125,6 @@ grep -c "^| " README.md
 
 ## 相关页面
 
-- [[wiki/coding/query-workflow]] — 知识库查询工作流（public-apis 可作为外部数据源）
+- [[wiki/kb-system/query-workflow]] — 知识库查询工作流（public-apis 可作为外部数据源）
 - [[wiki/coding/thealgorithms-python]] — Python 算法实现（调用 public-apis 实践 HTTP）
 - [[wiki/coding/experiences/lychee-链接检查-ci绝对路径node-modules-引用与裸-url-的处理]] — 处理外部 URL 的 CI 经验

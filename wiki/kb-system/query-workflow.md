@@ -1,11 +1,11 @@
 ---
 title: "Query 工作流：检索与综合答案"
-domain: [coding]
+domain: [kb-system]
 type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, workflow, query, search, retrieval]
-related: [[wiki/coding/dual-index-mechanism]], [[wiki/coding/multi-domain-classification]]
+related: [[wiki/kb-system/dual-index-mechanism]], [[wiki/kb-system/multi-domain-classification]]
 ---
 
 ## 概念
@@ -51,7 +51,7 @@ kbGetPage({
 })
 ```
 
-副作用：`use_count` +1（用于老化机制，见 [[wiki/coding/continuous-evolution-review-gate]]）。
+副作用：`use_count` +1（用于老化机制，见 [[wiki/kb-system/continuous-evolution-review-gate]]）。
 
 ### kb_list_categories / kb_list_recent
 
@@ -72,7 +72,7 @@ kbGetPage({
 ```markdown
 根据 [[wiki/coding/async-patterns]]，Python 异步上下文管理器的正确用法是...
 
-详见 [Karpathy LLM Wiki 模式](wiki/coding/three-layer-architecture)。
+详见 [Karpathy LLM Wiki 模式](wiki/kb-system/three-layer-architecture)。
 ```
 
 ### 多源综合
@@ -80,9 +80,9 @@ kbGetPage({
 当答案综合自多个 wiki 页时，逐条标注：
 
 ```markdown
-- 三层架构定义见 [[wiki/coding/three-layer-architecture]]
-- frontmatter 字段见 [[wiki/coding/frontmatter-schema]]
-- 状态转移见 [[wiki/coding/page-types-and-state-machine]]
+- 三层架构定义见 [[wiki/kb-system/three-layer-architecture]]
+- frontmatter 字段见 [[wiki/kb-system/frontmatter-schema]]
+- 状态转移见 [[wiki/kb-system/page-types-and-state-machine]]
 ```
 
 ## 性能要求（PRD US-006）
@@ -101,9 +101,9 @@ kbGetPage({
 
 ## 相关概念
 
-- [[wiki/coding/dual-index-mechanism]] — Query 先读 index.md 定位。
-- [[wiki/coding/multi-domain-classification]] — domain 过滤加速检索。
-- [[wiki/coding/continuous-evolution-review-gate]] — Query 触发 use_count 累加。
+- [[wiki/kb-system/dual-index-mechanism]] — Query 先读 index.md 定位。
+- [[wiki/kb-system/multi-domain-classification]] — domain 过滤加速检索。
+- [[wiki/kb-system/continuous-evolution-review-gate]] — Query 触发 use_count 累加。
 
 ## 来源
 
