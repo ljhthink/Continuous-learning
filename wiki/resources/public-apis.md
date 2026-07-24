@@ -1,9 +1,9 @@
 ---
 title: "public-apis/public-apis — GitHub 最大公益 API 仓库"
-domain: [coding]
+domain: [resources]
 type: entity
 status: active
-date: 2026-07-24
+date: 2026-07-25
 tags: [api, public-api, open-source, learning, reference, http]
 related: [[wiki/kb-system/query-workflow]]
 ---
@@ -13,6 +13,8 @@ related: [[wiki/kb-system/query-workflow]]
 [public-apis/public-apis](https://github.com/public-apis/public-apis) 是 GitHub 上**最大的公益 API 索引仓库**，收录来自全球开发者的免费/公开 REST API。截至 2026-07，仓库 README 已达 221KB，覆盖 40+ 个一级分类，每个 API 标注「认证方式（No/API key/OAuth）」「HTTPS 支持」「CORS 支持」「链接」，是开发原型、学习 HTTP/REST 实践、扩展工具链的首选 API 字典。
 
 ⚠️ **重要提示**：仓库 README 顶部置顶 [APILayer Unified Suite](https://apilayer.com/) 商业广告，由 APILayer 团队维护（部分商业 API 引流），使用时注意区分「免费 public API」与「APILayer 商业 API」。
+
+> **领域归属**：本页原属 `wiki/coding/`，按 ADR-009 决策 2 迁移至 `wiki/resources/`。public-apis 是外部资源索引而非编程知识，归类至 resources 领域更准确。
 
 ## 核心特点
 

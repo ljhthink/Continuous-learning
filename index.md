@@ -1,6 +1,6 @@
 # 知识库索引
 
-> 最后更新：2026-07-24 · 总页数：24
+> 最后更新：2026-07-25 · 总页数：25
 > 本文件是知识库的内容索引（内容导向），LLM 回答问题前先读此文件定位。
 > 时间日志见 [log.md](log.md)。结构约定见 [AGENTS.md](AGENTS.md)。
 
@@ -24,9 +24,10 @@
 <!-- 在此追加编程领域页面（概念/实体/来源页），格式：- [[wiki/coding/<page>]] · 一句话摘要 · YYYY-MM-DD -->
 <!-- 经验卡片统一列入下方 experiences 段，不在此重复 -->
 
-### 外部开源资源（algorithm 教育合集 + 公益 API）
+### 外部开源资源（algorithm 教育合集）
 
 <!-- 在此追加外部开源资源 entity 页，格式：- [[wiki/coding/<page>]] · 一句话摘要 · YYYY-MM-DD -->
+<!-- public-apis 已按 ADR-009 决策 2 迁移至 wiki/resources/ -->
 
 - [[wiki/coding/thealgorithms-python]] · TheAlgorithms/Python — Python 算法教育实现合集 · 2026-07-24
 - [[wiki/coding/thealgorithms-java]] · TheAlgorithms/Java — Java 算法教育实现合集 · 2026-07-24
@@ -36,7 +37,6 @@
 - [[wiki/coding/thealgorithms-go]] · TheAlgorithms/Go — Go 算法教育实现合集 · 2026-07-24
 - [[wiki/coding/thealgorithms-rust]] · TheAlgorithms/Rust — Rust 算法教育实现合集 · 2026-07-24
 - [[wiki/coding/thealgorithms-typescript]] · TheAlgorithms/TypeScript — TypeScript 算法教育实现合集 · 2026-07-24
-- [[wiki/coding/public-apis]] · public-apis/public-apis — GitHub 最大公益 API 仓库 · 2026-07-24
 
 ### 算法实现模式（跨语言对比，基于 TheAlgorithms 真实代码）
 
@@ -44,6 +44,20 @@
 
 - [[wiki/coding/quick-sort-impl-patterns]] · 快速排序跨语言实现模式对比（Python/Java/C++ 4 种分区策略） · 2026-07-24
 - [[wiki/coding/binary-search-impl-patterns]] · 二分搜索跨语言实现模式对比（迭代/递归/bisect/泛型） · 2026-07-24
+
+## resources
+
+<!-- 外部资源索引：API、数据集等（ADR-009 决策 2） -->
+<!-- 格式：- [[wiki/resources/<page>]] · 一句话摘要 · YYYY-MM-DD -->
+
+- [[wiki/resources/public-apis]] · public-apis/public-apis — GitHub 最大公益 API 仓库 · 2026-07-25
+
+## design
+
+<!-- 设计素材资源：按类型分组（ADR-009 决策 3） -->
+<!-- 格式：- [[wiki/design/<page>]] · 一句话摘要 · YYYY-MM-DD -->
+
+- [[wiki/design/_index]] · 设计素材领域索引（8 类资源分组） · 2026-07-25
 
 ## emotions
 

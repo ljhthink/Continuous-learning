@@ -171,3 +171,27 @@
   - 所有代码均标注 MIT License 归属
   - 每页包含分区策略对比表、复杂度分析、工业实现对比、常见陷阱、选择指南
   - ADR-008 决策 3 的第一批交付，后续可继续深化其他算法
+
+## [2026-07-25] ingest | DEF-011 + DEF-012：新建 resources 与 design 领域 + 迁移 public-apis
+
+- source: ADR-009（新建 resources 与 design 领域 + TheAlgorithms/素材资源沉淀策略）
+- domain: resources, design
+- pages_affected: 3
+- pages:
+  - wiki/resources/public-apis.md（from wiki/coding/public-apis.md，frontmatter domain [coding] → [resources]）
+  - wiki/design/_index.md（新建，领域索引页）
+  - wiki/coding/public-apis.md（已删除，迁移至 resources/）
+- batch: DEF-011 + DEF-012
+- changes:
+  - ADR-009 状态 Proposed → Accepted
+  - AGENTS.md §2 目录结构追加 resources/ 与 design/
+  - AGENTS.md §8.1 领域目录表追加 resources 与 design 两行
+  - index.md 新增 ## resources 与 ## design 段，从 ## coding 段移除 public-apis 条目，总页数 24 → 25
+  - docs/decisions/README.md 追加 ADR-009 条目
+  - README.md 文档索引追加 ADR-009 引用
+- notes:
+  - 用户确认 ADR-009 全部 6 项决策后开始执行
+  - public-apis 从 coding/ 迁移至 resources/，frontmatter domain 改为 [resources]，date 更新为 2026-07-25
+  - design/ 领域建立 _index.md 索引页，8 张分类页待 Phase 3 创作
+  - 后续 Phase 2：8 个 TheAlgorithms 入口页追加目录索引
+  - 后续 Phase 3：design/ 8 张分类页内容创作
