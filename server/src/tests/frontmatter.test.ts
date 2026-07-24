@@ -130,6 +130,41 @@ describe("serializeFrontmatter (DEF-008 format invariants)", () => {
     );
     assert.match(out, /^domain: \[coding, academic\]$/m);
   });
+
+  it("reaches a fixed point after serialize -> parse -> serialize (DEF-008 stability)", () => {
+    // kb_get_page writes back use_count on every read via serializeFrontmatter.
+    // Repeated writebacks must reach a fixed point: the serialized output
+    // after N rounds must equal the output after 1 round. Without this
+    // invariant, every read would drift the body formatting further.
+    const fm = {
+      title: "Stability Test",
+      domain: ["coding"],
+      type: "experience",
+      status: "active",
+      confidence: 0.85,
+      date: "2026-07-24",
+      source_task: "task-stab-001",
+      use_count: 1,
+    };
+    const body = "## Body\nStable content.";
+
+    // Round 1: initial serialize
+    const s1 = serializeFrontmatter(fm, body);
+    // Round 2: parse s1, then re-serialize (simulating kb_get_page writeback)
+    const { frontmatter: fm2, body: body2 } = parseFrontmatter(s1);
+    const s2 = serializeFrontmatter(fm2, body2);
+    // Round 3: parse s2, then re-serialize again
+    const { frontmatter: fm3, body: body3 } = parseFrontmatter(s2);
+    const s3 = serializeFrontmatter(fm3, body3);
+
+    // Fixed point: round 2 and round 3 must be identical (round 1 may differ
+    // if the caller passed a body with leading newlines that get trimmed).
+    assert.equal(s2, s3, "serialize -> parse -> serialize must reach a fixed point");
+
+    // And the fixed point's body must preserve the original content
+    const { body: stableBody } = parseFrontmatter(s3);
+    assert.equal(stableBody.trim(), "## Body\nStable content.");
+  });
 });
 
 describe("normalizeDate", () => {
