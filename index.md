@@ -1,6 +1,6 @@
 # 知识库索引
 
-> 最后更新：2026-07-25 · 总页数：25
+> 最后更新：2026-07-25 · 总页数：33
 > 本文件是知识库的内容索引（内容导向），LLM 回答问题前先读此文件定位。
 > 时间日志见 [log.md](log.md)。结构约定见 [AGENTS.md](AGENTS.md)。
 
@@ -58,6 +58,14 @@
 <!-- 格式：- [[wiki/design/<page>]] · 一句话摘要 · YYYY-MM-DD -->
 
 - [[wiki/design/_index]] · 设计素材领域索引（8 类资源分组） · 2026-07-25
+- [[wiki/design/image-resources]] · 图像素材资源（5 站） · 2026-07-25
+- [[wiki/design/icon-resources]] · 图标素材资源（3 站） · 2026-07-25
+- [[wiki/design/font-resources]] · 字体素材资源（4 站） · 2026-07-25
+- [[wiki/design/color-resources]] · 颜色素材资源（5 站） · 2026-07-25
+- [[wiki/design/3d-model-resources]] · 3D 模型素材资源（8 站） · 2026-07-25
+- [[wiki/design/sound-resources]] · 声音素材资源（5 站） · 2026-07-25
+- [[wiki/design/animation-resources]] · 动画素材资源（2 站） · 2026-07-25
+- [[wiki/design/video-resources]] · 视频素材资源（2 站） · 2026-07-25
 
 ## emotions
 

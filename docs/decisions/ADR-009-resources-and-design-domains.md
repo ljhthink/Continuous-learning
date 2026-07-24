@@ -246,8 +246,8 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | DEF-011 | 新建 `wiki/resources/` + 迁移 public-apis + 更新 AGENTS.md/index.md | 本 ADR 决策 2 | Phase 1 | P2 跨模块 | 本 ADR 确认 | ✅ 已完成（Phase 1） |
 | DEF-012 | 新建 `wiki/design/` 目录骨架 + schema 更新 | 本 ADR 决策 3 | Phase 1 | P2 跨模块 | DEF-011 | ✅ 已完成（Phase 1） |
-| DEF-013 | 8 个 TheAlgorithms 入口页追加目录索引 | 本 ADR 决策 1 | Phase 2 | P1 常规 | DEF-011 | 待开始 |
-| DEF-014 | 8 张 design 分类页内容创作 | 本 ADR 决策 3 | Phase 3 | P1 常规 | DEF-012 | 待开始 |
+| DEF-013 | 8 个 TheAlgorithms 入口页追加目录索引 | 本 ADR 决策 1 | Phase 2 | P1 常规 | DEF-011 | ✅ 已完成（Phase 2） |
+| DEF-014 | 8 张 design 分类页内容创作 | 本 ADR 决策 3 | Phase 3 | P1 常规 | DEF-012 | ✅ 已完成（Phase 3） |
 | DEF-010 续 | 算法概念页深化（merge-sort、graph、DP 等） | ADR-008 决策 3 | Phase 4 | P2 长期 | DEF-013 | 进行中（已交付 quick-sort、binary-search） |
 
 ### 执行顺序建议

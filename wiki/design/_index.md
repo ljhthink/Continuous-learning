@@ -43,7 +43,7 @@ tags: [design, resources, index, assets, creative]
 | 3D 模型素材 | [[wiki/design/3d-model-resources]] | 8 | 免费 vs 付费 / 写实 vs 风格化 / PBR 贴图 / HDRI |
 | 声音素材 | [[wiki/design/sound-resources]] | 5 | VFX vs 背景音乐 vs 环境音 / 商用 license |
 
-> ⚠️ **状态说明**：上表为规划清单，分类页内容待 Phase 3 创作。当前仅有本索引页（_index.md）已建立，分类页文件尚不存在。点击链接将跳转到待创建的占位页。
+> ✅ **状态说明**：8 张分类页已全部创作完成（2026-07-25）。详见上表链接。
 
 ## 完整站点总览
 
@@ -217,7 +217,7 @@ tags: [design, resources, index, assets, creative]
 | 阶段 | 状态 | 说明 |
 | --- | --- | --- |
 | Phase 1（已完成） | ✅ 完成 | 领域目录与索引页（本文件）已建立 |
-| Phase 3（计划） | ⏳ 待开始 | 逐张创作 8 张分类页，每页含详细站点清单表、选型决策矩阵、License 标注 |
+| Phase 3（已完成） | ✅ 完成 | 8 张分类页已全部创作（2026-07-25），每页含站点清单表、选型决策矩阵、License 标注 |
 
 ### Phase 3 创作顺序建议
 
