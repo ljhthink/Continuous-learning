@@ -1,6 +1,6 @@
 # 知识库索引
 
-> 最后更新：2026-07-24 · 总页数：13
+> 最后更新：2026-07-24 · 总页数：22
 > 本文件是知识库的内容索引（内容导向），LLM 回答问题前先读此文件定位。
 > 时间日志见 [log.md](log.md)。结构约定见 [AGENTS.md](AGENTS.md)。
 
@@ -18,6 +18,20 @@
 - [[wiki/coding/ingest-workflow]] · Ingest 工作流：从 raw 到 wiki · 2026-07-24
 - [[wiki/coding/query-workflow]] · Query 工作流：检索与综合答案 · 2026-07-24
 - [[wiki/coding/lint-workflow]] · Lint 工作流：健康检查 · 2026-07-24
+
+### 外部开源资源（algorithm 教育合集 + 公益 API）
+
+<!-- 在此追加外部开源资源 entity 页，格式：- [[wiki/coding/<page>]] · 一句话摘要 · YYYY-MM-DD -->
+
+- [[wiki/coding/thealgorithms-python]] · TheAlgorithms/Python — Python 算法教育实现合集 · 2026-07-24
+- [[wiki/coding/thealgorithms-java]] · TheAlgorithms/Java — Java 算法教育实现合集 · 2026-07-24
+- [[wiki/coding/thealgorithms-c-plus-plus]] · TheAlgorithms/C-Plus-Plus — C++17 算法教育实现合集 · 2026-07-24
+- [[wiki/coding/thealgorithms-javascript]] · TheAlgorithms/JavaScript — JavaScript 算法教育实现合集 · 2026-07-24
+- [[wiki/coding/thealgorithms-c]] · TheAlgorithms/C — C11 算法教育实现合集（GPLv3） · 2026-07-24
+- [[wiki/coding/thealgorithms-go]] · TheAlgorithms/Go — Go 算法教育实现合集 · 2026-07-24
+- [[wiki/coding/thealgorithms-rust]] · TheAlgorithms/Rust — Rust 算法教育实现合集 · 2026-07-24
+- [[wiki/coding/thealgorithms-typescript]] · TheAlgorithms/TypeScript — TypeScript 算法教育实现合集 · 2026-07-24
+- [[wiki/coding/public-apis]] · public-apis/public-apis — GitHub 最大公益 API 仓库 · 2026-07-24
 
 ## emotions
 
