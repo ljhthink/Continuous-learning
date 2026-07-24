@@ -80,6 +80,7 @@
 #### 链接有效性验证
 
 已通过 `Test-Path` 验证所有 `[[wiki/coding/...]]` 链接指向的文件真实存在：
+
 - thealgorithms-javascript.md ✅
 - thealgorithms-go.md ✅
 - thealgorithms-c.md ✅
@@ -209,6 +210,7 @@
 | **总页数** | **❌ 未更新** | 标注"22"，实际应为 24 |
 
 **详细计数**：
+
 - kb-system 段：9 页
 - coding - 外部开源资源段：9 页
 - coding - 算法实现模式段：2 页（DEF-010 新增）
@@ -219,7 +221,7 @@
 
 | 检查项 | 结论 |
 | --- | --- |
-| 标题格式 `## [YYYY-MM-DD] ingest | <标题>` | ✅ `## [2026-07-24] ingest | DEF-010：...` |
+| 标题格式 `## [YYYY-MM-DD] ingest \| <标题>` | ✅ `## [2026-07-24] ingest \| DEF-010：...` |
 | source 字段 | ✅ `GitHub MCP（get_file_contents 读取 TheAlgorithms 真实代码）` |
 | sources 字段（6 个源文件 URL） | ✅ |
 | domain 字段 | ✅ `coding` |
@@ -251,6 +253,7 @@
 ### 遗憾 1：Java Hoare 分区递归边界的技术准确性
 
 **结论：描述准确。** 经逐行代码追踪验证：
+
 - `partition` 返回 `left`（双指针相遇位置）
 - Hoare 分区不保证枢轴在最终位置
 - 因此右侧递归从 `pivot` 而非 `pivot + 1` 开始
