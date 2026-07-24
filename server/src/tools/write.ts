@@ -329,7 +329,11 @@ export async function kbPromoteExperience(args: {
 
   await appendLogEntry({
     date: today,
-    type: "experience",
+    // DEF-007: type "reject" (not "experience") aligns with the promote
+    // convention (AGENTS.md §7.4) — using a distinct type avoids MD024
+    // duplicate-heading collisions with the original `## [date] experience`
+    // entry written when the card was created, and is semantically clearer.
+    type: "reject",
     title,
     details: {
       rejected: inboxPath,

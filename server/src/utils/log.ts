@@ -17,7 +17,7 @@ import { readFile } from "./fileio.js";
 
 export interface LogEntry {
   date: string; // YYYY-MM-DD
-  type: string; // ingest | query | lint | experience | promote | init
+  type: string; // ingest | query | lint | experience | promote | reject | init
   title: string;
   details: Record<string, string>;
 }
