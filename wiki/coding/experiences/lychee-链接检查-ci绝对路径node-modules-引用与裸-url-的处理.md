@@ -1,13 +1,13 @@
 ---
 title: lychee 链接检查 CI：绝对路径、node_modules 引用与裸 URL 的处理
-domain:
-  - coding
+domain: [coding]
 type: experience
 status: active
 confidence: 0.85
-date: '2026-07-24'
+date: 2026-07-24
 source_task: TKN-CI-LYCHEE-FIX
 ---
+
 ## 背景
 
 项目采用 lychee-action 做 markdown 链接检查 CI。首次运行出现 76 个错误，分三类：14 个外部链接 HTTP 错误（403/401/521）、约 60 个 Windows 绝对路径（`file:///D:/...`）、2 个错误的目标链接。后续多轮修复中又发现相对路径深度错误（报告位于 `docs/reports/`，到 `server/` 需 `../../server/`，误写 `server/` 被 lychee 解析为 `docs/reports/server/` 不存在）。

@@ -87,8 +87,12 @@ test("kb_get_page: increments use_count and persists across calls", async () => 
     const r2 = await kbGetPage({ path: "wiki/coding/foo" });
     assert.equal(parseResult(r2).frontmatter.use_count, 2);
 
-    // Body preserved (writeback must not truncate)
-    assert.equal(parseResult(r2).body, "body text\n");
+    // Body preserved (writeback must not truncate). DEF-008 changed
+    // serializeFrontmatter to insert a blank line between the closing `---`
+    // and the body (MD022), so after the first writeback the parsed body
+    // carries a leading newline. trim() isolates the content-comparison
+    // intent from that cosmetic leading blank line.
+    assert.equal(parseResult(r2).body.trim(), "body text");
   } finally {
     delete process.env.KB_ROOT;
     await cleanupKB(tmp);

@@ -37,13 +37,47 @@ export function parseFrontmatter(content: string): {
   return { frontmatter, body };
 }
 
-/** Serialize frontmatter + body back to markdown with YAML frontmatter. */
+/**
+ * Serialize frontmatter + body back to markdown with YAML frontmatter.
+ *
+ * Output format matches hand-written pages (AGENTS.md §3, ADR-008 decision 1):
+ *   - Top-level arrays use flow style on a single line (`domain: [coding]`)
+ *     via `flowLevel: 1` — js-yaml's default would emit block style
+ *     (`domain:\n  - coding`), diverging from hand-written pages.
+ *   - Line wrapping is disabled (`lineWidth: -1`) so scalar values stay on
+ *     one line, keeping frontmatter compact and grep-friendly.
+ *   - ISO dates (`date: 2026-07-24`) are emitted unquoted. js-yaml quotes
+ *     dates by default to force the YAML parser to load them as strings
+ *     rather than Date objects; we strip the quotes post-serialization so
+ *     frontmatter reads `date: 2026-07-24` matching hand-written pages.
+ *     `parseFrontmatter` + `normalizeDate` handle both forms on read, so the
+ *     quote-stripping is purely cosmetic and does not affect semantics.
+ *   - A blank line separates the closing `---` from the body to satisfy
+ *     markdownlint MD022 (blank line after a heading / `---` fence).
+ */
 export function serializeFrontmatter(
   frontmatter: Record<string, unknown>,
   body: string
 ): string {
-  const yamlText = dump(frontmatter, { lineWidth: -1 });
-  return `---\n${yamlText}---\n${body}`;
+  const yamlText = dump(frontmatter, {
+    flowLevel: 1,
+    lineWidth: -1,
+    noRefs: true,
+  });
+  // Strip single quotes that js-yaml adds around YYYY-MM-DD dates so the
+  // emitted frontmatter matches hand-written form (`date: 2026-07-24`).
+  // Only strip when the value is exactly a quoted ISO date — never touch
+  // quotes around values that legitimately need them (e.g. titles with
+  // special characters).
+  const stripped = yamlText.replace(
+    /^(\s*\w[\w-]*:\s*)'(\d{4}-\d{2}-\d{2})'$/gm,
+    "$1$2"
+  );
+  // Ensure exactly one blank line between the closing `---` and the body
+  // (MD022). Trim leading newlines from body so we control the spacing
+  // deterministically rather than depending on the caller's body formatting.
+  const normalizedBody = body.replace(/^\n+/, "");
+  return `---\n${stripped}---\n\n${normalizedBody}`;
 }
 
 /**

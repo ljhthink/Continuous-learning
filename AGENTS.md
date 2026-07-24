@@ -90,6 +90,19 @@ date: 2026-07-22            # ISO 日期：创建或最后更新日期
 ---
 ```
 
+### 3.1.1 格式约定（DEF-008，ADR-008 决策 1）
+
+无论是 Agent 手写还是 MCP server 自动生成（`serializeFrontmatter`），frontmatter **必须**遵循以下格式约定，保证两条生成路径输出一致：
+
+| 约定 | 规范 | 反例（禁止） | 理由 |
+| --- | --- | --- | --- |
+| 顶层数组 | 单行 flow 风格 `domain: [coding]` | `domain:\n  - coding`（block 风格） | 紧凑、可读、与手写一致 |
+| ISO 日期 | 无引号 `date: 2026-07-24` | `date: '2026-07-24'`（带引号） | 与手写一致；`parseFrontmatter` + `normalizeDate` 同时接受两种形式 |
+| frontmatter 与 body 之间 | 必须有空行（`---\n\n## 正文`） | `---\n## 正文`（无空行） | markdownlint MD022（blank line after heading / `---` fence） |
+| 标量值 | 单行，不换行 | 多行折叠 | `lineWidth: -1` 禁止换行，保持 grep 友好 |
+
+`serializeFrontmatter` 通过 `flowLevel: 1` + `lineWidth: -1` + 日期引号去除 + body 前空行注入强制执行上述约定。Agent 手写时遵循相同格式。
+
 ### 3.2 按 type 的附加字段
 
 | type | 附加必填字段 | 说明 |
