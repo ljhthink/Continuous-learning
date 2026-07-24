@@ -1,11 +1,11 @@
 ---
 title: "Ingest 工作流：从 raw 到 wiki"
-domain: [coding]
+domain: [kb-system]
 type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, workflow, ingest]
-related: [[wiki/coding/dual-index-mechanism]], [[wiki/coding/three-layer-architecture]], [[wiki/coding/frontmatter-schema]]
+related: [[wiki/kb-system/dual-index-mechanism]], [[wiki/kb-system/three-layer-architecture]], [[wiki/kb-system/frontmatter-schema]]
 ---
 
 ## 概念
@@ -56,7 +56,7 @@ kbIngestSource({
   source_file: "raw/pdf/karpathy-llm-wiki.pdf",
   domain: "coding",
   summary: "Karpathy LLM Wiki 模式提出三层架构...",
-  pages_to_update: ["wiki/coding/three-layer-architecture"]
+  pages_to_update: ["wiki/kb-system/three-layer-architecture"]
 })
 ```
 
@@ -83,11 +83,11 @@ Ingest 与 Experience 的区别：Ingest 处理**外部资料**（raw → wiki�
 
 ## 相关概念
 
-- [[wiki/coding/three-layer-architecture]] — Ingest 跨越 raw 与 wiki 两层。
-- [[wiki/coding/dual-index-mechanism]] — Ingest 同时更新 index.md 与 log.md。
-- [[wiki/coding/frontmatter-schema]] — summary 页的 frontmatter 结构。
-- [[wiki/coding/continuous-evolution-review-gate]] — Experience 不走 Ingest，走门禁。
-- [[wiki/coding/query-workflow]] — Ingest 产出的页面供 Query 检索使用。
+- [[wiki/kb-system/three-layer-architecture]] — Ingest 跨越 raw 与 wiki 两层。
+- [[wiki/kb-system/dual-index-mechanism]] — Ingest 同时更新 index.md 与 log.md。
+- [[wiki/kb-system/frontmatter-schema]] — summary 页的 frontmatter 结构。
+- [[wiki/kb-system/continuous-evolution-review-gate]] — Experience 不走 Ingest，走门禁。
+- [[wiki/kb-system/query-workflow]] — Ingest 产出的页面供 Query 检索使用。
 
 ## 来源
 

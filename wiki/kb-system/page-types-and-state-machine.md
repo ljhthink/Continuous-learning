@@ -1,11 +1,11 @@
 ---
 title: "页面类型与状态机"
-domain: [coding]
+domain: [kb-system]
 type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, frontmatter, state-machine]
-related: [[wiki/coding/frontmatter-schema]], [[wiki/coding/continuous-evolution-review-gate]]
+related: [[wiki/kb-system/frontmatter-schema]], [[wiki/kb-system/continuous-evolution-review-gate]]
 ---
 
 ## 概念
@@ -92,9 +92,9 @@ date: 2026-07-24
 
 ## 相关概念
 
-- [[wiki/coding/frontmatter-schema]] — 字段定义与命名约定。
-- [[wiki/coding/continuous-evolution-review-gate]] — experience 类型的门禁机制。
-- [[wiki/coding/lint-workflow]] — 状态机违规是 lint 检查项之一。
+- [[wiki/kb-system/frontmatter-schema]] — 字段定义与命名约定。
+- [[wiki/kb-system/continuous-evolution-review-gate]] — experience 类型的门禁机制。
+- [[wiki/kb-system/lint-workflow]] — 状态机违规是 lint 检查项之一。
 
 ## 来源
 

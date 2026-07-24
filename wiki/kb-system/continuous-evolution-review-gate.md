@@ -1,11 +1,11 @@
 ---
 title: "持续进化门禁：两 Tier 审核与老化"
-domain: [coding]
+domain: [kb-system]
 type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, evolution, review-gate, aging]
-related: [[wiki/coding/page-types-and-state-machine]], [[wiki/coding/dual-index-mechanism]]
+related: [[wiki/kb-system/page-types-and-state-machine]], [[wiki/kb-system/dual-index-mechanism]]
 ---
 
 ## 概念
@@ -97,9 +97,9 @@ Agent 在调用 `kb_write_experience` 前**必须**自检：
 
 ## 相关概念
 
-- [[wiki/coding/page-types-and-state-machine]] — experience 类型的状态机。
-- [[wiki/coding/dual-index-mechanism]] — promote 事件写入 log.md。
-- [[wiki/coding/ingest-workflow]] — 与 ingest 的区别（ingest 处理 raw 资料，experience 处理 Agent 实践）。
+- [[wiki/kb-system/page-types-and-state-machine]] — experience 类型的状态机。
+- [[wiki/kb-system/dual-index-mechanism]] — promote 事件写入 log.md。
+- [[wiki/kb-system/ingest-workflow]] — 与 ingest 的区别（ingest 处理 raw 资料，experience 处理 Agent 实践）。
 
 ## 来源
 

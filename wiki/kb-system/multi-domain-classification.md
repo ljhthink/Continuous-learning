@@ -1,11 +1,11 @@
 ---
 title: "多领域分类规范"
-domain: [coding]
+domain: [kb-system]
 type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, domain, classification, tags]
-related: [[wiki/coding/frontmatter-schema]], [[wiki/coding/three-layer-architecture]]
+related: [[wiki/kb-system/frontmatter-schema]], [[wiki/kb-system/three-layer-architecture]]
 ---
 
 ## 概念
@@ -92,9 +92,9 @@ tags: [python, pytest, fixture, testing]
 
 ## 相关概念
 
-- [[wiki/coding/frontmatter-schema]] — domain 与 tags 字段的定义。
-- [[wiki/coding/three-layer-architecture]] — 领域目录属于 wiki 层。
-- [[wiki/coding/lint-workflow]] — 缺失交叉引用是中严重度 lint 项。
+- [[wiki/kb-system/frontmatter-schema]] — domain 与 tags 字段的定义。
+- [[wiki/kb-system/three-layer-architecture]] — 领域目录属于 wiki 层。
+- [[wiki/kb-system/lint-workflow]] — 缺失交叉引用是中严重度 lint 项。
 
 ## 来源
 

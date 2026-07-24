@@ -118,3 +118,28 @@
   - 通过 GitHub MCP get_file_contents 调研 9 个仓库 README
   - C 版 License 为 GPLv3（与其他 MIT 兄弟仓库不同），已在页面显式标注
   - public-apis README 达 221KB，仅在 wiki 页做分类摘要
+
+## [2026-07-24] ingest | DEF-009：9 张 KB 系统文档从 coding/ 迁移至 kb-system/ 领域
+
+- source: ADR-008 决策 2（新建 kb-system 元知识领域）
+- domain: kb-system
+- pages_affected: 9
+- pages:
+  - wiki/kb-system/three-layer-architecture.md（from wiki/coding/）
+  - wiki/kb-system/dual-index-mechanism.md（from wiki/coding/）
+  - wiki/kb-system/page-types-and-state-machine.md（from wiki/coding/）
+  - wiki/kb-system/frontmatter-schema.md（from wiki/coding/）
+  - wiki/kb-system/multi-domain-classification.md（from wiki/coding/）
+  - wiki/kb-system/continuous-evolution-review-gate.md（from wiki/coding/）
+  - wiki/kb-system/ingest-workflow.md（from wiki/coding/）
+  - wiki/kb-system/query-workflow.md（from wiki/coding/）
+  - wiki/kb-system/lint-workflow.md（from wiki/coding/）
+- batch: DEF-009
+- changes:
+  - frontmatter domain 字段从 [coding] 改为 [kb-system]
+  - 9 张页面内部交叉引用从 wiki/coding/ 改为 wiki/kb-system/
+  - wiki/coding/public-apis.md 的 related 和相关页面段同步更新
+  - index.md 新增 kb-system 段，从 coding 段移除 9 页条目
+  - AGENTS.md §2 目录结构和 §8.1 领域目录新增 kb-system
+  - 修复 6 张文件的 UTF-8 BOM 问题（破坏 frontmatter 解析）
+  - 修复 docs/reports/2026-07-24-route-a-concept-pages-guardrail.md 中 2 处断链

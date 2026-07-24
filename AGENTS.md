@@ -51,6 +51,7 @@ Continuous-learning/
 │   ├── docx/
 │   └── xlsx/
 ├── wiki/                         # 知识库主体（Agent 写、用户读）
+│   ├── kb-system/               # 领域：知识库系统（元知识，ADR-008 决策 2）
 │   ├── coding/                   # 领域：编程
 │   │   ├── _index.md             # 领域子索引（可选）
 │   │   ├── *.md                  # 概念页、实体页、来源页
@@ -298,6 +299,7 @@ tags: [python, async, context-manager]
 
 | 领域 | 目录 | 说明 |
 | --- | --- | --- |
+| 知识库系统 | `kb-system/` | 知识库元知识：三层架构、双索引、状态机、frontmatter、四大工作流、领域分类、持续进化门禁（ADR-008 决策 2） |
 | 编程 | `coding/` | 编程语言、框架、架构、DevOps |
 | 情感 | `emotions/` | 心理、情绪、自我成长 |
 | 读书 | `reading/` | 书籍笔记、读后感 |

@@ -1,11 +1,11 @@
 ---
 title: "Lint 工作流：健康检查"
-domain: [coding]
+domain: [kb-system]
 type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, workflow, lint, health-check]
-related: [[wiki/coding/frontmatter-schema]], [[wiki/coding/multi-domain-classification]], [[wiki/coding/page-types-and-state-machine]]
+related: [[wiki/kb-system/frontmatter-schema]], [[wiki/kb-system/multi-domain-classification]], [[wiki/kb-system/page-types-and-state-machine]]
 ---
 
 ## 概念
@@ -86,11 +86,11 @@ Lint 时还需检查：
 
 ## 相关概念
 
-- [[wiki/coding/frontmatter-schema]] — frontmatter 缺失是高严重度 lint 项。
-- [[wiki/coding/multi-domain-classification]] — 缺失交叉引用是中严重度 lint 项。
-- [[wiki/coding/page-types-and-state-machine]] — 状态机违规是 lint 检查项。
-- [[wiki/coding/dual-index-mechanism]] — Lint 事件写入 log.md。
-- [[wiki/coding/query-workflow]] — Lint 保障 Query 检索结果的质量。
+- [[wiki/kb-system/frontmatter-schema]] — frontmatter 缺失是高严重度 lint 项。
+- [[wiki/kb-system/multi-domain-classification]] — 缺失交叉引用是中严重度 lint 项。
+- [[wiki/kb-system/page-types-and-state-machine]] — 状态机违规是 lint 检查项。
+- [[wiki/kb-system/dual-index-mechanism]] — Lint 事件写入 log.md。
+- [[wiki/kb-system/query-workflow]] — Lint 保障 Query 检索结果的质量。
 
 ## 来源
 

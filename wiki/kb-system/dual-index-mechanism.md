@@ -1,11 +1,11 @@
 ---
 title: "双索引机制：内容索引 + 时间日志"
-domain: [coding]
+domain: [kb-system]
 type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, indexing, navigation]
-related: [[wiki/coding/three-layer-architecture]], [[wiki/coding/ingest-workflow]]
+related: [[wiki/kb-system/three-layer-architecture]], [[wiki/kb-system/ingest-workflow]]
 ---
 
 ## 概念
@@ -85,9 +85,9 @@ related: [[wiki/coding/three-layer-architecture]], [[wiki/coding/ingest-workflow
 
 ## 相关概念
 
-- [[wiki/coding/three-layer-architecture]] — 双索引属于 L2 索引层。
-- [[wiki/coding/ingest-workflow]] — ingest 同时更新两个索引。
-- [[wiki/coding/continuous-evolution-review-gate]] — promote 事件由门禁触发。
+- [[wiki/kb-system/three-layer-architecture]] — 双索引属于 L2 索引层。
+- [[wiki/kb-system/ingest-workflow]] — ingest 同时更新两个索引。
+- [[wiki/kb-system/continuous-evolution-review-gate]] — promote 事件由门禁触发。
 
 ## 来源
 

@@ -1,11 +1,11 @@
 ---
 title: "frontmatter Schema 规约"
-domain: [coding]
+domain: [kb-system]
 type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, frontmatter, yaml, schema]
-related: [[wiki/coding/page-types-and-state-machine]], [[wiki/coding/multi-domain-classification]]
+related: [[wiki/kb-system/page-types-and-state-machine]], [[wiki/kb-system/multi-domain-classification]]
 ---
 
 ## 概念
@@ -27,9 +27,9 @@ date: 2026-07-24            # ISO 日期：创建或最后更新日期
 | 字段 | 类型 | 约束 | 说明 |
 | --- | --- | --- | --- |
 | `title` | string | 必填，非空 | 页面标题，可含中文 |
-| `domain` | string[] | 必填，≥1 项 | 领域归属，见 [[wiki/coding/multi-domain-classification]] |
+| `domain` | string[] | 必填，≥1 项 | 领域归属，见 [[wiki/kb-system/multi-domain-classification]] |
 | `type` | enum | 必填 | `concept` / `entity` / `source` / `experience` |
-| `status` | enum | 必填 | 见 [[wiki/coding/page-types-and-state-machine]] |
+| `status` | enum | 必填 | 见 [[wiki/kb-system/page-types-and-state-machine]] |
 | `date` | date | 必填，ISO `YYYY-MM-DD` | 创建或最后更新日期 |
 
 ## 按 type 的附加必填字段
@@ -78,9 +78,9 @@ related: [[wiki/coding/other-page]]  # 相关页面链接
 
 ## 相关概念
 
-- [[wiki/coding/page-types-and-state-machine]] — type 与 status 的状态机。
-- [[wiki/coding/multi-domain-classification]] — domain 字段的使用规范。
-- [[wiki/coding/lint-workflow]] — frontmatter 缺失是高严重度 lint 项。
+- [[wiki/kb-system/page-types-and-state-machine]] — type 与 status 的状态机。
+- [[wiki/kb-system/multi-domain-classification]] — domain 字段的使用规范。
+- [[wiki/kb-system/lint-workflow]] — frontmatter 缺失是高严重度 lint 项。
 
 ## 来源
 

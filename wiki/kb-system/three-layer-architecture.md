@@ -1,11 +1,11 @@
 ---
 title: "三层架构：Raw / Wiki / Schema"
-domain: [coding]
+domain: [kb-system]
 type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, architecture, schema]
-related: [[wiki/coding/dual-index-mechanism]], [[wiki/coding/frontmatter-schema]]
+related: [[wiki/kb-system/dual-index-mechanism]], [[wiki/kb-system/frontmatter-schema]]
 ---
 
 ## 概念
@@ -42,9 +42,9 @@ related: [[wiki/coding/dual-index-mechanism]], [[wiki/coding/frontmatter-schema]
 
 ## 相关概念
 
-- [[wiki/coding/dual-index-mechanism]] — 双索引如何导航 wiki 层。
-- [[wiki/coding/frontmatter-schema]] — wiki 页的结构约定。
-- [[wiki/coding/page-types-and-state-machine]] — wiki 页的四种类型。
+- [[wiki/kb-system/dual-index-mechanism]] — 双索引如何导航 wiki 层。
+- [[wiki/kb-system/frontmatter-schema]] — wiki 页的结构约定。
+- [[wiki/kb-system/page-types-and-state-machine]] — wiki 页的四种类型。
 
 ## 来源
 
