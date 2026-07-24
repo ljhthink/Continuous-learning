@@ -32,3 +32,6 @@
 | 2026-07-24 | DEF-007 reject log type 回归修复安全与质量审计 | guardrail | [2026-07-24-def-007-guardrail.md](2026-07-24-def-007-guardrail.md) |
 | 2026-07-24 | DEF-007 reject log type 回归修复验收测试 | acceptance | [2026-07-24-def-007-acceptance.md](2026-07-24-def-007-acceptance.md) |
 | 2026-07-24 | DEF-001 TOCTOU 竞态修复安全与质量审计 | guardrail | [2026-07-24-def-001-guardrail.md](2026-07-24-def-001-guardrail.md) |
+| 2026-07-24 | DEF-001 TOCTOU 竞态修复验收测试 | acceptance | [2026-07-24-def-001-acceptance.md](2026-07-24-def-001-acceptance.md) |
+| 2026-07-24 | DEF-008 frontmatter 格式统一安全与质量审计 | guardrail | [2026-07-24-def-008-guardrail.md](2026-07-24-def-008-guardrail.md) |
+| 2026-07-24 | DEF-008 frontmatter 格式统一验收测试 | acceptance | [2026-07-24-def-008-acceptance.md](2026-07-24-def-008-acceptance.md) |
