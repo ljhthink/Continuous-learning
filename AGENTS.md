@@ -259,6 +259,8 @@ tags: [python, async, context-manager]
 
 **提升日志**：promote 动作追加 `log.md`，格式 `## [YYYY-MM-DD] promote | <标题>`（type 用 `promote` 而非 `experience`，语义清晰且避免与原始 write 条目形成 MD024 重复 heading），记录 promoted 路径、from_inbox 路径、tier、confidence。
 
+**驳回日志**：reject 动作追加 `log.md`，格式 `## [YYYY-MM-DD] reject | <标题>`（type 用 `reject` 而非 `experience`，理由同 promote：语义清晰且避免与原始 write 条目形成 MD024 重复 heading），记录 rejected 路径。
+
 ### 7.5 老化与淘汰
 
 - 每次 `kb_get_page` 被调用时，`use_count` +1。
