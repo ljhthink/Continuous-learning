@@ -1,13 +1,13 @@
 ---
 title: MCP server 新增工具后客户端描述符缓存过期：需重连刷新才能发现
-domain:
-  - coding
+domain: [coding]
 type: experience
 status: active
 confidence: 0.8
-date: '2026-07-24'
+date: 2026-07-24
 source_task: TKN-MILESTONE-AUDIT-001
 ---
+
 ## 背景
 
 为 MCP server 新增第 9 个工具 `kb_promote_experience`（P3 阶段）并合并后，发现 Trae CN 客户端的 MCP 工具描述符仍只列出 8 个工具（P3 前的快照）。代码与 `dist/index.js` 均正确注册 9 个工具（`server.tool("kb_promote_experience", ...)`），但客户端无法发现新增工具，导致 US-001 的「高 confidence 自动提升」无法经 MCP 调用验证。

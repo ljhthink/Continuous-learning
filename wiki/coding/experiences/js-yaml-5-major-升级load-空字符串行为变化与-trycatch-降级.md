@@ -1,13 +1,13 @@
 ---
 title: js-yaml 5 MAJOR 升级：load() 空字符串行为变化与 try/catch 降级
-domain:
-  - coding
+domain: [coding]
 type: experience
 status: active
 confidence: 0.9
-date: '2026-07-24'
+date: 2026-07-24
 source_task: TKN-DEPS-UPGRADE-001
 ---
+
 ## 背景
 
 将 js-yaml 从 v4 升级到 v5（MAJOR）时，`load("")` 的行为发生变化：v4 对空字符串返回 `undefined`，v5 抛出 `YAMLException`（"expected a document, but the input is empty"）。项目中 `parseFrontmatter` 直接调用 `load(yamlText)` 未加保护，导致空 frontmatter block（`---\n\n---\n`）在 `kb_get_page` / `kb_promote_experience` / `/dream` 三个调用点崩溃。

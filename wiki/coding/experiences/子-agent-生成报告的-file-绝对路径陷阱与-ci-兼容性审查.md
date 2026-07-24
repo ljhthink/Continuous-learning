@@ -1,13 +1,13 @@
 ---
 title: 子 Agent 生成报告的 file:/// 绝对路径陷阱与 CI 兼容性审查
-domain:
-  - coding
+domain: [coding]
 type: experience
 status: active
 confidence: 0.8
-date: '2026-07-24'
+date: 2026-07-24
 source_task: TKN-P0-ROUTE-A-001
 ---
+
 ## 背景
 
 guardrail-enforcer 子 Agent 在生成 P0 审计报告时，自动使用了 `file:///D:/s0611/code/Continuous-learning/...` Windows 绝对路径引用 wiki 页面（如 `[ingest-workflow.md](file:///D:/s0611/code/Continuous-learning/wiki/coding/ingest-workflow.md)`）。子 Agent 在 Windows 本地环境运行，继承主 Agent 的本地路径上下文，不知道 CI 环境是 Linux，因此生成的 markdown 链接在 Linux CI 上被 lychee 识别为「File not found」，导致 docs-quality CI 失败。
