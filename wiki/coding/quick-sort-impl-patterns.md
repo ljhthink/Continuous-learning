@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-24
 tags: [algorithm, sorting, quicksort, python, java, cpp, cross-language, partition]
-related: [[wiki/coding/thealgorithms-python]], [[wiki/coding/thealgorithms-java]], [[wiki/coding/thealgorithms-c-plus-plus]]
+related: [[wiki/coding/thealgorithms-python]], [[wiki/coding/thealgorithms-java]], [[wiki/coding/thealgorithms-c-plus-plus]], [[wiki/coding/binary-search-impl-patterns]]
 ---
 
 ## 概念
@@ -239,12 +239,17 @@ TheAlgorithms 是教学实现，工业级排序有本质区别：
 3. **整数溢出**：`mid = (left + right) / 2` 在大数组时溢出。Java 版用 `(left + right) >>> 1`（无符号右移）规避。
 4. **Python 版的空间陷阱**：看似简洁的 `lesser = [item for item in collection if item <= pivot]` 每层递归分配 O(n) 新列表，总空间 O(n log n)——远超原地版的 O(log n)。
 
+5. **Java Hoare 分区随机化效果有限**：`randomPartition` 将随机元素交换到 `right` 位置，但 `partition` 方法实际取 `array[mid]`（中间元素）作为比较基准，而非 `array[right]`。随机元素被换到 `right` 后并不直接参与比较——随机化仅通过打乱数组间接影响 `mid` 位置元素的分布。若要真正随机化枢轴，应在 `partition` 中用 `array[right]` 而非 `array[mid]`，或直接随机选择 `mid` 索引。
+
 ## 来源
 
-- [TheAlgorithms/Python: sorts/quick_sort.py](https://github.com/TheAlgorithms/Python/blob/master/sorts/quick_sort.py)（MIT License）
-- [TheAlgorithms/Java: QuickSort.java](https://github.com/TheAlgorithms/Java/blob/master/src/main/java/com/thealgorithms/sorts/QuickSort.java)（MIT License）
-- [TheAlgorithms/C-Plus-Plus: sorting/quick_sort.cpp](https://github.com/TheAlgorithms/C-Plus-Plus/blob/master/sorting/quick_sort.cpp)（MIT License）
-- [TheAlgorithms/C-Plus-Plus: sorting/quick_sort_3.cpp](https://github.com/TheAlgorithms/C-Plus-Plus/blob/master/sorting/quick_sort_3.cpp)（MIT License）
+> 以下代码片段遵循 MIT License，版权归 TheAlgorithms 贡献者所有。
+> 完整许可证见各仓库根目录 LICENSE 文件。
+
+- [TheAlgorithms/Python: sorts/quick_sort.py](https://github.com/TheAlgorithms/Python/blob/master/sorts/quick_sort.py)（MIT License，Copyright (c) TheAlgorithms contributors）
+- [TheAlgorithms/Java: QuickSort.java](https://github.com/TheAlgorithms/Java/blob/master/src/main/java/com/thealgorithms/sorts/QuickSort.java)（MIT License，Copyright (c) TheAlgorithms contributors）
+- [TheAlgorithms/C-Plus-Plus: sorting/quick_sort.cpp](https://github.com/TheAlgorithms/C-Plus-Plus/blob/master/sorting/quick_sort.cpp)（MIT License，Copyright (c) TheAlgorithms contributors）
+- [TheAlgorithms/C-Plus-Plus: sorting/quick_sort_3.cpp](https://github.com/TheAlgorithms/C-Plus-Plus/blob/master/sorting/quick_sort_3.cpp)（MIT License，Copyright (c) TheAlgorithms contributors）
 
 ## 相关页面
 

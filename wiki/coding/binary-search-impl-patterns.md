@@ -225,6 +225,8 @@ class BinarySearch implements SearchAlgorithm {
 
 5. **重复元素的返回索引不确定**：标准 `binary_search` 找到任意一个等于目标的元素即返回，不保证是最左/最右。需要确定语义时用 `bisect_left` / `bisect_right`。
 
+6. **递归版 `right = -1` 默认值陷阱**：`binary_search_by_recursion` 用 `right = -1` 作为"使用末位索引"的哨兵默认值。但递归调用 `binary_search_by_recursion(..., left, midpoint - 1)` 当 `midpoint = 0` 时传入 `right = -1`——这会触发 `if right < 0: right = len - 1` 重置为全数组长度，**导致搜索范围错误回弹到整个数组而非"未找到"**。正确做法是用 `None` 哨兵或显式传递 `len - 1`，不用 `-1`。
+
 ## 何时选择哪种变体
 
 | 场景 | 推荐变体 | 理由 |
@@ -237,8 +239,11 @@ class BinarySearch implements SearchAlgorithm {
 
 ## 来源
 
-- [TheAlgorithms/Python: searches/binary_search.py](https://github.com/TheAlgorithms/Python/blob/master/searches/binary_search.py)（MIT License）
-- [TheAlgorithms/Java: BinarySearch.java](https://github.com/TheAlgorithms/Java/blob/master/src/main/java/com/thealgorithms/searches/BinarySearch.java)（MIT License）
+> 以下代码片段遵循 MIT License，版权归 TheAlgorithms 贡献者所有。
+> 完整许可证见各仓库根目录 LICENSE 文件。
+
+- [TheAlgorithms/Python: searches/binary_search.py](https://github.com/TheAlgorithms/Python/blob/master/searches/binary_search.py)（MIT License，Copyright (c) TheAlgorithms contributors）
+- [TheAlgorithms/Java: BinarySearch.java](https://github.com/TheAlgorithms/Java/blob/master/src/main/java/com/thealgorithms/searches/BinarySearch.java)（MIT License，Copyright (c) TheAlgorithms contributors）
 
 ## 相关页面
 
