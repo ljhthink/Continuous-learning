@@ -11,10 +11,22 @@ export async function readFile(filePath: string): Promise<string> {
   return fs.readFile(filePath, "utf-8");
 }
 
-/** Write a text file as UTF-8, creating parent directories as needed. */
-export async function writeFile(filePath: string, content: string): Promise<void> {
+/**
+ * Write a text file as UTF-8, creating parent directories as needed.
+ *
+ * `flag` defaults to Node.js' default (`'w'`, overwrite). Pass `'wx'` for
+ * atomic create-only semantics: the write fails with EEXIST if the file
+ * already exists, eliminating the TOCTOU race between a pre-check
+ * (`fileExists`) and the actual write (DEF-001). Callers that receive
+ * EEXIST/EPERM should convert it into a friendly "already exists" error.
+ */
+export async function writeFile(
+  filePath: string,
+  content: string,
+  flag?: string
+): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, content, "utf-8");
+  await fs.writeFile(filePath, content, { encoding: "utf-8", flag });
 }
 
 /** Ensure a directory exists (creates recursively if needed). */
