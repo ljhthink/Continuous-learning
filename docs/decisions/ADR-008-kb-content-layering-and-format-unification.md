@@ -42,15 +42,35 @@ Route B 完成后（PR #16 合并），用户对知识库设计提出三个深�
 
 ## 决策（Decision）
 
+### 决策 0：新领域机制维持现状（针对背景问题 2）
+
+背景问题 2 询问"未来上传不属于 coding/emotions/reading 的资料如何归类"。经核实，现有机制（AGENTS.md §4.2 第 3 步 + §8.3）已足够：
+
+- **机制**：Agent 在 ingest 时判断领域归属，若无合适领域则建议新建，与用户讨论确认后创建目录 + 更新 index.md + 更新 AGENTS.md §8.1
+- **性质**：「Agent 建议 + 用户确认」，非纯自动分类
+- **无需新决策**：现有机制覆盖了新领域扩展场景，用户可在 ingest 时与 Agent 讨论确认
+
 ### 决策 1：experiences 表头格式统一（修 MCP server + 批量修复存量）
 
 修改 `serializeFrontmatter` 强制单行数组 + 无引号 date + frontmatter 后加空行，与手写格式对齐。同时批量修复现有 4 张 experiences 卡片。
+
+**影响面（经 guardrail-enforcer 源码核实）**：`serializeFrontmatter` 有 **5 个调用点**，不限于 experiences 卡片：
+
+1. `kb_get_page` 的 `use_count` 写回（[read-only.ts:209](../../server/src/tools/read-only.ts#L209)，高频调用）
+2. `kb_ingest_source`（[write.ts:114](../../server/src/tools/write.ts#L114)）
+3. `kb_write_experience`（[write.ts:188](../../server/src/tools/write.ts#L188)）
+4. `kb_promote_experience` promote（[write.ts:297](../../server/src/tools/write.ts#L297)）
+5. `kb_promote_experience` reject（[write.ts:328](../../server/src/tools/write.ts#L328)）
+
+修改引入 bug 会影响 `kb_get_page` 高频写回路径，可能导致大范围页面格式损坏。DEF-008 必须回归测试覆盖全部 5 个调用方。
 
 **理由**：一劳永逸根治双轨生成路径不一致，未来所有自动生成的 experiences 都合规。
 
 ### 决策 2：新建 kb-system/ 领域
 
 新建 `wiki/kb-system/` 领域，把 9 张 KB 系统文档从 `wiki/coding/` 迁移过去。在 AGENTS.md §8.1 追加 `kb-system` 领域说明。
+
+**MCP 工具兼容性（经 guardrail-enforcer 源码核实）**：`kb_search`（[search.ts:69-75](../../server/src/tools/search.ts#L69-L75)）和 `kb_list_categories`（[read-only.ts:80-85](../../server/src/tools/read-only.ts#L80-L85)）均基于**动态扫描** wiki 目录，不硬编码领域列表。新建 `kb-system/` 领域无需修改 MCP server 代码，工具会自动发现新领域。
 
 **理由**：结构清晰，符合领域归属原则。元知识（KB 系统如何工作）与编程知识（算法/语言/框架）分层。
 
@@ -66,9 +86,9 @@ Route B 完成后（PR #16 合并），用户对知识库设计提出三个深�
 
 | 方案 | 优点 | 缺点 / 否决理由 |
 | --- | --- | --- |
-| 修 MCP server 代码（选定） | 根治，未来自动合规 | 需改代码 + 补测试 |
+| 修 MCP server 代码 | 根治，未来自动合规 | 不清理存量，4 张旧卡片仍是旧格式 |
 | 仅手动修复 4 张卡片 | 不动代码 | 下次 `kb_write_experience` 还会生成旧格式，治标不治本 |
-| 两者都做（最终选定） | 根治 + 清理存量 | 工作量最大但最彻底 |
+| 两者都做（选定） | 根治 + 清理存量 | 工作量最大但最彻底 |
 
 ### 决策 2 备选
 
@@ -99,7 +119,7 @@ Route B 完成后（PR #16 合并），用户对知识库设计提出三个深�
 ### 负面后果 / 代价
 
 - 需迁移 9 张 KB 系统文档，更新所有交叉引用（`related` 字段、`[[wiki/coding/...]]` 链接）
-- 深化 thealgorithms 页需要逐个读仓库代码，工作量大（每个算法 concept 页需 1-2 小时）
+- 深化 thealgorithms 页需要逐个读仓库代码，工作量大（每个算法 concept 页需 1-4 小时估算）
 - 短期内知识库结构变动频繁，需同步更新 index.md 和 AGENTS.md
 
 ### 需要同步更新的文档或代码
@@ -113,17 +133,17 @@ Route B 完成后（PR #16 合并），用户对知识库设计提出三个深�
 
 ## 后续任务清单
 
-按优先级排序（标注 DEF 编号）：
+按优先级排序（标注 DEF 编号）。**归属**列区分本 ADR 直接产出的任务与顺带列入的既有技术债，避免混淆 ADR 聚焦范围：
 
-| 编号 | 任务 | 风险等级 | 依赖 | 状态 |
-| --- | --- | --- | --- | --- |
-| DEF-007 | reject 动作 MD024 修复（`write.ts:330` `type:"experience"` → `type:"reject"` + 回归测试 + AGENTS.md §7.4 文档化） | P1 常规 | 无 | 待开始 |
-| DEF-001 | kb_write_experience TOCTOU 竞态修复（`fs.exists` + `fs.writeFile` → `fs.writeFile flag:'wx'`） | P1 常规 | 无 | 待开始 |
-| DEF-008 | experiences 表头格式统一（修 `serializeFrontmatter` + 批量修复 4 张卡片 + 补测试） | P1 常规 | 无 | 待开始 |
-| DEF-009 | 新建 kb-system/ 领域 + 迁移 9 张 KB 系统文档 + 更新交叉引用 | P2 跨模块 | DEF-008（格式统一后再迁移，避免二次修复） | 待开始 |
-| DEF-010 | thealgorithms 深化为算法知识页（创建具体算法 concept 页，如 `quick-sort-impl-patterns.md`） | P2 跨模块 | DEF-009（结构稳定后再深化） | 待开始 |
-| DEF-006 | lint-perf p50 阈值调优（Windows 环境噪声 flaky） | 低 | 无 | 待开始 |
-| 重启 MCP server | 验证 DEF-005 修复在端到端流程生效 | — | DEF-008 完成后一并验证 | 待用户操作 |
+| 编号 | 任务 | 归属 | 风险等级 | 依赖 | 状态 |
+| --- | --- | --- | --- | --- | --- |
+| DEF-007 | reject 动作 MD024 修复（`write.ts:330` `type:"experience"` → `type:"reject"` + 回归测试 + AGENTS.md §7.4 文档化） | 顺带列入（既有技术债） | P1 常规 | 无 | 待开始 |
+| DEF-001 | kb_write_experience TOCTOU 竞态修复（`fs.exists` + `fs.writeFile` → `fs.writeFile flag:'wx'`） | 顺带列入（既有安全债） | P1 常规 | 无 | 待开始 |
+| DEF-008 | experiences 表头格式统一（修 `serializeFrontmatter` + 批量修复 4 张卡片 + 补测试） | 本 ADR 决策 1 | P1 常规 | 无 | 待开始 |
+| DEF-009 | 新建 kb-system/ 领域 + 迁移 9 张 KB 系统文档 + 更新交叉引用 | 本 ADR 决策 2 | P2 跨模块 | DEF-008（格式规范确立后再迁移，确保迁移时遵循新规范） | 待开始 |
+| DEF-010 | thealgorithms 深化为算法知识页（创建具体算法 concept 页，如 `quick-sort-impl-patterns.md`） | 本 ADR 决策 3 | P2 跨模块 | DEF-009（结构稳定后再深化） | 待开始 |
+| DEF-006 | lint-perf p50 阈值调优（Windows 环境噪声 flaky） | 顺带列入（既有技术债） | 低 | 无 | 待开始 |
+| 重启 MCP server | 验证 DEF-005 修复在端到端流程生效 | 运维操作 | — | DEF-008 完成后一并验证 | 待用户操作 |
 
 ### 执行顺序建议
 
@@ -136,7 +156,6 @@ Route B 完成后（PR #16 合并），用户对知识库设计提出三个深�
 
 ## 参考
 
-- [用户提问原始记录](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-008-kb-content-layering-and-format-unification.md)（2026-07-24 会话）
 - AGENTS.md §3（frontmatter Schema）、§4.2（Ingest 工作流）、§8.1（领域目录）、§8.3（新建领域）
 - `server/src/utils/frontmatter.ts`（serializeFrontmatter 实现）
 - `server/src/tools/write.ts`（kbWriteExperience、kbPromoteExperience）

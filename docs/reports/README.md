@@ -27,3 +27,5 @@
 | 2026-07-24 | DEF-005 log.md markdownlint 合规性 bug 修复 | bugfix | [2026-07-24-def-005-log-format-bug.md](2026-07-24-def-005-log-format-bug.md) |
 | 2026-07-24 | DEF-005 修复安全与质量审计 | guardrail | [2026-07-24-def-005-guardrail.md](2026-07-24-def-005-guardrail.md) |
 | 2026-07-24 | DEF-005 修复验收测试 | acceptance | [2026-07-24-def-005-acceptance.md](2026-07-24-def-005-acceptance.md) |
+| 2026-07-24 | ADR-008 知识库内容分层与格式统一 决策质量审查 | guardrail | [2026-07-24-adr-008-guardrail.md](2026-07-24-adr-008-guardrail.md) |
+| 2026-07-24 | ADR-008 第二轮审查（修复 B-1/B-2/B-3 + S-1~S-5） | guardrail | [2026-07-24-adr-008-guardrail-r2.md](2026-07-24-adr-008-guardrail-r2.md) |
