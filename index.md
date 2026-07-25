@@ -1,6 +1,6 @@
 # 知识库索引
 
-> 最后更新：2026-07-25 · 总页数：33
+> 最后更新：2026-07-25 · 总页数：34
 > 本文件是知识库的内容索引（内容导向），LLM 回答问题前先读此文件定位。
 > 时间日志见 [log.md](log.md)。结构约定见 [AGENTS.md](AGENTS.md)。
 
@@ -44,6 +44,7 @@
 
 - [[wiki/coding/quick-sort-impl-patterns]] · 快速排序跨语言实现模式对比（Python/Java/C++ 4 种分区策略） · 2026-07-24
 - [[wiki/coding/binary-search-impl-patterns]] · 二分搜索跨语言实现模式对比（迭代/递归/bisect/泛型） · 2026-07-24
+- [[wiki/coding/merge-sort-impl-patterns]] · 归并排序跨语言实现模式对比（7 语言：函数式非原地/命令式原地，含 Rust bottom-up 迭代与 Python pop(0) 陷阱） · 2026-07-25
 
 ## resources
 

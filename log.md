@@ -240,3 +240,22 @@
   - 目录索引段格式与 thealgorithms-python.md 模板一致：一级分类总览表 + 详细分类（按主题分组：经典算法领域/数据结构/数学与科学计算/加解密与安全/机器学习与人工智能/应用领域）
   - 二级分类数仅统计一级分类下的直接子目录数；URL 路径中的更深嵌套文件计入对应一级分类的算法文件总数
   - License 合规：仅引用算法名称列表与代表性算法名，未复制完整代码；各入口页明确标注 MIT/GPLv3 License 来源
+
+## [2026-07-25] ingest | DEF-016 — merge-sort 跨语言实现模式对比（Phase 4 首个交付）
+
+- 任务：创作 merge-sort-impl-patterns.md 概念页（ADR-009 Phase 4 / DEF-010 续）
+- 数据来源：7 个 TheAlgorithms 仓库的 merge_sort 实现（GitHub MCP get_file_contents 实时获取）
+- 影响页面：1 个新建概念页 + index.md 更新（总页数 33 → 34）+ 本日志
+- 闭环状态：guardrail-enforcer + ac-verifier 待主 Agent 启动
+- 任务令牌：TKN-MERGE-SORT-001
+- pages:
+  - wiki/coding/merge-sort-impl-patterns.md（7 语言对比：Python/JS/TS/Java/C++/C/Rust）
+- notes:
+  - 覆盖语言数：7 种（超过 quick-sort 的 4 种，为 DEF-010 系列中语言覆盖最广的）
+  - Python 实现含 pop(0) 性能陷阱（O(n) 操作导致 merge 阶段退化为 O(n²)），已在页面显式标注
+  - Rust 是唯一提供 top_down（递归）+ bottom_up（迭代）双实现的仓库
+  - Java 的 tempArray 实例字段是最优临时存储策略（一次分配全递归复用）
+  - 稳定性差异：Python/Java/C++/C 稳定（<=），JS/TS/Rust 不稳定（<）
+  - 概念页含 5 项关键洞察：临时存储策略 / pop(0) 陷阱 / bottom-up 优势 / 稳定性来源 / 无符号右移
+  - License 合规：仅引用代码片段用于对比分析，标注 MIT/GPLv3 来源，未复制完整文件
+  - 后续：可继续 Phase 4 的 graph、DP 等算法深化（按用户优先级）
