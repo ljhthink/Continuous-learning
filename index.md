@@ -1,6 +1,6 @@
 # 知识库索引
 
-> 最后更新：2026-07-25 · 总页数：36
+> 最后更新：2026-07-26 · 总页数：37
 > 本文件是知识库的内容索引（内容导向），LLM 回答问题前先读此文件定位。
 > 时间日志见 [log.md](log.md)。结构约定见 [AGENTS.md](AGENTS.md)。
 
@@ -84,3 +84,4 @@
 - [[wiki/coding/experiences/lychee-链接检查-ci绝对路径node-modules-引用与裸-url-的处理]] · lychee 链接检查 CI：绝对路径、node_modules 引用与裸 URL 的处理 · confidence=0.85 · 2026-07-24
 - [[wiki/coding/experiences/mcp-server-新增工具后客户端描述符缓存过期需重连刷新才能发现]] · MCP server 新增工具后客户端描述符缓存过期：需重连刷新才能发现 · confidence=0.8 · 2026-07-24
 - [[wiki/coding/experiences/子-agent-生成报告的-file-绝对路径陷阱与-ci-兼容性审查]] · 子 Agent 生成报告的 file:/// 绝对路径陷阱与 CI 兼容性审查 · confidence=0.8 · 2026-07-24
+- [[wiki/coding/experiences/markdown-相对路径深度计算lychee-ci-file-错误的诊断模式]] · markdown 相对路径深度计算：lychee CI file:/// 错误的诊断模式 · confidence=0.9 · 2026-07-26
