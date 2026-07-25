@@ -6,7 +6,9 @@ status: active
 confidence: 0.8
 date: 2026-07-24
 source_task: TKN-P0-ROUTE-A-001
+quality_score: 0.7
 ---
+
 
 ## 背景
 
