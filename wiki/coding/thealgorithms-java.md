@@ -164,6 +164,7 @@ Java 版特别适合结合 OOP 思想与泛型理解算法：仓库大量使用�
 - [[wiki/coding/binary-search-impl-patterns]] — 二分搜索跨语言实现对比（含本仓库 Java 递归泛型实现）
 - [[wiki/coding/merge-sort-impl-patterns]] — 归并排序跨语言实现对比（含本仓库 Java tempArray 实例字段复用实现）
 - [[wiki/coding/heap-sort-impl-patterns]] — 堆排序跨语言实现模式对比（含本仓库 Java 1-based 索引 + 迭代 sift-down 实现）
+- [[wiki/coding/graph-traversal-bfs-dfs-impl-patterns]] — 图遍历 BFS/DFS 跨语言实现模式对比（含本仓库 Java BFS LinkedList + DFS 递归实现，源自 MatrixGraphs.java）
 - [[wiki/coding/thealgorithms-python]] — 同体系 Python 版本，对比动态/静态类型实现差异
 - [[wiki/coding/thealgorithms-c-plus-plus]] — 同体系 C++ 版本
 - [[wiki/coding/thealgorithms-go]] — 同体系 Go 版本
