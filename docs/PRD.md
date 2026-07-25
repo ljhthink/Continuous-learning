@@ -32,7 +32,7 @@
   - [x] 高 confidence（≥0.8）单域经验经自动审核门禁提升为 `wiki/<domain>/` 正式页
   - [x] 低 confidence 或跨域经验进入人工审核队列
   - [x] 所有经验卡片经 git，可回滚
-  - [ ] 每日/按需 `/dream` 整理：去重、合并、质量评分、老化低 use_count 条目（⚠️ 部分完成：仅老化实现，去重/合并/质量评分见 ADR-006 D4 后续增强）
+  - [x] 每日/按需 `/dream` 整理：去重扫描（report-only，ADR-011）+ 质量评分（4 维度 rubric 回写 `quality_score`）+ 老化低 use_count 条目（合并策略：不自动合并，需人工 review）
 
 ### US-002: 可被外部 Agent 调用
 

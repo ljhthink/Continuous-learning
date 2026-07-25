@@ -78,9 +78,9 @@ UpdateRelStyle(agent, mcp, "stdio")
 | `kb_get_page` | Query | `{ path: string, section?: string }` | `{ frontmatter, body, links }` | use_count+1 并回写 frontmatter（body 不变；AGENTS.md §7.5） |
 | `kb_ingest_source` | Ingest | `{ source_path: string, domain: string, type?: "source" }` | `{ wiki_path, status: "staging" }` | 写 raw/、写 wiki/staging/、追加 log |
 | `kb_write_experience` | 持续进化 | `{ title, domain, content, confidence: 0-1, source_task: string }` | `{ path, status: "pending" }` | 写 wiki/`<domain>`/experiences/inbox/ |
-| `kb_promote_experience` | 持续进化 | `{ inbox_path: string, action: "promote"\|"reject" }` | `{ path, status, tier? }` | promote: 移动 inbox→active + 更新 index/log；reject: 标记 rejected + log（AGENTS.md §7.4） |
+| `kb_promote_experience` | 持续进化 | `{ inbox_path: string, action: "promote"\|"reject" }` | `{ path, status, tier, duplicate_with: [{path, title_sim, content_sim}] }` | promote: 移动 inbox→active + 同域 active 卡重复检测（ADR-011）+ 更新 index/log；reject: 标记 rejected + log（AGENTS.md §7.4） |
 | `kb_list_categories` | 导航 | `{ include_stats?: boolean }` | `{ categories: [{ name, page_count, last_update }] }` | 无 |
-| `kb_list_recent` | Query | `{ limit?: number, type?: "ingest"/"query"/"lint"/"experience"/"init" }` | `{ entries: [{ date, type, title, path }] }` | 无 |
+| `kb_list_recent` | Query | `{ limit?: number, type?: "ingest"/"query"/"lint"/"experience"/"promote"/"reject"/"dream"/"init" }` | `{ entries: [{ date, type, title, path }] }` | 无 |
 | `kb_lint` | Lint | `{ checks?: ["frontmatter","contradictions","orphans","stale","missing_xref"] }` | `{ issues: [{ type, severity: "high"/"mid", page, detail, suggestion }], summary: { total, by_type, pages_scanned, checks_run } }` | 无 |
 | `kb_health` | 运维 | `{}` | `{ total_pages, index_status, last_ingest, last_lint }` | 无 |
 
