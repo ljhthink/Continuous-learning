@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-25
 tags: [algorithm, graph, bfs, dfs, traversal, python, java, cpp, c, rust, cross-language, queue, stack]
-related: [[wiki/coding/thealgorithms-python]], [[wiki/coding/thealgorithms-java]], [[wiki/coding/thealgorithms-c-plus-plus]], [[wiki/coding/thealgorithms-c]], [[wiki/coding/thealgorithms-rust]], [[wiki/coding/quick-sort-impl-patterns]], [[wiki/coding/merge-sort-impl-patterns]], [[wiki/coding/heap-sort-impl-patterns]], [[wiki/coding/binary-search-impl-patterns]]
+related: [wiki/coding/thealgorithms-python, wiki/coding/thealgorithms-java, wiki/coding/thealgorithms-c-plus-plus, wiki/coding/thealgorithms-c, wiki/coding/thealgorithms-rust, wiki/coding/quick-sort-impl-patterns, wiki/coding/merge-sort-impl-patterns, wiki/coding/heap-sort-impl-patterns, wiki/coding/binary-search-impl-patterns]
 ---
 
 ## 概念
@@ -569,3 +569,14 @@ Rust BFS 和 DFS **共享同一数据结构 `VecDeque`**，差异仅在操作端
 - [[wiki/coding/merge-sort-impl-patterns]] — 归并排序跨语言实现对比（同系列姊妹篇，含 pop(0) 陷阱分析）
 - [[wiki/coding/heap-sort-impl-patterns]] — 堆排序跨语言实现模式对比（同系列姊妹篇，含建堆 O(n) 证明）
 - [[wiki/coding/binary-search-impl-patterns]] — 二分搜索跨语言实现对比（同系列姊妹篇）
+
+## 同领域算法仓库
+
+- [[wiki/coding/thealgorithms-python]] — Python 算法教育实现合集
+- [[wiki/coding/thealgorithms-java]] — Java 算法教育实现合集
+- [[wiki/coding/thealgorithms-c-plus-plus]] — C++ 算法教育实现合集
+- [[wiki/coding/thealgorithms-c]] — C 算法教育实现合集
+- [[wiki/coding/thealgorithms-javascript]] — JavaScript 算法教育实现合集
+- [[wiki/coding/thealgorithms-go]] — Go 算法教育实现合集
+- [[wiki/coding/thealgorithms-rust]] — Rust 算法教育实现合集
+- [[wiki/coding/thealgorithms-typescript]] — TypeScript 算法教育实现合集

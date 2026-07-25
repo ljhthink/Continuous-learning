@@ -5,7 +5,7 @@ type: entity
 status: active
 date: 2026-07-24
 tags: [java, algorithm, open-source, learning, thealgorithms]
-related: [[wiki/coding/thealgorithms-python]], [[wiki/coding/thealgorithms-c-plus-plus]]
+related: [wiki/coding/thealgorithms-python, wiki/coding/thealgorithms-c-plus-plus]
 ---
 
 ## 简介
@@ -168,3 +168,13 @@ Java 版特别适合结合 OOP 思想与泛型理解算法：仓库大量使用�
 - [[wiki/coding/thealgorithms-python]] — 同体系 Python 版本，对比动态/静态类型实现差异
 - [[wiki/coding/thealgorithms-c-plus-plus]] — 同体系 C++ 版本
 - [[wiki/coding/thealgorithms-go]] — 同体系 Go 版本
+
+## 同领域算法仓库
+
+- [[wiki/coding/thealgorithms-python]] — Python 算法教育实现合集
+- [[wiki/coding/thealgorithms-c-plus-plus]] — C++ 算法教育实现合集
+- [[wiki/coding/thealgorithms-c]] — C 算法教育实现合集
+- [[wiki/coding/thealgorithms-javascript]] — JavaScript 算法教育实现合集
+- [[wiki/coding/thealgorithms-go]] — Go 算法教育实现合集
+- [[wiki/coding/thealgorithms-rust]] — Rust 算法教育实现合集
+- [[wiki/coding/thealgorithms-typescript]] — TypeScript 算法教育实现合集

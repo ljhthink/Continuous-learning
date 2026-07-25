@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, indexing, navigation]
-related: [[wiki/kb-system/three-layer-architecture]], [[wiki/kb-system/ingest-workflow]]
+related: [wiki/kb-system/three-layer-architecture, wiki/kb-system/ingest-workflow]
 ---
 
 ## 概念
@@ -93,3 +93,14 @@ related: [[wiki/kb-system/three-layer-architecture]], [[wiki/kb-system/ingest-wo
 
 - `AGENTS.md` §1.2（双索引定义）、§4.2 step 7、§7.3
 - `docs/ARCH.md` §4（L2 索引层）
+
+## 同领域概念
+
+- [[wiki/kb-system/three-layer-architecture]] — 三层架构：Raw / Wiki / Schema
+- [[wiki/kb-system/frontmatter-schema]] — frontmatter Schema 规约
+- [[wiki/kb-system/page-types-and-state-machine]] — 页面类型与状态机
+- [[wiki/kb-system/multi-domain-classification]] — 多领域分类规范
+- [[wiki/kb-system/ingest-workflow]] — Ingest 工作流
+- [[wiki/kb-system/query-workflow]] — Query 工作流
+- [[wiki/kb-system/lint-workflow]] — Lint 工作流
+- [[wiki/kb-system/continuous-evolution-review-gate]] — 持续进化审核门禁

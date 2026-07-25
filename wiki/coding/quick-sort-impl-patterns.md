@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-24
 tags: [algorithm, sorting, quicksort, python, java, cpp, cross-language, partition]
-related: [[wiki/coding/thealgorithms-python]], [[wiki/coding/thealgorithms-java]], [[wiki/coding/thealgorithms-c-plus-plus]], [[wiki/coding/binary-search-impl-patterns]]
+related: [wiki/coding/thealgorithms-python, wiki/coding/thealgorithms-java, wiki/coding/thealgorithms-c-plus-plus, wiki/coding/binary-search-impl-patterns]
 ---
 
 ## 概念
@@ -257,3 +257,14 @@ TheAlgorithms 是教学实现，工业级排序有本质区别：
 - [[wiki/coding/thealgorithms-java]] — Java 算法实现合集（本页算法来源之一）
 - [[wiki/coding/thealgorithms-c-plus-plus]] — C++ 算法实现合集（本页算法来源之一）
 - [[wiki/coding/binary-search-impl-patterns]] — 二分搜索跨语言实现对比（姊妹篇）
+
+## 同领域算法仓库
+
+- [[wiki/coding/thealgorithms-python]] — Python 算法教育实现合集
+- [[wiki/coding/thealgorithms-java]] — Java 算法教育实现合集
+- [[wiki/coding/thealgorithms-c-plus-plus]] — C++ 算法教育实现合集
+- [[wiki/coding/thealgorithms-c]] — C 算法教育实现合集
+- [[wiki/coding/thealgorithms-javascript]] — JavaScript 算法教育实现合集
+- [[wiki/coding/thealgorithms-go]] — Go 算法教育实现合集
+- [[wiki/coding/thealgorithms-rust]] — Rust 算法教育实现合集
+- [[wiki/coding/thealgorithms-typescript]] — TypeScript 算法教育实现合集

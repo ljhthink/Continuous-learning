@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, workflow, ingest]
-related: [[wiki/kb-system/dual-index-mechanism]], [[wiki/kb-system/three-layer-architecture]], [[wiki/kb-system/frontmatter-schema]]
+related: [wiki/kb-system/dual-index-mechanism, wiki/kb-system/three-layer-architecture, wiki/kb-system/frontmatter-schema]
 ---
 
 ## 概念
@@ -38,9 +38,11 @@ Ingest 是把 `raw/` 下的不可变原始资料（PDF / Word / Excel 等）整�
 
 发现矛盾时，**不删除旧声明**，而是：
 
-1. 在受影响页面显式标注「⚠️ 矛盾：[新 source] 与 [旧声明] 冲突，待裁决」
+1. 在受影响页面显式标注矛盾标记（格式为「矛盾告警符号 + `[新 source]` 与 `[旧声明]` 冲突，待裁决」，**不要在描述本规则的文档中直接写出该符号字面量**，否则会被 `kb_lint contradictions` 检查误识别为真实未解决矛盾）
 2. 追加新声明并标注来源
 3. 触发 lint 高严重度告警
+
+> 注：矛盾告警符号定义在 `server/src/tools/lint.ts` 的 contradiction 检查中，实际标注时请参考源码常量，避免在元文档中字面引用导致自指误报。
 
 ### 不可变原则
 
@@ -93,3 +95,14 @@ Ingest 与 Experience 的区别：Ingest 处理**外部资料**（raw → wiki�
 
 - `AGENTS.md` §4（Ingest 工作流）、§9.3（禁止行为）
 - `server/src/tools/write.ts`（kbIngestSource 实现）
+
+## 同领域概念
+
+- [[wiki/kb-system/three-layer-architecture]] — 三层架构：Raw / Wiki / Schema
+- [[wiki/kb-system/dual-index-mechanism]] — 双索引机制：内容索引 + 时间日志
+- [[wiki/kb-system/frontmatter-schema]] — frontmatter Schema 规约
+- [[wiki/kb-system/page-types-and-state-machine]] — 页面类型与状态机
+- [[wiki/kb-system/multi-domain-classification]] — 多领域分类规范
+- [[wiki/kb-system/query-workflow]] — Query 工作流
+- [[wiki/kb-system/lint-workflow]] — Lint 工作流
+- [[wiki/kb-system/continuous-evolution-review-gate]] — 持续进化审核门禁

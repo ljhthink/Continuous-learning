@@ -17,5 +17,6 @@
 | [ADR-007](ADR-007-dependency-major-upgrade.md) | 依赖 MAJOR 升级（zod 3→4 / js-yaml 4→5 / TypeScript 5→7 / @types/node 22→26 / actions v4→v7） | Accepted | 2026-07-23 |
 | [ADR-008](ADR-008-kb-content-layering-and-format-unification.md) | 知识库内容分层与格式统一（experiences 表头修复 + kb-system 领域拆分 + thealgorithms 深化） | Accepted | 2026-07-24 |
 | [ADR-009](ADR-009-resources-and-design-domains.md) | 新建 resources 与 design 领域 + TheAlgorithms/素材资源沉淀策略 | Accepted | 2026-07-25 |
+| [ADR-010](ADR-010-ci-file-absolute-path-detection.md) | CI 新增 file:/// 绝对路径检测门禁 | Proposed | 2026-07-25 |
 
 <!-- 新增 ADR 时在此追加一行，并保证文件名以 ADR-NNN- 开头 -->

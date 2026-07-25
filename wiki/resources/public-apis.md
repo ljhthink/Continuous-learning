@@ -5,7 +5,7 @@ type: entity
 status: active
 date: 2026-07-25
 tags: [api, public-api, open-source, learning, reference, http]
-related: [[wiki/kb-system/query-workflow]]
+related: [wiki/kb-system/query-workflow]
 ---
 
 ## 简介

@@ -5,7 +5,7 @@ type: entity
 status: active
 date: 2026-07-24
 tags: [cpp, cpp17, algorithm, open-source, learning, thealgorithms]
-related: [[wiki/coding/thealgorithms-c]], [[wiki/coding/thealgorithms-java]]
+related: [wiki/coding/thealgorithms-c, wiki/coding/thealgorithms-java]
 ---
 
 ## 简介
@@ -163,3 +163,13 @@ C++ 版与 Python 版的关键差异：**C++ 版提供「同目标多实现」�
 - [[wiki/coding/thealgorithms-java]] — 同体系 Java 版本
 - [[wiki/coding/thealgorithms-rust]] — 同体系 Rust 版本，对比内存安全模型
 - [[wiki/coding/thealgorithms-python]] — 同体系 Python 版本，对比动态/静态类型实现差异
+
+## 同领域算法仓库
+
+- [[wiki/coding/thealgorithms-python]] — Python 算法教育实现合集
+- [[wiki/coding/thealgorithms-java]] — Java 算法教育实现合集
+- [[wiki/coding/thealgorithms-c]] — C 算法教育实现合集
+- [[wiki/coding/thealgorithms-javascript]] — JavaScript 算法教育实现合集
+- [[wiki/coding/thealgorithms-go]] — Go 算法教育实现合集
+- [[wiki/coding/thealgorithms-rust]] — Rust 算法教育实现合集
+- [[wiki/coding/thealgorithms-typescript]] — TypeScript 算法教育实现合集

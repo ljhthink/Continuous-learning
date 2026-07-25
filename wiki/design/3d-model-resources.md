@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-25
 tags: [design, 3d, model, pbr, hdri, resources, assets, blender, scan]
-related: [[wiki/design/_index]]
+related: [wiki/design/_index]
 ---
 
 ## 简介
@@ -153,6 +153,17 @@ related: [[wiki/design/_index]]
 6. 步骤 6：在 Blender 中：World > Surface > Background > Color > Environment Texture > 加载 HDRI 文件
 7. 步骤 7：在 UE 中：Window > Env Light Browser > Import HDRI
 8. 步骤 8：调整 HDRI 强度与旋转角度
+
+## 同领域分类
+
+- [[wiki/design/image-resources]] — 图像素材
+- [[wiki/design/video-resources]] — 视频素材
+- [[wiki/design/animation-resources]] — 动画素材
+- [[wiki/design/icon-resources]] — 图标素材
+- [[wiki/design/font-resources]] — 字体素材
+- [[wiki/design/color-resources]] — 颜色素材
+- [[wiki/design/3d-model-resources]] — 3D 模型素材
+- [[wiki/design/sound-resources]] — 声音素材
 
 ## 相关页面
 

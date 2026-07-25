@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-25
 tags: [algorithm, sorting, mergesort, python, java, cpp, javascript, c, rust, typescript, cross-language, divide-and-conquer]
-related: [[wiki/coding/thealgorithms-python]], [[wiki/coding/thealgorithms-java]], [[wiki/coding/thealgorithms-c-plus-plus]], [[wiki/coding/thealgorithms-javascript]], [[wiki/coding/thealgorithms-c]], [[wiki/coding/thealgorithms-rust]], [[wiki/coding/thealgorithms-typescript]], [[wiki/coding/quick-sort-impl-patterns]], [[wiki/coding/binary-search-impl-patterns]]
+related: [wiki/coding/thealgorithms-python, wiki/coding/thealgorithms-java, wiki/coding/thealgorithms-c-plus-plus, wiki/coding/thealgorithms-javascript, wiki/coding/thealgorithms-c, wiki/coding/thealgorithms-rust, wiki/coding/thealgorithms-typescript, wiki/coding/quick-sort-impl-patterns, wiki/coding/binary-search-impl-patterns]
 ---
 
 ## 概念
@@ -411,3 +411,14 @@ C++ 用 `l + (r - l) / 2` 规避溢出（减法不溢出），C 版本未做任�
 - [[wiki/coding/thealgorithms-c]] — C 仓库入口页
 - [[wiki/coding/thealgorithms-rust]] — Rust 仓库入口页（含 top_down + bottom_up 双实现索引）
 - [[wiki/coding/thealgorithms-typescript]] — TypeScript 仓库入口页
+
+## 同领域算法仓库
+
+- [[wiki/coding/thealgorithms-python]] — Python 算法教育实现合集
+- [[wiki/coding/thealgorithms-java]] — Java 算法教育实现合集
+- [[wiki/coding/thealgorithms-c-plus-plus]] — C++ 算法教育实现合集
+- [[wiki/coding/thealgorithms-c]] — C 算法教育实现合集
+- [[wiki/coding/thealgorithms-javascript]] — JavaScript 算法教育实现合集
+- [[wiki/coding/thealgorithms-go]] — Go 算法教育实现合集
+- [[wiki/coding/thealgorithms-rust]] — Rust 算法教育实现合集
+- [[wiki/coding/thealgorithms-typescript]] — TypeScript 算法教育实现合集

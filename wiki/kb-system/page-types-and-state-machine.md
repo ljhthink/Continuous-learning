@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, frontmatter, state-machine]
-related: [[wiki/kb-system/frontmatter-schema]], [[wiki/kb-system/continuous-evolution-review-gate]]
+related: [wiki/kb-system/frontmatter-schema, wiki/kb-system/continuous-evolution-review-gate]
 ---
 
 ## 概念
@@ -88,7 +88,7 @@ date: 2026-07-24
 
 - `tags: [python, async]` — 横切标签
 - `use_count: 0` — 引用计数（系统维护，不手写）
-- `related: [[wiki/coding/other-page]]` — 相关页面链接
+- `related: [wiki/coding/other-page]` — 相关页面链接（纯路径数组，禁用 wikilink）
 
 ## 相关概念
 
@@ -100,3 +100,14 @@ date: 2026-07-24
 
 - `AGENTS.md` §3（frontmatter Schema）、§7.4-7.5（门禁与老化）
 - `server/src/tools/write.ts`（kbPromoteExperience 状态守卫）
+
+## 同领域概念
+
+- [[wiki/kb-system/three-layer-architecture]] — 三层架构：Raw / Wiki / Schema
+- [[wiki/kb-system/dual-index-mechanism]] — 双索引机制：内容索引 + 时间日志
+- [[wiki/kb-system/frontmatter-schema]] — frontmatter Schema 规约
+- [[wiki/kb-system/multi-domain-classification]] — 多领域分类规范
+- [[wiki/kb-system/ingest-workflow]] — Ingest 工作流
+- [[wiki/kb-system/query-workflow]] — Query 工作流
+- [[wiki/kb-system/lint-workflow]] — Lint 工作流
+- [[wiki/kb-system/continuous-evolution-review-gate]] — 持续进化审核门禁

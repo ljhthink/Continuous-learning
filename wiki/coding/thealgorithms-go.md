@@ -5,7 +5,7 @@ type: entity
 status: active
 date: 2026-07-24
 tags: [go, golang, algorithm, open-source, learning, thealgorithms]
-related: [[wiki/coding/thealgorithms-rust]], [[wiki/coding/thealgorithms-java]], [[wiki/coding/thealgorithms-c]], [[wiki/coding/thealgorithms-javascript]]
+related: [wiki/coding/thealgorithms-rust, wiki/coding/thealgorithms-java, wiki/coding/thealgorithms-c, wiki/coding/thealgorithms-javascript]
 ---
 
 ## 简介
@@ -164,3 +164,13 @@ Go 的并发原语（goroutine、channel）与简洁泛型（1.18+）让仓库�
 - [[wiki/coding/thealgorithms-java]] — 同体系 Java 版本，对比 JVM 语言
 - [[wiki/coding/thealgorithms-c]] — 同体系 C 版本
 - [[wiki/coding/thealgorithms-javascript]] — 同体系 JavaScript 版本，对比动态语言实现差异
+
+## 同领域算法仓库
+
+- [[wiki/coding/thealgorithms-python]] — Python 算法教育实现合集
+- [[wiki/coding/thealgorithms-java]] — Java 算法教育实现合集
+- [[wiki/coding/thealgorithms-c-plus-plus]] — C++ 算法教育实现合集
+- [[wiki/coding/thealgorithms-c]] — C 算法教育实现合集
+- [[wiki/coding/thealgorithms-javascript]] — JavaScript 算法教育实现合集
+- [[wiki/coding/thealgorithms-rust]] — Rust 算法教育实现合集
+- [[wiki/coding/thealgorithms-typescript]] — TypeScript 算法教育实现合集

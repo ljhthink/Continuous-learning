@@ -5,7 +5,7 @@ type: entity
 status: active
 date: 2026-07-24
 tags: [c, c11, algorithm, open-source, learning, thealgorithms, gpl]
-related: [[wiki/coding/thealgorithms-c-plus-plus]], [[wiki/coding/thealgorithms-rust]]
+related: [wiki/coding/thealgorithms-c-plus-plus, wiki/coding/thealgorithms-rust]
 ---
 
 ## 简介
@@ -151,3 +151,13 @@ related: [[wiki/coding/thealgorithms-c-plus-plus]], [[wiki/coding/thealgorithms-
 - [[wiki/coding/thealgorithms-c-plus-plus]] — 同体系 C++ 版本（MIT + C++17），对比 C/C++ 实现差异
 - [[wiki/coding/thealgorithms-rust]] — 同体系 Rust 版本，对比内存安全模型
 - [[wiki/coding/thealgorithms-go]] — 同体系 Go 版本
+
+## 同领域算法仓库
+
+- [[wiki/coding/thealgorithms-python]] — Python 算法教育实现合集
+- [[wiki/coding/thealgorithms-java]] — Java 算法教育实现合集
+- [[wiki/coding/thealgorithms-c-plus-plus]] — C++ 算法教育实现合集
+- [[wiki/coding/thealgorithms-javascript]] — JavaScript 算法教育实现合集
+- [[wiki/coding/thealgorithms-go]] — Go 算法教育实现合集
+- [[wiki/coding/thealgorithms-rust]] — Rust 算法教育实现合集
+- [[wiki/coding/thealgorithms-typescript]] — TypeScript 算法教育实现合集
