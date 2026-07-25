@@ -2,7 +2,7 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 状态 | Proposed |
+| 状态 | Accepted |
 | 日期 | 2026-07-26 |
 | 决策者 | 主 Agent（P3 持续进化闭环收尾阶段） |
 | 关联文档 | [ADR-006](ADR-006-continuous-evolution-loop.md)（持续进化循环）/ [AGENTS.md](../../AGENTS.md) §3.3 / §7.4 / §7.5 / [PRD](../PRD.md) US-001 AC-006 |
@@ -214,8 +214,8 @@
 
 ## 生命周期
 
-- **Proposed**：本 ADR 随 P3 收尾 PR 提交。
-- **Accepted**：经 `guardrail-enforcer` 审查通过（TKN-P3-DREAM-DEDUP-001）+ `ac-verifier` 验收通过（TKN-P3-DREAM-DEDUP-002）且 PR 合并后转为 Accepted。
+- **Proposed**：本 ADR 随 P3 收尾 PR #30 提交。
+- **Accepted**：经 `guardrail-enforcer` 审查通过（TKN-P3-DREAM-DEDUP-001）+ `ac-verifier` 验收通过（TKN-P3-DREAM-DEDUP-002）且 PR #30 合并后转为 Accepted（2026-07-26）。
 - **Superseded**：若未来引入向量库（KB 规模 >500 卡且字符串算法假阳性率 >10%），新建 ADR 取代本算法选择部分；质量评分 rubric 可独立演进。
 
 ## 参考
