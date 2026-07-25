@@ -337,3 +337,16 @@
 - duplicates_found: 0
 - quality_scored: 4
 - quality_updated: 4
+
+## [2026-07-26] experience | markdown 相对路径深度计算：lychee CI file:/// 错误的诊断模式
+
+- inbox: wiki/coding/experiences/inbox/markdown-相对路径深度计算lychee-ci-file-错误的诊断模式.md
+- confidence: 0.9
+- source_task: TKN-P3-DREAM-DEDUP-001
+
+## [2026-07-26] promote | markdown 相对路径深度计算：lychee CI file:/// 错误的诊断模式
+
+- promoted: wiki/coding/experiences/markdown-相对路径深度计算lychee-ci-file-错误的诊断模式.md
+- from_inbox: wiki/coding/experiences/inbox/markdown-相对路径深度计算lychee-ci-file-错误的诊断模式.md
+- tier: auto
+- confidence: 0.9
