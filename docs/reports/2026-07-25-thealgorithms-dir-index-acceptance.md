@@ -34,17 +34,17 @@
 
 | AC ID | 验收标准 | 验证方式 | 结果 | 证据 |
 | --- | --- | --- | --- | --- |
-| AC-1 | 6 个仓库入口页（java/c-plus-plus/javascript/c/rust/typescript）均含"## 算法目录索引"段 | 文本搜索 + 读取验证 | 通过 | 6 个文件均含 `## 算法目录索引` 段标题：[thealgorithms-java.md](../wiki/coding/thealgorithms-java.md)、[thealgorithms-c-plus-plus.md](../wiki/coding/thealgorithms-c-plus-plus.md)、[thealgorithms-javascript.md](../wiki/coding/thealgorithms-javascript.md)、[thealgorithms-c.md](../wiki/coding/thealgorithms-c.md)、[thealgorithms-rust.md](../wiki/coding/thealgorithms-rust.md)、[thealgorithms-typescript.md](../wiki/coding/thealgorithms-typescript.md) |
+| AC-1 | 6 个仓库入口页（java/c-plus-plus/javascript/c/rust/typescript）均含"## 算法目录索引"段 | 文本搜索 + 读取验证 | 通过 | 6 个文件均含 `## 算法目录索引` 段标题：[thealgorithms-java.md](../../wiki/coding/thealgorithms-java.md)、[thealgorithms-c-plus-plus.md](../../wiki/coding/thealgorithms-c-plus-plus.md)、[thealgorithms-javascript.md](../../wiki/coding/thealgorithms-javascript.md)、[thealgorithms-c.md](../../wiki/coding/thealgorithms-c.md)、[thealgorithms-rust.md](../../wiki/coding/thealgorithms-rust.md)、[thealgorithms-typescript.md](../../wiki/coding/thealgorithms-typescript.md) |
 | AC-2 | 目录索引段含：数据来源标注（DIRECTORY.md URL + 提取时间 + License）、一级分类总览表、详细分类表 | 逐页核对 | 通过 | 6 个仓库均含 3 要素：数据来源 blockquote（URL + 2026-07-25 + MIT/GPLv3）+ `### 一级分类总览` 表 + `### 详细分类（代表性算法）` 表 |
-| AC-3 | 一级分类总览表格式与 Python 模板一致（一级分类/二级分类数/算法文件数 3 列 + 合计行） | 格式对比 | 通过 | 6 个仓库均为 3 列表格（一级分类/二级分类数/算法文件数）+ 合计行，与 [thealgorithms-python.md](../wiki/coding/thealgorithms-python.md) 模板一致 |
+| AC-3 | 一级分类总览表格式与 Python 模板一致（一级分类/二级分类数/算法文件数 3 列 + 合计行） | 格式对比 | 通过 | 6 个仓库均为 3 列表格（一级分类/二级分类数/算法文件数）+ 合计行，与 [thealgorithms-python.md](../../wiki/coding/thealgorithms-python.md) 模板一致 |
 | AC-4 | 详细分类表按"经典算法领域/数据结构/数学与科学计算/加解密与应用领域"等分组，与 Python 模板风格一致 | 格式对比 | 通过 | 6 个仓库均按主题分组（经典算法领域/数据结构/数学与科学计算/加解密与安全/应用领域，部分含机器学习与人工智能），与 Python 模板风格一致 |
 | AC-5 | 每个目录索引段末尾有"使用提示"说明可通过 GitHub MCP get_file_contents 获取具体实现 | 文本搜索 | 通过 | 6 个仓库段末均有 `> 使用提示：需要具体算法实现时，可通过 GitHub MCP get_file_contents 实时获取...` blockquote |
-| AC-6 | thealgorithms-python.md 的 date 改为 2026-07-25，且 L11 有 License 注记 | frontmatter 检查 | 通过 | [thealgorithms-python.md](../wiki/coding/thealgorithms-python.md) L6 `date: 2026-07-25`（无引号）；L11 `> License: MIT（以仓库根 LICENSE 文件为准）` |
-| AC-7 | thealgorithms-go.md 含目录索引段（README 替代方案），明确标注无 DIRECTORY.md | 读取验证 | 通过 | [thealgorithms-go.md](../wiki/coding/thealgorithms-go.md) L61-159 含目录索引段；L63 数据来源标注为 README.md；L67 显式标注"该仓库无 DIRECTORY.md，目录结构按 Go package 组织" |
+| AC-6 | thealgorithms-python.md 的 date 改为 2026-07-25，且 L11 有 License 注记 | frontmatter 检查 | 通过 | [thealgorithms-python.md](../../wiki/coding/thealgorithms-python.md) L6 `date: 2026-07-25`（无引号）；L11 `> License: MIT（以仓库根 LICENSE 文件为准）` |
+| AC-7 | thealgorithms-go.md 含目录索引段（README 替代方案），明确标注无 DIRECTORY.md | 读取验证 | 通过 | [thealgorithms-go.md](../../wiki/coding/thealgorithms-go.md) L61-159 含目录索引段；L63 数据来源标注为 README.md；L67 显式标注"该仓库无 DIRECTORY.md，目录结构按 Go package 组织" |
 | AC-8 | frontmatter 格式合规（AGENTS.md §3.1.1 / ADR-008 决策 1） | 逐页核对 | 通过 | 8 张文件 frontmatter 均合规：domain 单行 flow 风格 `[coding]`、date 无引号、frontmatter 后有空行、标量值单行。详见 §3.3 |
 | AC-9 | 所有修改文件通过 markdownlint-cli2 | 运行 `npx --yes markdownlint-cli2 <files>` | 通过 | 11 个文件（8 入口页 + log.md + guardrail 报告 + docs/reports/README.md）全部通过，`Summary: 0 issues in 0 files`。详见 §3.1 |
 | AC-10 | consistency-check.js 通过 | 运行 `node scripts/consistency-check.js` | 通过 | 输出 `一致性检查通过 ✓`，退出码 0。详见 §3.2 |
-| AC-11 | log.md 含 DEF-015 ingest 日志条目，含任务令牌 TKN-THEALGORITHMS-DIR-002 | 文本搜索 | 通过 | [log.md](../log.md) L221 `## [2026-07-25] ingest \| DEF-015 — TheAlgorithms 6 仓库目录索引补全`；L227 `- 任务令牌：TKN-THEALGORITHMS-DIR-002` |
+| AC-11 | log.md 含 DEF-015 ingest 日志条目，含任务令牌 TKN-THEALGORITHMS-DIR-002 | 文本搜索 | 通过 | [log.md](../../log.md) L221 `## [2026-07-25] ingest \| DEF-015 — TheAlgorithms 6 仓库目录索引补全`；L227 `- 任务令牌：TKN-THEALGORITHMS-DIR-002` |
 | AC-12 | 交叉引用完整：各入口页"## 相关页面"段的 [[wiki/coding/...]] 双链均指向真实存在的文件 | 全局搜索验证 | 通过 | 所有双链目标文件均存在于 wiki/coding/ 目录：quick-sort-impl-patterns.md、binary-search-impl-patterns.md、thealgorithms-{python,java,c-plus-plus,javascript,c,rust,typescript,go}.md。详见 §3.5 |
 | AC-13 | License 合规：仅引用算法名称，不复制完整代码 | 逐页核对 | 通过 | 8 张页面仅引用算法名称、package 名、函数名清单，未复制任何源代码片段；MIT/GPLv3 License 均在页面显式标注来源。详见 §3.6 |
 | AC-14 | 无硬编码密钥/敏感信息 | 关键词扫描 | 通过 | Select-String 扫描 password/api_key/secret/token/credential/private_key 模式，0 匹配。详见 §4 |
@@ -105,7 +105,7 @@ node scripts/consistency-check.js
 
 ### 3.4 内容一致性 — 6 仓库目录索引段格式与 Python 模板对齐（AC-1 ~ AC-5）
 
-参照 [thealgorithms-python.md](../wiki/coding/thealgorithms-python.md) 的目录索引段格式，逐项核对 6 张新追加页面 + Go 替代方案：
+参照 [thealgorithms-python.md](../../wiki/coding/thealgorithms-python.md) 的目录索引段格式，逐项核对 6 张新追加页面 + Go 替代方案：
 
 | 格式要素 | Python 模板 | 6 仓库一致性 | Go 替代方案 |
 | --- | --- | --- | --- |
