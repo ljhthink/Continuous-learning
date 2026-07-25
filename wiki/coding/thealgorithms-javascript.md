@@ -147,6 +147,7 @@ related: [[wiki/coding/thealgorithms-typescript]], [[wiki/coding/thealgorithms-p
 
 ## 相关页面
 
+- [[wiki/coding/merge-sort-impl-patterns]] — 归并排序跨语言实现对比（含本仓库 JavaScript 索引版函数式实现）
 - [[wiki/coding/thealgorithms-typescript]] — 同体系 TypeScript 版本，对比类型系统增益
 - [[wiki/coding/thealgorithms-python]] — 同体系 Python 版本，对比动态语言实现差异
 - [[wiki/coding/thealgorithms-go]] — 同体系 Go 版本
