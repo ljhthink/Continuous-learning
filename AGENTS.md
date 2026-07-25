@@ -285,17 +285,20 @@ tags: [python, async, context-manager]
 `/dream` 是定期执行的三阶段维护 pass（ADR-011），所有事件以 `type="dream"` 记录到 `log.md`：
 
 **Phase 1 — 老化降级**：
+
 - 每次 `kb_get_page` 被调用时，`use_count` +1。
 - 定期 `/dream` 整理时，`use_count` 长期为 0 且 `date` 超过 90 天的经验卡片，降级为 `archived`，移到 `wiki/<domain>/experiences/archive/`。
 - archived 页仍可被检索，但不进 top 结果。
 - 降级事件追加 `log.md`，格式 `## [YYYY-MM-DD] dream | <标题>`，记录 archived 路径、from 路径、reason。
 
 **Phase 2 — 去重扫描**（report-only，ADR-011）：
+
 - 按 domain 分桶，同桶内两两计算标题 Levenshtein + 内容 Sorensen-Dice 相似度（阈值同 §7.4）。
 - 疑似重复对记录到 `/dream` 报告 `duplicates` 字段，**不自动合并、不删除**（合并是不可逆决策，需人工 review）。
 - 单桶 >500 卡时跳过该桶去重（保留老化+评分），记日志告警。
 
 **Phase 3 — 质量评分**（ADR-011）：
+
 - 对剩余 active 经验卡计算四维度 `quality_score`（frontmatter 完整性 0.15 + body 结构 0.35 + 证据丰富度 0.25 + 长度合理性 0.25）。
 - 幂等回写到 frontmatter `quality_score` 字段：若与当前值差异 < 0.01 跳过回写。
 - 回写失败 best-effort（catch + 日志，不中断批量）。

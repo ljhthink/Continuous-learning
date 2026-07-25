@@ -51,6 +51,7 @@
 | mcp-cache ↔ sub-agent | 0.0256 | 0.2788 |
 
 **实测结论**：
+
 - 不相关卡的内容相似度范围：0.2476 - 0.3557（最高 0.3557）
 - 完全相同内容：1.0
 - 小幅编辑（1 词大小写改写）：≥ 0.95
@@ -81,6 +82,7 @@
 **决策**：检测到重复仅报告，不自动合并、不自动删除。
 
 **理由**：
+
 1. 合并是不可逆决策（删除一方即丢失信息）
 2. 当前无真实重复数据验证合并算法的正确性
 3. 重复可能是"主题相近但视角不同"的合法卡片（如同一模式的不同语言实现）
@@ -104,6 +106,7 @@
 **长度度量**：码点数（`[...body].length`），Han 字符和 emoji 各计为 1，符合用户对"字符"的直觉。
 
 **评分用途**：
+
 - 仅记录到 frontmatter，**不门禁 promote**（[AGENTS.md](../../AGENTS.md) §7.4 门禁条件不变）
 - 未来 P4+ 可基于 `quality_score` 做展示筛选、低质卡提醒、质量趋势可视化
 - 当前作为诊断信号，为后续产品决策提供数据支撑
@@ -125,6 +128,7 @@
 | `kb_promote_experience` reject | `reject` | `reject`（不变） |
 
 **理由**：
+
 1. 语义清晰：`/dream` 动作（降级 + 摘要）统一归 `dream`，与"新建经验卡"的 `experience` 区分
 2. 避免 MD024：同一卡同日新建（`experience`）+ 降级（原 `experience`）会产生两个 `## [date] experience | <title>` heading，触发 markdownlint MD024（siblings_only）
 3. 客户端过滤：`kb_list_recent({type:"dream"})` 可查看完整 `/dream` 历史
@@ -201,6 +205,7 @@
 | AC-006f | 幂等 | 单元：二次运行 `/dream` `quality_updated=0` |
 
 **真实 KB 验证**（主 Agent 自检阶段）：
+
 1. `npm run dream` 对真实 KB（36 页 / 4 经验卡）执行
 2. 4 张卡 `quality_score` 合理（预期 0.7-0.95）
 3. `log.md` 含 `## [date] dream |` 条目，无 MD024 重复

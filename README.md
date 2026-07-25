@@ -22,7 +22,7 @@
 
 ### 当前状态
 
-本项目处于 **P3 完成 + 依赖升级完成阶段**。在 P1/P2 基础上（9 个 kb_* tools + 45 单元测试 + 37 MCP E2E + 边缘场景 + 性能基线），P3 完成了持续进化闭环（`kb_write_experience` + `kb_promote_experience` 两 tier 审核门禁 + `/dream` 老化，见 [ADR-006](docs/decisions/ADR-006-continuous-evolution-loop.md)），并合并了 6 个 Dependabot MAJOR 依赖升级（zod 3→4 / js-yaml 4→5 / TypeScript 5→7 / actions v4→v7，见 [ADR-007](docs/decisions/ADR-007-dependency-major-upgrade.md)）。L-2 技术债已在 P2 解决；DEF-001（TOCTOU 竞态）、DEF-002（`@hono/node-server` 路径不可达）为低风险遗留技术债。下一阶段 P4 GUI。
+本项目处于 **P3 持续进化闭环完整完成 + 依赖升级完成阶段**。在 P1/P2 基础上（9 个 kb_* tools + 45 单元测试 + 37 MCP E2E + 边缘场景 + 性能基线），P3 完成了持续进化闭环（`kb_write_experience` + `kb_promote_experience` 两 tier 审核门禁 + `/dream` 三阶段维护 pass：老化降级 + 去重扫描 + 质量评分，见 [ADR-006](docs/decisions/ADR-006-continuous-evolution-loop.md) + [ADR-011](docs/decisions/ADR-011-duplicate-detection-and-quality-scoring.md)），并合并了 6 个 Dependabot MAJOR 依赖升级（zod 3→4 / js-yaml 4→5 / TypeScript 5→7 / actions v4→v7，见 [ADR-007](docs/decisions/ADR-007-dependency-major-upgrade.md)）。L-2 技术债已在 P2 解决；DEF-001（TOCTOU 竞态）、DEF-002（`@hono/node-server` 路径不可达）为低风险遗留技术债。下一阶段 P4 GUI。
 
 ### 阅读顺序（新人入门）
 
@@ -59,6 +59,8 @@
 | [docs/decisions/ADR-007-dependency-major-upgrade.md](docs/decisions/ADR-007-dependency-major-upgrade.md) | Explanation | 依赖 MAJOR 升级（zod 3→4 / js-yaml 4→5 / TypeScript 5→7 / actions v4→v7） |
 | [docs/decisions/ADR-008-kb-content-layering-and-format-unification.md](docs/decisions/ADR-008-kb-content-layering-and-format-unification.md) | Explanation | 知识库内容分层与格式统一（experiences 表头修复 + kb-system 领域拆分 + thealgorithms 深化） |
 | [docs/decisions/ADR-009-resources-and-design-domains.md](docs/decisions/ADR-009-resources-and-design-domains.md) | Explanation | 新建 resources 与 design 领域 + TheAlgorithms/素材资源沉淀策略 |
+| [docs/decisions/ADR-010-ci-file-absolute-path-detection.md](docs/decisions/ADR-010-ci-file-absolute-path-detection.md) | Explanation | CI 新增 file:/// 绝对路径检测门禁 |
+| [docs/decisions/ADR-011-duplicate-detection-and-quality-scoring.md](docs/decisions/ADR-011-duplicate-detection-and-quality-scoring.md) | Explanation | 经验卡重复检测与质量评分（Levenshtein + Sorensen-Dice + 4 维度 rubric） |
 | [docs/integration/mcp-clients.md](docs/integration/mcp-clients.md) | How-to | MCP 客户端集成指南 |
 | [docs/reports/README.md](docs/reports/README.md) | Reference | 运行时报告索引 |
 | [docs/reports/2026-07-22-knowledge-base-tech-selection.md](docs/reports/2026-07-22-knowledge-base-tech-selection.md) | Reference | 技术选型对比分析报告（选型依据） |
