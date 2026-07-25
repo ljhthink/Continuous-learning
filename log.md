@@ -280,3 +280,24 @@
   - 工业实现对比：std::make_heap/sort_heap、PriorityQueue、heapq、BinaryHeap 均封装为数据结构而非排序函数
   - License 合规：5 MIT + 2 GPLv3（C 两个版本），标注来源
   - 后续：可继续 Phase 4 的 graph、DP 等算法深化（按用户优先级）
+
+## [2026-07-25] ingest | DEF-018 — graph-traversal BFS/DFS 跨语言实现模式对比（Phase 4 第三个交付）
+
+- 任务：创作 graph-traversal-bfs-dfs-impl-patterns.md 概念页（ADR-009 Phase 4 / DEF-017 续）
+- 数据来源：5 个 TheAlgorithms 仓库的 BFS/DFS 实现（GitHub MCP get_file_contents 实时获取），每个仓库各一对 BFS+DFS 共 10 个实现
+- 覆盖语言数：5 种（缺 TypeScript，TheAlgorithms/TypeScript 仓库无纯 BFS/DFS 实现，搜索 breadth_first_search/depth_first_search 返回 0 结果）
+- 关键技术发现：
+  - 图表示法三阵营：邻接表（Python/C++/C）vs 邻接矩阵（Java）vs 边列表（Rust）
+  - DFS 策略对比：递归（Java/C）vs 显式栈（Python/C++/Rust），后者规避栈溢出
+  - C++ DFS 唯一采用 3-coloring（WHITE/GREY/BLACK）三色标记，借鉴 CLRS 教科书
+  - Rust BFS/DFS 共享 VecDeque 数据结构（push_back+pop_front 实现 FIFO，push_front+pop_front 实现 LIFO），体现 deque 双用途设计哲学
+  - Rust BFS/DFS 唯一目标搜索语义（Option<Vec<u32>>），其他 8 个实现为全遍历语义
+  - Rust 边列表 neighbors() 复杂度 O(E)（非 O(deg(v))），性能劣势但代码简洁
+  - Java BFS 延迟过滤（lazy deletion）：入队不检查 visited，出队才检查，可能重复入队
+  - C BFS 自定义队列 + pollQueue/dequeue 两阶段操作，10 个实现中独有
+  - License 合规：4 MIT + 2 GPLv3（C 两个文件 bfs.c/dfs.c）
+- 影响页面：1 个新建概念页 + 5 个入口页交叉引用更新 + index.md 更新（总页数 35 → 36）+ 本日志
+- 闭环状态：guardrail-enforcer + ac-verifier 待主 Agent 启动
+- 任务令牌：TKN-GRAPH-TRAVERSAL-001
+- pages:
+  - wiki/coding/graph-traversal-bfs-dfs-impl-patterns.md（5 语言 10 实现：Python/Java/C++/C/Rust）
