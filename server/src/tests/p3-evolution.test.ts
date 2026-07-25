@@ -293,6 +293,186 @@ test("kb_promote_experience: refuses non-pending experience (state-machine guard
 });
 
 // ---------------------------------------------------------------------------
+// P3 dedup (ADR-011): kb_promote_experience duplicate detection
+// ---------------------------------------------------------------------------
+
+test("kb_promote_experience: duplicate title (Levenshtein > 0.9) forces tier=manual + duplicate_with non-empty", async () => {
+  const tmp = await createTempKB("prom-dup-title");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { kbWriteExperience, kbPromoteExperience } = await import("../tools/write.js");
+
+    // Pre-existing active card with a 10-char title.
+    await writePage(
+      tmp,
+      "wiki/coding/experiences/async-patterns.md",
+      {
+        title: "Async Patterns",
+        domain: ["coding"],
+        type: "experience",
+        status: "active",
+        confidence: 0.85,
+        date: todayStr(),
+        source_task: "t-original",
+      },
+      "## Background\nOriginal card body, completely different content.\n"
+    );
+
+    // Inbox card with title differing by 1 char out of 10 → Levenshtein ratio = 0.9.
+    // "Async Patterns" vs "Async Patternx" → 1 substitution / 14 chars ≈ 0.928.
+    // (Pick clearly-over-threshold input to avoid boundary flakiness.)
+    const w = await kbWriteExperience({
+      title: "Async Patternx",
+      domain: "coding",
+      content: "## Background\nA totally different body to ensure content_sim stays low.\n",
+      confidence: 0.9,
+      source_task: "t-dup",
+    });
+    const p = await kbPromoteExperience({
+      inbox_path: parseResult(w).path,
+      action: "promote",
+    });
+    const res = parseResult(p);
+    assert.equal(res.status, "active");
+    assert.equal(res.tier, "manual", "duplicate must force tier=manual");
+    assert.ok(
+      Array.isArray(res.duplicate_with) && res.duplicate_with.length > 0,
+      "duplicate_with must be a non-empty array"
+    );
+    const dup = res.duplicate_with[0];
+    assert.equal(dup.path, "wiki/coding/experiences/async-patterns");
+    assert.ok(dup.title_sim > 0.9, `title_sim=${dup.title_sim} must exceed 0.9`);
+    assert.ok(typeof dup.content_sim === "number");
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+test("kb_promote_experience: duplicate body (Sorensen-Dice > 0.7) forces tier=manual", async () => {
+  const tmp = await createTempKB("prom-dup-body");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { kbWriteExperience, kbPromoteExperience } = await import("../tools/write.js");
+
+    const sharedBody =
+      "## 背景\n在 P3 实施过程中需要为知识库添加去重检测能力。" +
+      "## 方案\n采用 Levenshtein + Sorensen-Dice 字符 bigram 算法。";
+
+    // Active card with title A and the shared body.
+    await writePage(
+      tmp,
+      "wiki/coding/experiences/dedup-impl.md",
+      {
+        title: "Dedup Strategy Alpha",
+        domain: ["coding"],
+        type: "experience",
+        status: "active",
+        confidence: 0.85,
+        date: todayStr(),
+        source_task: "t-a",
+      },
+      sharedBody + "\n"
+    );
+
+    // Inbox card with title B (different) but the SAME body → content_sim ≈ 1.0.
+    const w = await kbWriteExperience({
+      title: "Dedup Strategy Beta",
+      domain: "coding",
+      content: sharedBody,
+      confidence: 0.9,
+      source_task: "t-b",
+    });
+    const p = await kbPromoteExperience({
+      inbox_path: parseResult(w).path,
+      action: "promote",
+    });
+    const res = parseResult(p);
+    assert.equal(res.tier, "manual", "body-duplicate must force tier=manual");
+    assert.ok(res.duplicate_with.length > 0, "duplicate_with must be non-empty");
+    assert.ok(
+      res.duplicate_with[0].content_sim > 0.7,
+      `content_sim=${res.duplicate_with[0].content_sim} must exceed 0.7`
+    );
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+test("kb_promote_experience: no duplicates → tier=auto (high conf) and duplicate_with=[]", async () => {
+  const tmp = await createTempKB("prom-nodup");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { kbWriteExperience, kbPromoteExperience } = await import("../tools/write.js");
+
+    const w = await kbWriteExperience({
+      title: "Unique Topic",
+      domain: "coding",
+      content: "## Background\nA unique body discussing a one-of-a-kind problem.\n",
+      confidence: 0.9,
+      source_task: "t-unique",
+    });
+    const p = await kbPromoteExperience({
+      inbox_path: parseResult(w).path,
+      action: "promote",
+    });
+    const res = parseResult(p);
+    assert.equal(res.tier, "auto", "no duplicates + high conf + single domain → auto");
+    assert.ok(
+      Array.isArray(res.duplicate_with) && res.duplicate_with.length === 0,
+      "duplicate_with must be an empty array when no duplicates"
+    );
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+test("kb_promote_experience: cross-domain duplicates NOT flagged (range = same-domain only)", async () => {
+  const tmp = await createTempKB("prom-cross");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { kbWriteExperience, kbPromoteExperience } = await import("../tools/write.js");
+
+    // Active card in domain=emotions with identical title + body to the inbox card.
+    await writePage(
+      tmp,
+      "wiki/emotions/experiences/same-title.md",
+      {
+        title: "Same Title",
+        domain: ["emotions"],
+        type: "experience",
+        status: "active",
+        confidence: 0.85,
+        date: todayStr(),
+        source_task: "t-emotion",
+      },
+      "## Background\nShared body content across domains.\n"
+    );
+
+    // Inbox card in domain=coding — same title, same body, DIFFERENT domain.
+    const w = await kbWriteExperience({
+      title: "Same Title",
+      domain: "coding",
+      content: "## Background\nShared body content across domains.\n",
+      confidence: 0.9,
+      source_task: "t-coding",
+    });
+    const p = await kbPromoteExperience({
+      inbox_path: parseResult(w).path,
+      action: "promote",
+    });
+    const res = parseResult(p);
+    assert.equal(res.tier, "auto", "cross-domain duplicates must NOT force manual");
+    assert.equal(res.duplicate_with.length, 0, "cross-domain duplicates must NOT be flagged");
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+// ---------------------------------------------------------------------------
 // DEF-005 regression: log.md markdownlint compliance after write+promote
 // ---------------------------------------------------------------------------
 
