@@ -36,7 +36,7 @@ promote 时实时检测，扫描同 domain 的 `type=experience, status=active` 
 - 任一触发即强制 `tier="manual"`，但仍执行 promote（reviewer 主动调用即视为人工确认）
 - 结果通过 `duplicate_with: Array<{path, title_sim, content_sim}>` 字段返回（始终为数组，空也为 `[]`）
 
-**算法选择理由**：项目无向量库（核心依赖 ≤5 原则，ADR-001），Sorensen-Dice 字符 bigram 对 CJK 天然友好，无需中文分词器。阈值基于 4 张真实经验卡两两实测校准（不相关卡最高 0.3557，2x 安全余量取 0.7）。算法实现、阈值校准数据、合并策略见 [ADR-011](../../../docs/decisions/ADR-011-duplicate-detection-and-quality-scoring.md)。
+**算法选择理由**：项目无向量库（核心依赖 ≤5 原则，ADR-001），Sorensen-Dice 字符 bigram 对 CJK 天然友好，无需中文分词器。阈值基于 4 张真实经验卡两两实测校准（不相关卡最高 0.3557，2x 安全余量取 0.7）。算法实现、阈值校准数据、合并策略见 [ADR-011](../../docs/decisions/ADR-011-duplicate-detection-and-quality-scoring.md)。
 
 ## 提升流程（kb_promote_experience）
 
