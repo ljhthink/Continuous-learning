@@ -119,8 +119,11 @@ date: 2026-07-22            # ISO 日期：创建或最后更新日期
 ```yaml
 tags: [python, async]       # 横切标签，可跨领域
 use_count: 0                # 被引用次数（老化机制用，由系统维护，Agent 不手动写）
+quality_score: 0.85         # 经验卡质量评分（0-1，由 /dream 计算回写，Agent 不手动写；ADR-011）
 related: [wiki/coding/other-page]  # 相关页面链接（纯路径数组；禁用 [[...]] wikilink，js-yaml 解析多 wikilink 会失败）
 ```
+
+> **`quality_score` 说明**（ADR-011）：仅 `type: experience` 卡片有此字段，由 `/dream` Phase 3 基于四维度 rubric（frontmatter 完整性 0.15 + body 结构 0.35 + 证据丰富度 0.25 + 长度合理性 0.25）计算并幂等回写。不门禁 promote（§7.4 门禁条件不变），作为诊断信号供 P4+ 筛选/排序。Agent 创建或修改经验卡时**不应**手动写入此字段。
 
 ### 3.4 状态机
 
@@ -271,17 +274,33 @@ tags: [python, async, context-manager]
 | Tier 1（自动） | confidence ≥ 0.8 且单域且非重复 | 自动提升为正式页（status=active，移出 inbox） | ~90% |
 | Tier 2（人工） | confidence < 0.8 或跨域或疑似重复 | 进入人工审核队列 | ~10% |
 
-**重复检测**：标题相似度 > 0.9 或内容嵌入相似度 > 0.92 视为疑似重复，进 Tier 2。
+**重复检测**（ADR-011）：标题 Levenshtein 比率 > 0.9 或内容 Sorensen-Dice 字符 bigram 系数 > 0.7 视为疑似重复，进 Tier 2。检测范围为同 domain 的 `type=experience, status=active` 卡片。promote 时实时检测，结果通过 `duplicate_with` 字段返回（始终为数组，空也为 `[]`）；疑似重复强制 `tier=manual`，但仍执行 promote（reviewer 主动调用即视为人工确认）。算法选择、阈值校准数据与合并策略见 [ADR-011](docs/decisions/ADR-011-duplicate-detection-and-quality-scoring.md)。
 
-**提升日志**：promote 动作追加 `log.md`，格式 `## [YYYY-MM-DD] promote | <标题>`（type 用 `promote` 而非 `experience`，语义清晰且避免与原始 write 条目形成 MD024 重复 heading），记录 promoted 路径、from_inbox 路径、tier、confidence。
+**提升日志**：promote 动作追加 `log.md`，格式 `## [YYYY-MM-DD] promote | <标题>`（type 用 `promote` 而非 `experience`，语义清晰且避免与原始 write 条目形成 MD024 重复 heading），记录 promoted 路径、from_inbox 路径、tier、confidence；若检测到重复，追加 `duplicate_with`（路径列表）与 `duplicate_max_content_sim`。
 
 **驳回日志**：reject 动作追加 `log.md`，格式 `## [YYYY-MM-DD] reject | <标题>`（type 用 `reject` 而非 `experience`，理由同 promote：语义清晰且避免与原始 write 条目形成 MD024 重复 heading），记录 rejected 路径。
 
 ### 7.5 老化与淘汰
 
+`/dream` 是定期执行的三阶段维护 pass（ADR-011），所有事件以 `type="dream"` 记录到 `log.md`：
+
+**Phase 1 — 老化降级**：
 - 每次 `kb_get_page` 被调用时，`use_count` +1。
 - 定期 `/dream` 整理时，`use_count` 长期为 0 且 `date` 超过 90 天的经验卡片，降级为 `archived`，移到 `wiki/<domain>/experiences/archive/`。
 - archived 页仍可被检索，但不进 top 结果。
+- 降级事件追加 `log.md`，格式 `## [YYYY-MM-DD] dream | <标题>`，记录 archived 路径、from 路径、reason。
+
+**Phase 2 — 去重扫描**（report-only，ADR-011）：
+- 按 domain 分桶，同桶内两两计算标题 Levenshtein + 内容 Sorensen-Dice 相似度（阈值同 §7.4）。
+- 疑似重复对记录到 `/dream` 报告 `duplicates` 字段，**不自动合并、不删除**（合并是不可逆决策，需人工 review）。
+- 单桶 >500 卡时跳过该桶去重（保留老化+评分），记日志告警。
+
+**Phase 3 — 质量评分**（ADR-011）：
+- 对剩余 active 经验卡计算四维度 `quality_score`（frontmatter 完整性 0.15 + body 结构 0.35 + 证据丰富度 0.25 + 长度合理性 0.25）。
+- 幂等回写到 frontmatter `quality_score` 字段：若与当前值差异 < 0.01 跳过回写。
+- 回写失败 best-effort（catch + 日志，不中断批量）。
+
+**摘要日志**：每次 `/dream` 执行结束追加 `## [YYYY-MM-DD] dream | /dream pass summary`，记录 scanned / demoted / duplicates_found / quality_scored / quality_updated 统计。
 
 ### 7.6 经验卡片质量自检（Agent 写入前）
 
