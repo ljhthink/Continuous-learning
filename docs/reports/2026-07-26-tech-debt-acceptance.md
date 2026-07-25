@@ -147,8 +147,8 @@ EXIT_CODE=1
 **回退层 3：kb_lint 实现存在性确认**
 
 - [server/src/tools/lint.ts](../../server/src/tools/lint.ts) 第 82 行 `export async function kbLint(args: {...})` 存在
-- [server/dist/tools/lint.js](../../server/dist/tools/lint.js) 编译产物存在
-- 测试文件 server/src/tests/lint.test.ts 存在
+- `server/dist/tools/lint.js` 编译产物存在（本地验证，未提交到仓库——dist/ 在 .gitignore 中）
+- 测试文件 `server/src/tests/lint.test.ts` 存在
 
 **Q1 结论**：由于 kb_lint MCP 不可用，无法直接复跑 kb_lint 0 issues 声明。但通过三层回退验证（手动检查项 6/6 通过 + server 单元测试 7/7 通过 + 实现存在性确认），提供**强有力的间接证据**支持"kb_lint 0 issues"声明。**AC-C-1 有条件通过**。
 
