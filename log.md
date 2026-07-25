@@ -259,3 +259,24 @@
   - 概念页含 5 项关键洞察：临时存储策略 / pop(0) 陷阱 / bottom-up 优势 / 稳定性来源 / 无符号右移
   - License 合规：仅引用代码片段用于对比分析，标注 MIT/GPLv3 来源，未复制完整文件
   - 后续：可继续 Phase 4 的 graph、DP 等算法深化（按用户优先级）
+
+## [2026-07-25] ingest | DEF-017 — heap-sort 跨语言实现模式对比（Phase 4 第二个交付）
+
+- 任务：创作 heap-sort-impl-patterns.md 概念页（ADR-009 Phase 4 / DEF-016 续）
+- 数据来源：6 个 TheAlgorithms 仓库的 heap_sort 实现（GitHub MCP get_file_contents 实时获取），C 仓库含 2 个实现
+- 影响页面：1 个新建概念页 + 6 个入口页交叉引用更新 + index.md 更新（总页数 34 → 35）+ 本日志
+- 闭环状态：guardrail-enforcer + ac-verifier 待主 Agent 启动
+- 任务令牌：TKN-HEAP-SORT-001
+- pages:
+  - wiki/coding/heap-sort-impl-patterns.md（6 语言 7 实现：Python/Java/C++/C×2/Rust/TypeScript）
+- notes:
+  - 覆盖语言数：6 种（缺 JavaScript，TheAlgorithms/JavaScript 无 heap_sort 实现）
+  - C 仓库提供 2 个实现：heap_sort.c（1-based 迭代 sift-down）+ heap_sort_2.c（sift-up 建堆，O(n log n)）
+  - Rust 是唯一支持升序/降序切换的实现（is_max_heap 参数 + Ordering 比较器函数指针）
+  - Java 和 C v1 使用 1-based 索引（历史遗产，简化父子计算但需 -1 偏移访问数组）
+  - C++ 版本建堆起点非标准（从 n-1 开始而非 n/2-1，多了对叶子节点的无效调用，结果正确但效率略低）
+  - TypeScript 注释含 bug（@example 误写为 MergeSort，应为 HeapSort）
+  - 关键洞察 5 项：建堆策略分水岭（O(n) vs O(n log n)）/ 1-based 索引历史遗产 / 迭代 vs 递归权衡 / C++ 建堆起点非标准 / Rust 升序降序切换设计
+  - 工业实现对比：std::make_heap/sort_heap、PriorityQueue、heapq、BinaryHeap 均封装为数据结构而非排序函数
+  - License 合规：5 MIT + 2 GPLv3（C 两个版本），标注来源
+  - 后续：可继续 Phase 4 的 graph、DP 等算法深化（按用户优先级）

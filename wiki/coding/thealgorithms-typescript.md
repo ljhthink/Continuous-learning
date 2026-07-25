@@ -124,6 +124,7 @@ related: [[wiki/coding/thealgorithms-javascript]], [[wiki/coding/thealgorithms-p
 ## 相关页面
 
 - [[wiki/coding/merge-sort-impl-patterns]] — 归并排序跨语言实现对比（含本仓库 TypeScript 预分配 Array 实现）
+- [[wiki/coding/heap-sort-impl-patterns]] — 堆排序跨语言实现模式对比（含本仓库 TypeScript 最简洁实现，含注释 bug）
 - [[wiki/coding/thealgorithms-javascript]] — 同体系 JS 版本，对比类型系统增益
 - [[wiki/coding/thealgorithms-python]] — 同体系 Python 版本，对比动态类型实现
 - [[wiki/coding/thealgorithms-java]] — 同体系 Java 版本，对比 JVM 静态类型实现

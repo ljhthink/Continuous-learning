@@ -146,6 +146,7 @@ related: [[wiki/coding/thealgorithms-c-plus-plus]], [[wiki/coding/thealgorithms-
 ## 相关页面
 
 - [[wiki/coding/merge-sort-impl-patterns]] — 归并排序跨语言实现对比（含本仓库 C malloc/free 手动管理实现）
+- [[wiki/coding/heap-sort-impl-patterns]] — 堆排序跨语言实现模式对比（含本仓库 C 两个实现：v1 迭代 sift-down + v2 sift-up 建堆）
 - [[wiki/coding/thealgorithms-c-plus-plus]] — 同体系 C++ 版本（MIT + C++17），对比 C/C++ 实现差异
 - [[wiki/coding/thealgorithms-rust]] — 同体系 Rust 版本，对比内存安全模型
 - [[wiki/coding/thealgorithms-go]] — 同体系 Go 版本
