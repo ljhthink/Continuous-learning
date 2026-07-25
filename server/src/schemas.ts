@@ -132,7 +132,7 @@ export const kbListRecentSchema = {
     .optional()
     .describe("Max entries (default 10)"),
   type: z
-    .enum(["ingest", "query", "lint", "experience", "init"])
+    .enum(["ingest", "query", "lint", "experience", "promote", "reject", "dream", "init"])
     .optional()
     .describe("Filter by event type"),
 };

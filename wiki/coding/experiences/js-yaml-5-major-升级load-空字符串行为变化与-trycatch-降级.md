@@ -6,7 +6,9 @@ status: active
 confidence: 0.9
 date: 2026-07-24
 source_task: TKN-DEPS-UPGRADE-001
+quality_score: 0.95
 ---
+
 
 ## 背景
 

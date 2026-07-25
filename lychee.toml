@@ -16,6 +16,10 @@ exclude = [
   'texturelabs\.org',
   # fontzone.net 在 CI 中持续 TIMEOUT（DEF-001 PR #20 阻塞原因），素材库网站不稳定
   'fontzone\.net',
+  # spriters-resource.com 返回 403 Forbidden（PR #30 CI 阻塞，素材库网站禁止 bot 访问）
+  'spriters-resource\.com',
+  # greensock.com/docs/ 在 CI 中持续 TIMEOUT（PR #30 CI 阻塞，GSAP 文档站点对 bot 不稳定）
+  'greensock\.com',
   # CSDN 博客不稳定（521 服务器宕机 / connection reset by peer）
   'blog\.csdn\.net',
   # claude.com 301 重定向未跟随

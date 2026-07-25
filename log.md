@@ -329,3 +329,11 @@
 - 任务令牌：TKN-TECH-DEBT-001
 - pages:
   - 详见 git diff（35 文件修改 + 3 新文件，+409/-33 行）
+
+## [2026-07-26] dream | /dream pass summary
+
+- scanned: 4
+- demoted: 0
+- duplicates_found: 0
+- quality_scored: 4
+- quality_updated: 4

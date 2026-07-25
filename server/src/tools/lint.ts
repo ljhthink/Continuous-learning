@@ -12,11 +12,8 @@
  *       heuristic judgment unsuitable for deterministic linting.
  */
 
-import path from "node:path";
-import { getKbRoot, getWikiDir } from "../config.js";
-import { listMarkdownFiles, readFile } from "../utils/fileio.js";
-import { parseFrontmatter, normalizeDate } from "../utils/frontmatter.js";
-import { extractLinks } from "../utils/markdown.js";
+import { loadAllPages } from "../utils/pages.js";
+import type { PageInfo } from "../utils/pages.js";
 import { jsonResult } from "./helpers.js";
 import type { ToolResult } from "./helpers.js";
 
@@ -35,22 +32,6 @@ interface LintIssue {
   page: string; // relPath without .md, or "A ↔ B" for pair issues
   detail: string;
   suggestion?: string;
-}
-
-interface PageInfo {
-  absPath: string;
-  relPath: string; // forward slashes, no .md
-  basename: string;
-  frontmatter: Record<string, unknown>;
-  body: string;
-  links: string[]; // raw link target strings
-  title: string;
-  type: string | null;
-  status: string | null;
-  date: string | null; // YYYY-MM-DD
-  domains: string[];
-  tags: string[];
-  confidence: number | null;
 }
 
 const ALL_CHECKS: CheckName[] = [
@@ -178,71 +159,6 @@ export async function kbLint(args: {
       checks_run: requested,
     },
   });
-}
-
-// ---------------------------------------------------------------------------
-// Page loading
-// ---------------------------------------------------------------------------
-
-async function loadAllPages(): Promise<PageInfo[]> {
-  const files = await listMarkdownFiles(getWikiDir());
-  // Hoist getKbRoot() out of the per-page loop: it reads process.env + resolves
-  // a path on every call, which on a 1000-page scan added ~100ms of overhead
-  // vs the old const (perf baseline lint-perf.test.ts). KB_ROOT is stable for
-  // the duration of one lint run, so a single snapshot is correct.
-  const kbRoot = getKbRoot();
-  const pages: PageInfo[] = [];
-  for (const absPath of files) {
-    try {
-      const content = await readFile(absPath);
-      const { frontmatter, body } = parseFrontmatter(content);
-      const relPath = path
-        .relative(kbRoot, absPath)
-        .replace(/\\/g, "/")
-        .replace(/\.md$/, "");
-      const basename = path.basename(absPath, ".md");
-      const title =
-        (typeof frontmatter.title === "string" && frontmatter.title) ||
-        basename;
-      const type =
-        typeof frontmatter.type === "string" ? frontmatter.type : null;
-      const status =
-        typeof frontmatter.status === "string" ? frontmatter.status : null;
-      const date = normalizeDate(frontmatter.date);
-      const domains = toStringArray(frontmatter.domain);
-      const tags = toStringArray(frontmatter.tags);
-      const confidence =
-        typeof frontmatter.confidence === "number"
-          ? frontmatter.confidence
-          : null;
-      pages.push({
-        absPath,
-        relPath,
-        basename,
-        frontmatter,
-        body,
-        links: extractLinks(body),
-        title,
-        type,
-        status,
-        date,
-        domains,
-        tags,
-        confidence,
-      });
-    } catch (err) {
-      // Skip unreadable or malformed pages, but log to stderr so the
-      // operator can see which page is corrupt (CLAUDE.md §19.4 不吞异常).
-      console.error(`[kb-mcp] kb_lint: skipping unreadable page ${absPath}:`, err);
-    }
-  }
-  return pages;
-}
-
-function toStringArray(value: unknown): string[] {
-  if (Array.isArray(value)) return value.map(String);
-  if (typeof value === "string") return [value];
-  return [];
 }
 
 // ---------------------------------------------------------------------------

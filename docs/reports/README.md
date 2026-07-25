@@ -42,3 +42,5 @@
 | 2026-07-25 | resources 与 design 领域建立验收测试 | acceptance | [2026-07-25-resources-design-domains-acceptance.md](2026-07-25-resources-design-domains-acceptance.md) |
 | 2026-07-25 | design 8 张分类页安全与质量审计 | guardrail | [2026-07-25-design-categories-guardrail.md](2026-07-25-design-categories-guardrail.md) |
 | 2026-07-25 | DEF-015 TheAlgorithms 6 仓库目录索引补全安全与质量审计 | guardrail | [2026-07-25-thealgorithms-dir-index-guardrail.md](2026-07-25-thealgorithms-dir-index-guardrail.md) |
+| 2026-07-26 | P3 /dream 去重 + 质量评分安全与质量审计 | guardrail | [2026-07-26-p3-dream-dedup-guardrail.md](2026-07-26-p3-dream-dedup-guardrail.md) |
+| 2026-07-26 | P3 /dream 去重 + 质量评分验收测试 | acceptance | [2026-07-26-p3-dream-dedup-acceptance.md](2026-07-26-p3-dream-dedup-acceptance.md) |

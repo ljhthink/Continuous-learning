@@ -6,7 +6,9 @@ status: active
 confidence: 0.85
 date: 2026-07-24
 source_task: TKN-CI-LYCHEE-FIX
+quality_score: 0.7
 ---
+
 
 ## 背景
 

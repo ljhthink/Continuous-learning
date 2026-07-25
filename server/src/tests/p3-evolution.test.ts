@@ -293,6 +293,186 @@ test("kb_promote_experience: refuses non-pending experience (state-machine guard
 });
 
 // ---------------------------------------------------------------------------
+// P3 dedup (ADR-011): kb_promote_experience duplicate detection
+// ---------------------------------------------------------------------------
+
+test("kb_promote_experience: duplicate title (Levenshtein > 0.9) forces tier=manual + duplicate_with non-empty", async () => {
+  const tmp = await createTempKB("prom-dup-title");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { kbWriteExperience, kbPromoteExperience } = await import("../tools/write.js");
+
+    // Pre-existing active card with a 10-char title.
+    await writePage(
+      tmp,
+      "wiki/coding/experiences/async-patterns.md",
+      {
+        title: "Async Patterns",
+        domain: ["coding"],
+        type: "experience",
+        status: "active",
+        confidence: 0.85,
+        date: todayStr(),
+        source_task: "t-original",
+      },
+      "## Background\nOriginal card body, completely different content.\n"
+    );
+
+    // Inbox card with title differing by 1 char out of 10 → Levenshtein ratio = 0.9.
+    // "Async Patterns" vs "Async Patternx" → 1 substitution / 14 chars ≈ 0.928.
+    // (Pick clearly-over-threshold input to avoid boundary flakiness.)
+    const w = await kbWriteExperience({
+      title: "Async Patternx",
+      domain: "coding",
+      content: "## Background\nA totally different body to ensure content_sim stays low.\n",
+      confidence: 0.9,
+      source_task: "t-dup",
+    });
+    const p = await kbPromoteExperience({
+      inbox_path: parseResult(w).path,
+      action: "promote",
+    });
+    const res = parseResult(p);
+    assert.equal(res.status, "active");
+    assert.equal(res.tier, "manual", "duplicate must force tier=manual");
+    assert.ok(
+      Array.isArray(res.duplicate_with) && res.duplicate_with.length > 0,
+      "duplicate_with must be a non-empty array"
+    );
+    const dup = res.duplicate_with[0];
+    assert.equal(dup.path, "wiki/coding/experiences/async-patterns");
+    assert.ok(dup.title_sim > 0.9, `title_sim=${dup.title_sim} must exceed 0.9`);
+    assert.ok(typeof dup.content_sim === "number");
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+test("kb_promote_experience: duplicate body (Sorensen-Dice > 0.7) forces tier=manual", async () => {
+  const tmp = await createTempKB("prom-dup-body");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { kbWriteExperience, kbPromoteExperience } = await import("../tools/write.js");
+
+    const sharedBody =
+      "## 背景\n在 P3 实施过程中需要为知识库添加去重检测能力。" +
+      "## 方案\n采用 Levenshtein + Sorensen-Dice 字符 bigram 算法。";
+
+    // Active card with title A and the shared body.
+    await writePage(
+      tmp,
+      "wiki/coding/experiences/dedup-impl.md",
+      {
+        title: "Dedup Strategy Alpha",
+        domain: ["coding"],
+        type: "experience",
+        status: "active",
+        confidence: 0.85,
+        date: todayStr(),
+        source_task: "t-a",
+      },
+      sharedBody + "\n"
+    );
+
+    // Inbox card with title B (different) but the SAME body → content_sim ≈ 1.0.
+    const w = await kbWriteExperience({
+      title: "Dedup Strategy Beta",
+      domain: "coding",
+      content: sharedBody,
+      confidence: 0.9,
+      source_task: "t-b",
+    });
+    const p = await kbPromoteExperience({
+      inbox_path: parseResult(w).path,
+      action: "promote",
+    });
+    const res = parseResult(p);
+    assert.equal(res.tier, "manual", "body-duplicate must force tier=manual");
+    assert.ok(res.duplicate_with.length > 0, "duplicate_with must be non-empty");
+    assert.ok(
+      res.duplicate_with[0].content_sim > 0.7,
+      `content_sim=${res.duplicate_with[0].content_sim} must exceed 0.7`
+    );
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+test("kb_promote_experience: no duplicates → tier=auto (high conf) and duplicate_with=[]", async () => {
+  const tmp = await createTempKB("prom-nodup");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { kbWriteExperience, kbPromoteExperience } = await import("../tools/write.js");
+
+    const w = await kbWriteExperience({
+      title: "Unique Topic",
+      domain: "coding",
+      content: "## Background\nA unique body discussing a one-of-a-kind problem.\n",
+      confidence: 0.9,
+      source_task: "t-unique",
+    });
+    const p = await kbPromoteExperience({
+      inbox_path: parseResult(w).path,
+      action: "promote",
+    });
+    const res = parseResult(p);
+    assert.equal(res.tier, "auto", "no duplicates + high conf + single domain → auto");
+    assert.ok(
+      Array.isArray(res.duplicate_with) && res.duplicate_with.length === 0,
+      "duplicate_with must be an empty array when no duplicates"
+    );
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+test("kb_promote_experience: cross-domain duplicates NOT flagged (range = same-domain only)", async () => {
+  const tmp = await createTempKB("prom-cross");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { kbWriteExperience, kbPromoteExperience } = await import("../tools/write.js");
+
+    // Active card in domain=emotions with identical title + body to the inbox card.
+    await writePage(
+      tmp,
+      "wiki/emotions/experiences/same-title.md",
+      {
+        title: "Same Title",
+        domain: ["emotions"],
+        type: "experience",
+        status: "active",
+        confidence: 0.85,
+        date: todayStr(),
+        source_task: "t-emotion",
+      },
+      "## Background\nShared body content across domains.\n"
+    );
+
+    // Inbox card in domain=coding — same title, same body, DIFFERENT domain.
+    const w = await kbWriteExperience({
+      title: "Same Title",
+      domain: "coding",
+      content: "## Background\nShared body content across domains.\n",
+      confidence: 0.9,
+      source_task: "t-coding",
+    });
+    const p = await kbPromoteExperience({
+      inbox_path: parseResult(w).path,
+      action: "promote",
+    });
+    const res = parseResult(p);
+    assert.equal(res.tier, "auto", "cross-domain duplicates must NOT force manual");
+    assert.equal(res.duplicate_with.length, 0, "cross-domain duplicates must NOT be flagged");
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+// ---------------------------------------------------------------------------
 // DEF-005 regression: log.md markdownlint compliance after write+promote
 // ---------------------------------------------------------------------------
 
@@ -446,6 +626,186 @@ test("/dream: demotes use_count=0 + old-date active experiences to archived only
       await fileExists(path.join(tmp, "wiki/coding/experiences/recent-unused.md")),
       true
     );
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// P3 /dream Phase 2 (dedup) + Phase 3 (quality scoring) — ADR-011
+// ---------------------------------------------------------------------------
+
+test("/dream Phase 2: reports suspected duplicate pairs (report-only, no merge)", async () => {
+  const tmp = await createTempKB("dream-dedup");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { dream } = await import("../dream.js");
+    const { readFile } = await import("../utils/fileio.js");
+
+    // Two cards with near-identical titles (Levenshtein > 0.9) in the same domain.
+    // Titles differ by 1 char out of 14 → ratio ≈ 0.928 > 0.9.
+    const sharedBody = "## Background\nA unique body to keep content_sim low.\n";
+    await writePage(
+      tmp,
+      "wiki/coding/experiences/async-patterns.md",
+      {
+        title: "Async Patterns",
+        domain: ["coding"],
+        type: "experience",
+        status: "active",
+        confidence: 0.85,
+        date: todayStr(),
+        source_task: "t-a",
+        use_count: 1, // non-zero so aging doesn't demote
+      },
+      sharedBody
+    );
+    await writePage(
+      tmp,
+      "wiki/coding/experiences/async-patternx.md",
+      {
+        title: "Async Patternx",
+        domain: ["coding"],
+        type: "experience",
+        status: "active",
+        confidence: 0.85,
+        date: todayStr(),
+        source_task: "t-b",
+        use_count: 1,
+      },
+      sharedBody
+    );
+
+    const report = await dream();
+    assert.equal(report.scanned, 2);
+    assert.equal(report.demoted, 0);
+    assert.equal(
+      report.duplicates.length,
+      1,
+      "expected 1 suspected duplicate pair"
+    );
+
+    const pair = report.duplicates[0];
+    assert.ok(pair.a.includes("async-pattern"), `pair.a=${pair.a}`);
+    assert.ok(pair.b.includes("async-pattern"), `pair.b=${pair.b}`);
+    assert.ok(pair.a !== pair.b, "pair must be two distinct cards");
+    assert.ok(pair.title_sim > 0.9, `title_sim=${pair.title_sim} must exceed 0.9`);
+
+    // Report-only: original files unchanged (no merge, no delete).
+    const aContent = await readFile(path.join(tmp, "wiki/coding/experiences/async-patterns.md"));
+    const bContent = await readFile(path.join(tmp, "wiki/coding/experiences/async-patternx.md"));
+    assert.match(aContent, /title: Async Patterns/);
+    assert.match(bContent, /title: Async Patternx/);
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+test("/dream Phase 3: writes quality_score to active cards (idempotent on re-run)", async () => {
+  const tmp = await createTempKB("dream-quality");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { dream } = await import("../dream.js");
+    const { readFile } = await import("../utils/fileio.js");
+    const { parseFrontmatter } = await import("../utils/frontmatter.js");
+
+    // A well-structured card — should score highly.
+    await writePage(
+      tmp,
+      "wiki/coding/experiences/good-card.md",
+      {
+        title: "Good Experience Card",
+        domain: ["coding"],
+        type: "experience",
+        status: "active",
+        confidence: 0.85,
+        date: todayStr(),
+        source_task: "t-good",
+        tags: ["python", "async"],
+        use_count: 1,
+      },
+      "## 背景\nProblem context.\n\n## 方案\nThe solution.\n\n## 证据\n```\ncode\n```\n\n## 适用场景\nWhen to use.\n\n" +
+        "a".repeat(500) // pad to sweet-spot length
+    );
+
+    // First run: should compute + write quality_score.
+    const r1 = await dream();
+    assert.equal(r1.scored, 1);
+    assert.equal(r1.quality_updated, 1, "first run must write quality_score");
+
+    const content1 = await readFile(path.join(tmp, "wiki/coding/experiences/good-card.md"));
+    const fm1 = parseFrontmatter(content1).frontmatter;
+    const score1 = fm1.quality_score;
+    assert.equal(typeof score1, "number", "quality_score must be a number");
+    assert.ok(
+      typeof score1 === "number" && score1 >= 0 && score1 <= 1,
+      "score must be in [0,1]"
+    );
+    assert.ok(
+      typeof score1 === "number" && score1 > 0.5,
+      `expected high score, got ${score1}`
+    );
+
+    // Second run: idempotent — score unchanged, no writeback.
+    const r2 = await dream();
+    assert.equal(r2.scored, 1);
+    assert.equal(r2.quality_updated, 0, "second run must NOT rewrite (idempotent)");
+
+    // Score value unchanged.
+    const content2 = await readFile(path.join(tmp, "wiki/coding/experiences/good-card.md"));
+    const fm2 = parseFrontmatter(content2).frontmatter;
+    assert.equal(fm2.quality_score, score1, "score must be stable across runs");
+  } finally {
+    delete process.env.KB_ROOT;
+    await cleanupKB(tmp);
+  }
+});
+
+test("/dream summary log entry: type='dream' with pass statistics", async () => {
+  const tmp = await createTempKB("dream-log");
+  process.env.KB_ROOT = tmp;
+  try {
+    const { dream } = await import("../dream.js");
+
+    await writePage(
+      tmp,
+      "wiki/coding/experiences/solo.md",
+      {
+        title: "Solo Card",
+        domain: ["coding"],
+        type: "experience",
+        status: "active",
+        confidence: 0.85,
+        date: todayStr(),
+        source_task: "t-solo",
+        use_count: 1,
+      },
+      "## Background\nA card.\n"
+    );
+
+    await dream();
+
+    const logContent = await fs.readFile(path.join(tmp, "log.md"), "utf-8");
+    // Summary entry heading with type="dream"
+    assert.match(
+      logContent,
+      /^## \[\d{4}-\d{2}-\d{2}\] dream \| \/dream pass summary$/m,
+      "summary log entry must use type='dream'"
+    );
+    // Statistics details present
+    assert.match(logContent, /- scanned: 1/);
+    assert.match(logContent, /- demoted: 0/);
+    assert.match(logContent, /- duplicates_found: 0/);
+    assert.match(logContent, /- quality_scored: 1/);
+    // MD022/MD032: heading followed by blank line before list items
+    const lines = logContent.split("\n");
+    for (let i = 0; i < lines.length - 1; i++) {
+      if (lines[i].startsWith("## ") && lines[i + 1].startsWith("- ")) {
+        assert.fail(`MD032 violation at log.md line ${i + 1}`);
+      }
+    }
   } finally {
     delete process.env.KB_ROOT;
     await cleanupKB(tmp);

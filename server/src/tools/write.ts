@@ -26,8 +26,90 @@ import {
 import { parseFrontmatter, serializeFrontmatter } from "../utils/frontmatter.js";
 import { addPageToIndex, updateIndexHeader } from "../utils/index-md.js";
 import { appendLogEntry } from "../utils/log.js";
+import { loadAllPages } from "../utils/pages.js";
+import {
+  levenshteinRatio,
+  sorensenDiceBigram,
+} from "../utils/similarity.js";
 import { jsonResult, errorResult } from "./helpers.js";
 import type { ToolResult } from "./helpers.js";
+
+// ---------------------------------------------------------------------------
+// Duplicate-detection thresholds (ADR-011)
+// ---------------------------------------------------------------------------
+
+/**
+ * Title-similarity threshold for duplicate detection (AGENTS.md §7.4 original
+ * value). Levenshtein ratio is code-point safe. Two titles differing by one
+ * char out of 10 score 0.9 — empirically the right "likely duplicate" cutoff.
+ */
+const DUPLICATE_TITLE_THRESHOLD = 0.9;
+
+/**
+ * Body-similarity threshold for duplicate detection (ADR-011).
+ *
+ * Calibrated against the 4 existing active experience cards in this KB:
+ *   - max pairwise body similarity among unrelated cards: 0.3557
+ *   - identical body: 1.0
+ *   - small-edit duplicate (1-word case change): ~0.95+
+ *
+ * 0.7 sits with a ~2x safety margin above the highest unrelated pair and
+ * well below genuine duplicates. Re-run `npx tsx scripts/calibrate-similarity.ts`
+ * if the KB grows significantly or to re-validate before tuning.
+ */
+const DUPLICATE_CONTENT_THRESHOLD = 0.7;
+
+/** Duplicate match metadata returned by kb_promote_experience. */
+interface DuplicateMatch {
+  path: string; // active card relPath (forward slashes, no .md)
+  title_sim: number;
+  content_sim: number;
+}
+
+/**
+ * Scan same-domain active experience cards for duplicates of the inbox card
+ * being promoted (ADR-011).
+ *
+ * Range: only `type=experience` AND `status=active` cards whose `domain`
+ * includes the inbox card's primary domain. Cross-domain cards are skipped
+ * (per plan §"promote 重复检测范围": cross-domain cards typically cover
+ * distinct topics, and limiting to same-domain keeps 1000-card scans ~50ms).
+ *
+ * A card is a suspected duplicate if title_sim > 0.9 OR content_sim > 0.7.
+ * The inbox card itself is `status=pending` so it is naturally excluded.
+ */
+async function findDuplicateExperiences(card: {
+  title: string;
+  body: string;
+  domain: string;
+}): Promise<DuplicateMatch[]> {
+  const allPages = await loadAllPages();
+  const matches: DuplicateMatch[] = [];
+  for (const p of allPages) {
+    if (p.type !== "experience") continue;
+    if (p.status !== "active") continue;
+    if (!p.domains.includes(card.domain)) continue;
+
+    const titleSim = levenshteinRatio(card.title, p.title);
+    const contentSim = sorensenDiceBigram(card.body, p.body);
+    if (
+      titleSim > DUPLICATE_TITLE_THRESHOLD ||
+      contentSim > DUPLICATE_CONTENT_THRESHOLD
+    ) {
+      matches.push({
+        path: p.relPath,
+        title_sim: round3(titleSim),
+        content_sim: round3(contentSim),
+      });
+    }
+  }
+  return matches;
+}
+
+/** Round to 3 decimal places for readable log/API output. */
+function round3(n: number): number {
+  return Math.round(n * 1000) / 1000;
+}
 
 // ---------------------------------------------------------------------------
 // kb_ingest_source
@@ -288,9 +370,23 @@ export async function kbPromoteExperience(args: {
     // qualifies for the auto-promotion tier. Lower confidence or cross-domain
     // cards require manual review (tier=manual) — but once a human invokes
     // promote, both tiers are promoted the same way; the tier is reported
-    // for auditability. Duplicate detection (similarity > 0.9/0.92) is a
-    // future enhancement; for now we surface the tier only.
-    const tier = confidence >= 0.8 && isSingleDomain ? "auto" : "manual";
+    // for auditability.
+    //
+    // P3 dedup (ADR-011): scan same-domain active experience cards for
+    // duplicates. Any suspected duplicate forces tier=manual regardless of
+    // confidence, so a human reviewer can resolve the overlap. The inbox
+    // card is still promoted (the reviewer invoked promote intentionally),
+    // but the duplicate_with list is surfaced for follow-up.
+    const duplicates = await findDuplicateExperiences({
+      title,
+      body,
+      domain: domains[0],
+    });
+    const hasDuplicates = duplicates.length > 0;
+    const tier =
+      confidence >= 0.8 && isSingleDomain && !hasDuplicates
+        ? "auto"
+        : "manual";
 
     const domain = domains[0];
     const slug = path.basename(fullPath, ".md");
@@ -339,19 +435,35 @@ export async function kbPromoteExperience(args: {
     });
     await refreshIndexHeader();
 
+    // Log details: include duplicate_with paths for auditability when present.
+    // Multiple paths are joined with ", " (sanitizeLogField in log.ts handles
+    // any embedded newlines per CWE-117).
+    const logDetails: Record<string, string> = {
+      promoted: activeRelPath,
+      from_inbox: `wiki/${domain}/experiences/inbox/${slug}.md`,
+      tier,
+      confidence: String(confidence),
+    };
+    if (hasDuplicates) {
+      logDetails.duplicate_with = duplicates.map((d) => d.path).join(", ");
+      logDetails.duplicate_max_content_sim = String(
+        Math.max(...duplicates.map((d) => d.content_sim)),
+      );
+    }
+
     await appendLogEntry({
       date: today,
       type: "promote",
       title,
-      details: {
-        promoted: activeRelPath,
-        from_inbox: `wiki/${domain}/experiences/inbox/${slug}.md`,
-        tier,
-        confidence: String(confidence),
-      },
+      details: logDetails,
     });
 
-    return jsonResult({ path: activeRelPath, status: "active", tier });
+    return jsonResult({
+      path: activeRelPath,
+      status: "active",
+      tier,
+      duplicate_with: duplicates,
+    });
   }
 
   // action === "reject"
