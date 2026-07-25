@@ -2,7 +2,7 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 状态 | Proposed |
+| 状态 | Accepted |
 | 日期 | 2026-07-25 |
 | 决策者 | 主 Agent（技术债务清理阶段） |
 | 关联文档 | [ADR-004](ADR-004-ci-docs-quality-workflow.md)（CI docs-quality 三件套）/ [CLAUDE.md](../../CLAUDE.md) §14.1 / §20.1 |
@@ -109,8 +109,8 @@ ADR-004 §"需要同步更新的文档或代码"已埋下伏笔："子 Agent 生
 
 ## 生命周期
 
-- **Proposed**：本 ADR 随技术债务清理 PR 提交。
-- **Accepted**：经 guardrail-enforcer 审查通过且 PR 合并后转为 Accepted（CLAUDE.md §17.3）。
+- **Proposed**：本 ADR 随技术债务清理 PR 提交（PR #28）。
+- **Accepted**：经 guardrail-enforcer 第二轮审查通过（TKN-TECH-DEBT-001）且 PR #28 合并后转为 Accepted（2026-07-26，commit 8c8d613）。
 - **Superseded**：若未来引入更通用的路径规范检查（如禁止所有绝对 URL scheme），新建 ADR 取代。
 
 ## 参考
