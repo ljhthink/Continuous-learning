@@ -104,9 +104,9 @@ frontmatter `related` 字段（8 个引用）与"相关页面"段（8 个条目�
 
 **M-1 详细说明**：
 
-- 概念页 [merge-sort-impl-patterns.md:228](file:///d:/s0611/code/Continuous-learning/wiki/coding/merge-sort-impl-patterns.md#L228) 将 TheAlgorithms/C 代码片段标注为 `（MIT）`
-- 但 [thealgorithms-c.md:2](file:///d:/s0611/code/Continuous-learning/wiki/coding/thealgorithms-c.md#L2) 标题明确标注"GPLv3"，[thealgorithms-c.md:15](file:///d:/s0611/code/Continuous-learning/wiki/coding/thealgorithms-c.md#L15) 说明"C 版采用 GPLv3 License"
-- [ADR-009:53](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-009-resources-and-design-domains.md#L53) 明确："1 个（C）**GPLv3**"
+- 概念页 [merge-sort-impl-patterns.md:228](../../wiki/coding/merge-sort-impl-patterns.md#L228) 将 TheAlgorithms/C 代码片段标注为 `（MIT）`
+- 但 [thealgorithms-c.md:2](../../wiki/coding/thealgorithms-c.md#L2) 标题明确标注"GPLv3"，[thealgorithms-c.md:15](../../wiki/coding/thealgorithms-c.md#L15) 说明"C 版采用 GPLv3 License"
+- [ADR-009:53](../decisions/ADR-009-resources-and-design-domains.md#L53) 明确："1 个（C）**GPLv3**"
 - log.md 第 260 行自身也记载"标注 MIT/GPLv3 来源"，说明主 Agent 认知正确，但概念页执行错误
 
 此为中等风险：GPLv3 代码标注为 MIT 可能误导读者认为可不受 copyleft 约束使用该片段。虽然概念页仅引用片段用于对比分析（合理使用），License 标注必须准确。
