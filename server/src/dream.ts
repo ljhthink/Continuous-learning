@@ -177,10 +177,12 @@ export async function dream(): Promise<DreamReport> {
 
       await appendLogEntry({
         date: today,
-        // NOTE: type stays "experience" for archived events in this commit.
-        // Commit 6 migrates this to type="dream" for consistency with the
-        // new summary entry below.
-        type: "experience",
+        // ADR-011: type="dream" for all /dream events (archived + summary).
+        // Previously "experience" (P2 convention), migrated for semantic
+        // clarity — a demoted card is a /dream action, not a new experience.
+        // Also avoids MD024 duplicate-heading collisions with the original
+        // `## [date] experience` entry written when the card was created.
+        type: "dream",
         title:
           typeof page.frontmatter.title === "string"
             ? page.frontmatter.title
