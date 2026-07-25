@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-25
 tags: [design, sound, audio, sfx, music, ambience, resources, assets]
-related: [[wiki/design/_index]]
+related: [wiki/design/_index]
 ---
 
 ## 简介
@@ -141,6 +141,17 @@ related: [[wiki/design/_index]]
 4. 步骤 4：解压后在 DAW（如 Ableton Live、FL Studio）中加载
 5. 步骤 5：作为合成器预设或采样库使用
 6. 步骤 6：在最终作品中标注 "Sounds from 99sounds.org"
+
+## 同领域分类
+
+- [[wiki/design/image-resources]] — 图像素材
+- [[wiki/design/video-resources]] — 视频素材
+- [[wiki/design/animation-resources]] — 动画素材
+- [[wiki/design/icon-resources]] — 图标素材
+- [[wiki/design/font-resources]] — 字体素材
+- [[wiki/design/color-resources]] — 颜色素材
+- [[wiki/design/3d-model-resources]] — 3D 模型素材
+- [[wiki/design/sound-resources]] — 声音素材
 
 ## 相关页面
 

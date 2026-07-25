@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-25
 tags: [design, icon, resources, assets, svg, material, logo]
-related: [[wiki/design/_index]]
+related: [wiki/design/_index]
 ---
 
 ## 简介
@@ -151,6 +151,17 @@ related: [[wiki/design/_index]]
 5. 步骤 5：**必须做显著二次创作**（改色、改形状、加文字、组合多元素），否则无法注册商标
 6. 步骤 6：导出最终 logo SVG / PNG
 7. 步骤 7：在产品 footer 或 about 页标注 "Original icon by [Author] from Flaticon - [URL]"
+
+## 同领域分类
+
+- [[wiki/design/image-resources]] — 图像素材
+- [[wiki/design/video-resources]] — 视频素材
+- [[wiki/design/animation-resources]] — 动画素材
+- [[wiki/design/icon-resources]] — 图标素材
+- [[wiki/design/font-resources]] — 字体素材
+- [[wiki/design/color-resources]] — 颜色素材
+- [[wiki/design/3d-model-resources]] — 3D 模型素材
+- [[wiki/design/sound-resources]] — 声音素材
 
 ## 相关页面
 

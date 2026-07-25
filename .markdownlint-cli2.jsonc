@@ -1,0 +1,21 @@
+{
+  // markdownlint-cli2 顶层配置
+  // 规则继承 .markdownlint.json，此处只声明扫描范围（globs）
+  // 配置文件中用 `!` 前缀（micromatch 标准）；命令行中用 `#` 前缀（避免 shell 解析 `!`）
+  // 与 .gitignore 保持一致，确保本地预验与 CI 行为统一
+  "globs": [
+    "**/*.md",
+    "!node_modules/**",
+    "!**/node_modules/**",
+    "!tmp/**",
+    "!temp/**",
+    "!.cache/**",
+    "!dist/**",
+    "!build/**",
+    "!out/**",
+    "!target/**",
+    "!.trae/**",
+    "!.idea/**",
+    "!.vscode/**"
+  ]
+}

@@ -463,6 +463,7 @@
 - `docs/decisions/README.md` 包含所有 `docs/decisions/ADR-*.md` 文件。
 - `docs/templates/README.md` 包含所有 `*-template.md` 文件。
 - `docs/reports/` 中除 `README.md` 外的文件命名符合 `YYYY-MM-DD-<task>-<type>.md`。
+- 所有 `.md` 文件中不出现 `file:///` 绝对路径（ADR-010，子 Agent 报告必须用相对路径）。
 
 该脚本作为 `.github/workflows/docs.yml` 的必需状态检查，失败则禁止合并。
 

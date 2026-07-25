@@ -5,7 +5,7 @@ type: entity
 status: active
 date: 2026-07-25
 tags: [python, algorithm, open-source, learning, thealgorithms]
-related: [[wiki/coding/thealgorithms-java]], [[wiki/coding/thealgorithms-c-plus-plus]], [[wiki/coding/thealgorithms-javascript]]
+related: [wiki/coding/thealgorithms-java, wiki/coding/thealgorithms-c-plus-plus, wiki/coding/thealgorithms-javascript]
 ---
 
 > License: MIT（以仓库根 LICENSE 文件为准）
@@ -186,3 +186,13 @@ related: [[wiki/coding/thealgorithms-java]], [[wiki/coding/thealgorithms-c-plus-
 - [[wiki/coding/thealgorithms-java]] — 同体系 Java 版本，便于跨语言对比
 - [[wiki/coding/thealgorithms-c-plus-plus]] — 同体系 C++ 版本，C++17 标准
 - [[wiki/coding/thealgorithms-javascript]] — 同体系 JavaScript 版本，对比动态语言实现差异
+
+## 同领域算法仓库
+
+- [[wiki/coding/thealgorithms-java]] — Java 算法教育实现合集
+- [[wiki/coding/thealgorithms-c-plus-plus]] — C++ 算法教育实现合集
+- [[wiki/coding/thealgorithms-c]] — C 算法教育实现合集
+- [[wiki/coding/thealgorithms-javascript]] — JavaScript 算法教育实现合集
+- [[wiki/coding/thealgorithms-go]] — Go 算法教育实现合集
+- [[wiki/coding/thealgorithms-rust]] — Rust 算法教育实现合集
+- [[wiki/coding/thealgorithms-typescript]] — TypeScript 算法教育实现合集

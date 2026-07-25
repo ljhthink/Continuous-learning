@@ -301,3 +301,31 @@
 - 任务令牌：TKN-GRAPH-TRAVERSAL-001
 - pages:
   - wiki/coding/graph-traversal-bfs-dfs-impl-patterns.md（5 语言 10 实现：Python/Java/C++/C/Rust）
+
+## [2026-07-25] tech-debt | DEF-019 — CI file:/// 检测门禁 + frontmatter YAML 合法化 + kb_lint 健康修复
+
+- 类型：tech-debt（B1 file:/// 检测 + C1/C2/C4 知识库健康修复）
+- ADR：[ADR-010](docs/decisions/ADR-010-ci-file-absolute-path-detection.md)（CI 新增 file:/// 绝对路径检测门禁）
+- **B1（file:/// 检测门禁）**：
+  - `scripts/consistency-check.js` 新增 `checkFileAbsolutePath()`，正则 `\(file:\/\/\/[A-Za-z]` 匹配 markdown 链接格式的绝对路径
+  - 排除 `node_modules` / `dist` / `.trae` 等目录；不误伤反引号包裹的描述性引用
+  - CI `docs-quality` workflow 新增第 5 项检查，子 Agent 报告硬编码 `file:///D:/...` 将被拦截
+- **C1 根因修复（frontmatter YAML 合法化）**：
+  - 根因：31 个 wiki 页面 frontmatter `related` 字段使用 `[[foo]], [[bar]]` 多 wikilink 格式，js-yaml 解析失败导致 frontmatter 降级为空，kb_lint 报 22 个 frontmatter 误报
+  - 修复：批量改为 `[foo, bar]` 纯路径数组（与 `domain: [coding]` 风格一致）
+  - AGENTS.md §3.3 示例同步更新，明确禁用 `[[...]]` wikilink 在 frontmatter 中
+- **C2（contradiction 误报修复）**：
+  - `wiki/kb-system/ingest-workflow.md` 措辞修复，移除字面量 "⚠️ 矛盾" 避免 kb_lint 误识别为未解决矛盾
+- **C4 扩展（missing_xref sibling 聚合）**：
+  - 22 个页面添加 "## 同领域" section（thealgorithms 8 + kb-system 9 + 算法实现 5）
+  - 消除全部 43 个 missing_xref（同 domain + 共享 tag 但 body 无 wikilink 交叉引用）
+- **markdownlint 配置统一**：
+  - 新建 `.markdownlint-cli2.jsonc`（globs 配置）与 `.markdownlintignore`（持久化排除目录）
+  - `.github/workflows/docs.yml` markdownlint 命令追加排除参数 `#node_modules #**/node_modules #tmp #.trae`
+  - 本地预验与 CI 行为统一，113 文件 0 issues
+- **kb_lint 验证**：0 issues（frontmatter / contradictions / orphans / stale / missing_xref 全部通过）
+- 影响页面：31 个 wiki 页面 frontmatter + 22 个页面 sibling section + 3 个新文件 + 5 个配置/文档文件
+- 闭环状态：guardrail-enforcer + ac-verifier 待主 Agent 启动
+- 任务令牌：TKN-TECH-DEBT-001
+- pages:
+  - 详见 git diff（35 文件修改 + 3 新文件，+409/-33 行）

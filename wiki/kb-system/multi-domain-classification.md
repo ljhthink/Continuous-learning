@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, domain, classification, tags]
-related: [[wiki/kb-system/frontmatter-schema]], [[wiki/kb-system/three-layer-architecture]]
+related: [wiki/kb-system/frontmatter-schema, wiki/kb-system/three-layer-architecture]
 ---
 
 ## 概念
@@ -100,3 +100,14 @@ tags: [python, pytest, fixture, testing]
 
 - `AGENTS.md` §8（多领域分类规范）
 - `docs/ARCH.md` §4（数据模型与存储）
+
+## 同领域概念
+
+- [[wiki/kb-system/three-layer-architecture]] — 三层架构：Raw / Wiki / Schema
+- [[wiki/kb-system/dual-index-mechanism]] — 双索引机制：内容索引 + 时间日志
+- [[wiki/kb-system/frontmatter-schema]] — frontmatter Schema 规约
+- [[wiki/kb-system/page-types-and-state-machine]] — 页面类型与状态机
+- [[wiki/kb-system/ingest-workflow]] — Ingest 工作流
+- [[wiki/kb-system/query-workflow]] — Query 工作流
+- [[wiki/kb-system/lint-workflow]] — Lint 工作流
+- [[wiki/kb-system/continuous-evolution-review-gate]] — 持续进化审核门禁

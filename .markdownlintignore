@@ -1,0 +1,20 @@
+# 临时与缓存目录（与 .gitignore 保持一致）
+tmp/
+temp/
+.cache/
+
+# 依赖与构建产物
+node_modules/
+dist/
+build/
+out/
+target/
+
+# IDE 本地状态
+.trae/
+.idea/
+.vscode/
+
+# OS 文件
+.DS_Store
+Thumbs.db

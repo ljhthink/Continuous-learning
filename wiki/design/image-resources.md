@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-25
 tags: [design, image, resources, assets, photo, texture, pixel]
-related: [[wiki/design/_index]]
+related: [wiki/design/_index]
 ---
 
 ## 简介
@@ -119,6 +119,17 @@ related: [[wiki/design/_index]]
 4. 步骤 4：避开所有商业游戏（如马里奥、塞尔达、宝可梦）的同人精灵图
 5. 步骤 5：选择同人原创或完全原创素材
 6. 步骤 6：在游戏 credits 中显式列出每个素材的来源与 License
+
+## 同领域分类
+
+- [[wiki/design/image-resources]] — 图像素材
+- [[wiki/design/video-resources]] — 视频素材
+- [[wiki/design/animation-resources]] — 动画素材
+- [[wiki/design/icon-resources]] — 图标素材
+- [[wiki/design/font-resources]] — 字体素材
+- [[wiki/design/color-resources]] — 颜色素材
+- [[wiki/design/3d-model-resources]] — 3D 模型素材
+- [[wiki/design/sound-resources]] — 声音素材
 
 ## 相关页面
 

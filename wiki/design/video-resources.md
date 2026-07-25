@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-25
 tags: [design, video, gif, sticker, motion, resources, assets]
-related: [[wiki/design/_index]]
+related: [wiki/design/_index]
 ---
 
 ## 简介
@@ -179,6 +179,17 @@ related: [[wiki/design/_index]]
     ```
 
 6. 步骤 6：检查 GIF 文件大小（建议 < 1MB，邮件客户端加载快）
+
+## 同领域分类
+
+- [[wiki/design/image-resources]] — 图像素材
+- [[wiki/design/video-resources]] — 视频素材
+- [[wiki/design/animation-resources]] — 动画素材
+- [[wiki/design/icon-resources]] — 图标素材
+- [[wiki/design/font-resources]] — 字体素材
+- [[wiki/design/color-resources]] — 颜色素材
+- [[wiki/design/3d-model-resources]] — 3D 模型素材
+- [[wiki/design/sound-resources]] — 声音素材
 
 ## 相关页面
 

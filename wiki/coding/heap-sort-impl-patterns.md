@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-25
 tags: [algorithm, sorting, heapsort, python, java, cpp, c, rust, typescript, cross-language, binary-heap, heapify]
-related: [[wiki/coding/thealgorithms-python]], [[wiki/coding/thealgorithms-java]], [[wiki/coding/thealgorithms-c-plus-plus]], [[wiki/coding/thealgorithms-c]], [[wiki/coding/thealgorithms-rust]], [[wiki/coding/thealgorithms-typescript]], [[wiki/coding/quick-sort-impl-patterns]], [[wiki/coding/merge-sort-impl-patterns]], [[wiki/coding/binary-search-impl-patterns]]
+related: [wiki/coding/thealgorithms-python, wiki/coding/thealgorithms-java, wiki/coding/thealgorithms-c-plus-plus, wiki/coding/thealgorithms-c, wiki/coding/thealgorithms-rust, wiki/coding/thealgorithms-typescript, wiki/coding/quick-sort-impl-patterns, wiki/coding/merge-sort-impl-patterns, wiki/coding/binary-search-impl-patterns]
 ---
 
 ## 概念
@@ -445,3 +445,14 @@ TheAlgorithms 是教学实现，工业级排序有本质区别：
 - [[wiki/coding/thealgorithms-c]] — 本仓库 C 实现（GPLv3）
 - [[wiki/coding/thealgorithms-rust]] — 本仓库 Rust 实现（MIT）
 - [[wiki/coding/thealgorithms-typescript]] — 本仓库 TypeScript 实现（MIT）
+
+## 同领域算法仓库
+
+- [[wiki/coding/thealgorithms-python]] — Python 算法教育实现合集
+- [[wiki/coding/thealgorithms-java]] — Java 算法教育实现合集
+- [[wiki/coding/thealgorithms-c-plus-plus]] — C++ 算法教育实现合集
+- [[wiki/coding/thealgorithms-c]] — C 算法教育实现合集
+- [[wiki/coding/thealgorithms-javascript]] — JavaScript 算法教育实现合集
+- [[wiki/coding/thealgorithms-go]] — Go 算法教育实现合集
+- [[wiki/coding/thealgorithms-rust]] — Rust 算法教育实现合集
+- [[wiki/coding/thealgorithms-typescript]] — TypeScript 算法教育实现合集

@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, architecture, schema]
-related: [[wiki/kb-system/dual-index-mechanism]], [[wiki/kb-system/frontmatter-schema]]
+related: [wiki/kb-system/dual-index-mechanism, wiki/kb-system/frontmatter-schema]
 ---
 
 ## 概念
@@ -50,3 +50,14 @@ related: [[wiki/kb-system/dual-index-mechanism]], [[wiki/kb-system/frontmatter-s
 
 - `AGENTS.md` §1.1（三层架构定义）
 - `docs/ARCH.md` §4（五层架构：L1 存储 / L2 索引 / L3 访问 / L4 GUI / L5 进化）
+
+## 同领域概念
+
+- [[wiki/kb-system/dual-index-mechanism]] — 双索引机制：内容索引 + 时间日志
+- [[wiki/kb-system/frontmatter-schema]] — frontmatter Schema 规约
+- [[wiki/kb-system/page-types-and-state-machine]] — 页面类型与状态机
+- [[wiki/kb-system/multi-domain-classification]] — 多领域分类规范
+- [[wiki/kb-system/ingest-workflow]] — Ingest 工作流
+- [[wiki/kb-system/query-workflow]] — Query 工作流
+- [[wiki/kb-system/lint-workflow]] — Lint 工作流
+- [[wiki/kb-system/continuous-evolution-review-gate]] — 持续进化审核门禁

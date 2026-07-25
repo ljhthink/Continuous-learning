@@ -119,7 +119,7 @@ date: 2026-07-22            # ISO 日期：创建或最后更新日期
 ```yaml
 tags: [python, async]       # 横切标签，可跨领域
 use_count: 0                # 被引用次数（老化机制用，由系统维护，Agent 不手动写）
-related: [[wiki/coding/other-page]]  # 相关页面链接
+related: [wiki/coding/other-page]  # 相关页面链接（纯路径数组；禁用 [[...]] wikilink，js-yaml 解析多 wikilink 会失败）
 ```
 
 ### 3.4 状态机

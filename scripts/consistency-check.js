@@ -8,6 +8,7 @@
  *  2. docs/decisions/README.md 包含所有 docs/decisions/ADR-*.md
  *  3. docs/templates/README.md 包含所有 *-template.md
  *  4. docs/reports/ 中除 README.md 外的文件命名符合 YYYY-MM-DD-<task>-<type>.md
+ *  5. 所有 .md 文件中不出现 file:/// 绝对路径（ADR-010，子 Agent 报告必须用相对路径）
  *
  * 退出码: 0=通过, 1=失败
  */
@@ -16,6 +17,30 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 let errors = [];
+
+// --- Helpers for recursive markdown walk ---
+function listMarkdownFiles(dir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    // Skip non-tracked / heavy dirs to keep CI fast and avoid false positives
+    if (entry.isDirectory()) {
+      if (entry.name === 'node_modules' || entry.name === 'dist' ||
+          entry.name === '.git' || entry.name === 'target' ||
+          entry.name === 'build' || entry.name === 'out' ||
+          entry.name === '.trae' || entry.name === '.idea') {
+        continue;
+      }
+      out.push(...listMarkdownFiles(path.join(dir, entry.name)));
+    } else if (entry.isFile() && entry.name.endsWith('.md')) {
+      out.push(path.join(dir, entry.name));
+    }
+  }
+  return out;
+}
+
+function rel(p) {
+  return path.relative(ROOT, p).replace(/\\/g, '/');
+}
 
 function exists(rel) {
   return fs.existsSync(path.join(ROOT, rel));
@@ -88,10 +113,46 @@ function checkReportsNaming() {
   });
 }
 
+// 5. file:/// 绝对路径检测（ADR-010）
+// 子 Agent 生成报告时易硬编码 `[text](file:///D:/...)` 形式的 markdown 链接，
+// 在 Linux CI 上 lychee 报错且路径不可移植。本检查扫描所有 .md 文件，
+// 匹配 markdown 链接格式 `(file:///` + 盘符/路径首字母，发现即报错。
+// v2 增强：跳过代码块（``` 包裹的多行）与反引号 inline code，
+// 避免误伤文档中描述 file:/// 概念的合法内容（如 ADR-010、guardrail 报告）。
+function checkFileAbsolutePath() {
+  // 正则匹配 markdown 链接格式：(file:/// 后紧跟盘符或路径首字母
+  const fileLinkRe = /\(file:\/\/\/[A-Za-z]/g;
+  // inline code 正则：匹配反引号包裹的内容（非贪婪，单行）
+  const inlineCodeRe = /`[^`\n]*`/g;
+  const files = listMarkdownFiles(ROOT);
+  for (const f of files) {
+    const text = fs.readFileSync(f, 'utf8');
+    const lines = text.split(/\r?\n/);
+    let inCodeBlock = false;
+    for (let i = 0; i < lines.length; i++) {
+      const rawLine = lines[i];
+      // 代码块围栏切换（``` 或 ~~~）
+      if (/^\s*(```|~~~)/.test(rawLine)) {
+        inCodeBlock = !inCodeBlock;
+        continue;
+      }
+      if (inCodeBlock) continue; // 代码块内跳过
+      // 去除 inline code 后再匹配（避免反引号包裹的描述性示例误报）
+      const line = rawLine.replace(inlineCodeRe, '');
+      let m;
+      while ((m = fileLinkRe.exec(line)) !== null) {
+        errors.push(`${rel(f)}:${i + 1} 出现 file:/// 绝对路径链接: ${rawLine.trim()}`);
+      }
+      fileLinkRe.lastIndex = 0; // 重置正则 lastIndex（g 标志跨行复用）
+    }
+  }
+}
+
 checkReadmeLinks();
 checkDecisionsIndex();
 checkTemplatesIndex();
 checkReportsNaming();
+checkFileAbsolutePath();
 
 if (errors.length) {
   console.error('一致性检查失败:');

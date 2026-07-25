@@ -5,7 +5,7 @@ type: entity
 status: active
 date: 2026-07-24
 tags: [javascript, algorithm, open-source, learning, thealgorithms]
-related: [[wiki/coding/thealgorithms-typescript]], [[wiki/coding/thealgorithms-python]]
+related: [wiki/coding/thealgorithms-typescript, wiki/coding/thealgorithms-python]
 ---
 
 ## 简介
@@ -151,3 +151,13 @@ related: [[wiki/coding/thealgorithms-typescript]], [[wiki/coding/thealgorithms-p
 - [[wiki/coding/thealgorithms-typescript]] — 同体系 TypeScript 版本，对比类型系统增益
 - [[wiki/coding/thealgorithms-python]] — 同体系 Python 版本，对比动态语言实现差异
 - [[wiki/coding/thealgorithms-go]] — 同体系 Go 版本
+
+## 同领域算法仓库
+
+- [[wiki/coding/thealgorithms-python]] — Python 算法教育实现合集
+- [[wiki/coding/thealgorithms-java]] — Java 算法教育实现合集
+- [[wiki/coding/thealgorithms-c-plus-plus]] — C++ 算法教育实现合集
+- [[wiki/coding/thealgorithms-c]] — C 算法教育实现合集
+- [[wiki/coding/thealgorithms-go]] — Go 算法教育实现合集
+- [[wiki/coding/thealgorithms-rust]] — Rust 算法教育实现合集
+- [[wiki/coding/thealgorithms-typescript]] — TypeScript 算法教育实现合集

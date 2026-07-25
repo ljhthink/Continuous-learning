@@ -5,7 +5,7 @@ type: entity
 status: active
 date: 2026-07-24
 tags: [rust, algorithm, open-source, learning, thealgorithms, memory-safety]
-related: [[wiki/coding/thealgorithms-go]], [[wiki/coding/thealgorithms-c-plus-plus]]
+related: [wiki/coding/thealgorithms-go, wiki/coding/thealgorithms-c-plus-plus]
 ---
 
 ## 简介
@@ -156,3 +156,13 @@ Rust 强制的内存安全约束让算法实现必须显式考虑数据归属与
 - [[wiki/coding/thealgorithms-go]] — 同体系 Go 版本，对比 GC vs 所有权模型的算法实现
 - [[wiki/coding/thealgorithms-c-plus-plus]] — 同体系 C++ 版本，对比 RAII 与 Rust 所有权
 - [[wiki/coding/thealgorithms-c]] — 同体系 C 版本，对比无内存安全保证的底层实现
+
+## 同领域算法仓库
+
+- [[wiki/coding/thealgorithms-python]] — Python 算法教育实现合集
+- [[wiki/coding/thealgorithms-java]] — Java 算法教育实现合集
+- [[wiki/coding/thealgorithms-c-plus-plus]] — C++ 算法教育实现合集
+- [[wiki/coding/thealgorithms-c]] — C 算法教育实现合集
+- [[wiki/coding/thealgorithms-javascript]] — JavaScript 算法教育实现合集
+- [[wiki/coding/thealgorithms-go]] — Go 算法教育实现合集
+- [[wiki/coding/thealgorithms-typescript]] — TypeScript 算法教育实现合集

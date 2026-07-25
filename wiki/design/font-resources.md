@@ -5,7 +5,7 @@ type: concept
 status: active
 date: 2026-07-25
 tags: [design, font, typography, resources, assets, chinese, english]
-related: [[wiki/design/_index]]
+related: [wiki/design/_index]
 ---
 
 ## 简介
@@ -155,6 +155,17 @@ related: [[wiki/design/_index]]
    - "Demo" → 试用版，仅部分字符可用
 5. 步骤 5：商用场景下，若为"Free for Personal Use"，必须发邮件给作者获取商用授权（通常需付费）
 6. 步骤 6：在项目 credits 中记录字体名、作者、License 类型、来源 URL
+
+## 同领域分类
+
+- [[wiki/design/image-resources]] — 图像素材
+- [[wiki/design/video-resources]] — 视频素材
+- [[wiki/design/animation-resources]] — 动画素材
+- [[wiki/design/icon-resources]] — 图标素材
+- [[wiki/design/font-resources]] — 字体素材
+- [[wiki/design/color-resources]] — 颜色素材
+- [[wiki/design/3d-model-resources]] — 3D 模型素材
+- [[wiki/design/sound-resources]] — 声音素材
 
 ## 相关页面
 
