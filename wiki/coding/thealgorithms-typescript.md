@@ -60,6 +60,67 @@ related: [[wiki/coding/thealgorithms-javascript]], [[wiki/coding/thealgorithms-p
 | 算法原理解析 | [wiki](https://github.com/TheAlgorithms/TypeScript/wiki) |
 | 社区 | Discord |
 
+## 算法目录索引
+
+> 数据来源：[TheAlgorithms/TypeScript DIRECTORY.md](https://github.com/TheAlgorithms/TypeScript/blob/master/DIRECTORY.md)
+> 提取时间：2026-07-25
+> License：MIT
+
+### 一级分类总览
+
+| 一级分类 | 二级分类数 | 算法文件数 |
+| --- | --- | --- |
+| Backtracking | 0 | 2 |
+| Bit Manipulation | 0 | 4 |
+| Ciphers | 0 | 1 |
+| Data Structures | 9 | 21 |
+| Dynamic Programming | 0 | 3 |
+| Graph | 0 | 9 |
+| Maths | 1 | 42 |
+| Other | 0 | 3 |
+| Search | 0 | 5 |
+| Sorts | 0 | 14 |
+| 合计 | 10 个一级分类 | 104 个算法文件 |
+
+### 详细分类（代表性算法）
+
+#### 经典算法领域
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Sorts | 14 | Bogo Sort、Bubble Sort、Counting Sort、Cycle Sort、Gnome Sort、Heap Sort、Insertion Sort、Merge Sort、Quick Select、Quick Sort |
+| Search | 5 | Binary Search、Interpolation Search、Jump Search、Linear Search、Sentinel Search |
+| Graph | 9 | Bellman Ford、Bipartite Graph、Dijkstra、Floyd Warshall、Johnson、Kosajaru、Kruskal、Prim、Tarjan |
+| Dynamic Programming | 3 | Coin Change、Knapsack、Lcs |
+| Backtracking | 2 | All Combinations Of Size K、Generateparentheses |
+| Bit Manipulation | 4 | Add Binary、Is Power Of 2、Is Power Of 4、Log Two |
+
+#### 数据结构
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Data Structures | 21 | Disjoint Set、Heap、Doubly Linked List、Linked List、Singly Linked List、Linked List、Hash Map、Map、Array Queue、Circular Queue |
+
+#### 数学与科学计算
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Maths | 42 | Absolute Value、Aliquot Sum、Armstrong Number、Binary Convert、Binomial Coefficient、Calculate Mean、Calculate Median、Degrees To Radians、Digit Sum、Double Factorial Iterative |
+
+#### 加解密与安全
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Ciphers | 1 | Xor Cipher |
+
+#### 应用领域
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Other | 3 | Is Sorted Array、Parse Nested Brackets、Shuffle Array |
+
+> 使用提示：需要具体算法实现时，可通过 GitHub MCP `get_file_contents` 实时获取 `TheAlgorithms/TypeScript/<category>/<file>` 文件内容。
+
 ## 相关页面
 
 - [[wiki/coding/thealgorithms-javascript]] — 同体系 JS 版本，对比类型系统增益

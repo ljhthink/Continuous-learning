@@ -35,3 +35,10 @@
 | 2026-07-24 | DEF-001 TOCTOU 竞态修复验收测试 | acceptance | [2026-07-24-def-001-acceptance.md](2026-07-24-def-001-acceptance.md) |
 | 2026-07-24 | DEF-008 frontmatter 格式统一安全与质量审计 | guardrail | [2026-07-24-def-008-guardrail.md](2026-07-24-def-008-guardrail.md) |
 | 2026-07-24 | DEF-008 frontmatter 格式统一验收测试 | acceptance | [2026-07-24-def-008-acceptance.md](2026-07-24-def-008-acceptance.md) |
+| 2026-07-24 | DEF-010 算法深化第一批安全与质量审计 | guardrail | [2026-07-24-def-010-guardrail.md](2026-07-24-def-010-guardrail.md) |
+| 2026-07-24 | Route A 9 张 concept 页安全与质量审计 | guardrail | [2026-07-24-route-a-concept-pages-guardrail.md](2026-07-24-route-a-concept-pages-guardrail.md) |
+| 2026-07-24 | Route B 9 张外部技术 entity 页安全与质量审计 | guardrail | [2026-07-24-route-b-external-tech-guardrail.md](2026-07-24-route-b-external-tech-guardrail.md) |
+| 2026-07-25 | resources 与 design 领域建立安全与质量审计 | guardrail | [2026-07-25-resources-design-domains-guardrail.md](2026-07-25-resources-design-domains-guardrail.md) |
+| 2026-07-25 | resources 与 design 领域建立验收测试 | acceptance | [2026-07-25-resources-design-domains-acceptance.md](2026-07-25-resources-design-domains-acceptance.md) |
+| 2026-07-25 | design 8 张分类页安全与质量审计 | guardrail | [2026-07-25-design-categories-guardrail.md](2026-07-25-design-categories-guardrail.md) |
+| 2026-07-25 | DEF-015 TheAlgorithms 6 仓库目录索引补全安全与质量审计 | guardrail | [2026-07-25-thealgorithms-dir-index-guardrail.md](2026-07-25-thealgorithms-dir-index-guardrail.md) |

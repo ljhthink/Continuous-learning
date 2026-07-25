@@ -59,6 +59,100 @@ C++ 版与 Python 版的关键差异：**C++ 版提供「同目标多实现」�
 | 算法清单 | DIRECTORY.md |
 | 社区 | Discord、Gitter、Liberapay |
 
+## 算法目录索引
+
+> 数据来源：[TheAlgorithms/C-Plus-Plus DIRECTORY.md](https://github.com/TheAlgorithms/C-Plus-Plus/blob/master/DIRECTORY.md)
+> 提取时间：2026-07-25
+> License：MIT
+
+### 一级分类总览
+
+| 一级分类 | 二级分类数 | 算法文件数 |
+| --- | --- | --- |
+| Backtracking | 0 | 13 |
+| Bit Manipulation | 0 | 10 |
+| Ciphers | 0 | 11 |
+| CPU Scheduling | 0 | 2 |
+| Data Structures | 1 | 42 |
+| Divide And Conquer | 0 | 2 |
+| Dynamic Programming | 0 | 32 |
+| Games | 0 | 1 |
+| Geometry | 0 | 4 |
+| Graphs | 0 | 21 |
+| Graphics | 0 | 1 |
+| Greedy Algorithms | 0 | 10 |
+| Hashing | 0 | 7 |
+| Machine Learning | 0 | 8 |
+| Math | 0 | 60 |
+| Numerical Methods | 0 | 23 |
+| Operations On Data Structures | 0 | 12 |
+| Others | 0 | 27 |
+| Physics | 0 | 1 |
+| Probability | 0 | 7 |
+| Range Queries | 0 | 7 |
+| Search | 0 | 16 |
+| Sorting | 0 | 43 |
+| Strings | 0 | 8 |
+| 合计 | 24 个一级分类 | 368 个算法文件 |
+
+### 详细分类（代表性算法）
+
+#### 经典算法领域
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Sorting | 43 | Bead Sort、Binary Insertion Sort、Bitonic Sort、Bogo Sort、Bubble Sort、Bucket Sort、Cocktail Selection Sort、Comb Sort、Count Inversions、Counting Sort |
+| Search | 16 | Binary Search、Exponential Search、Fibonacci Search、Floyd Cycle Detection Algo、Hash Search、Interpolation Search、Interpolation Search2、Jump Search、Linear Search、Longest Increasing Subsequence Using Binary Search |
+| Strings | 8 | Boyer Moore、Brute Force String Searching、Duval、Horspool、Knuth Morris Pratt、Manacher Algorithm、Rabin Karp、Z Function |
+| Graphs | 21 | Bidirectional Dijkstra、Breadth First Search、Bridge Finding With Tarjan Algorithm、Connected Components、Connected Components With Dsu、Cycle Check Directed Graph、Depth First Search、Depth First Search With Stack、Dijkstra、Hamiltons Cycle |
+| Dynamic Programming | 32 | 0 1 Knapsack、Abbreviation、Armstrong Number Templated、Bellman Ford、Catalan Numbers、Coin Change、Coin Change Topdown、Cut Rod、Edit Distance、Egg Dropping Puzzle |
+| Backtracking | 13 | Generate Parentheses、Graph Coloring、Knight Tour、Magic Sequence、Minimax、N Queens、N Queens All Solution Optimised、Nqueen Print All Solutions、Rat Maze、Subarray Sum |
+| Divide And Conquer | 2 | Karatsuba Algorithm For Fast Multiplication、Strassen Matrix Multiplication |
+| Greedy Algorithms | 10 | Binary Addition、Boruvkas Minimum Spanning Tree、Digit Separation、Dijkstra Greedy、Gale Shapley、Huffman、Jump Game、Knapsack、Kruskals Minimum Spanning Tree、Prims Minimum Spanning Tree |
+| Bit Manipulation | 10 | Count Bits Flip、Count Of Set Bits、Count Of Trailing Ciphers In Factorial N、Find Non Repeating Number、Gray Code、Hamming Distance、Next Higher Number With Same Number Of Set Bits、Power Of 2、Set Kth Bit、Travelling Salesman Using Bit Manipulation |
+
+#### 数据结构
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Data Structures | 42 | Avltree、Binary Search Tree、Binary Search Tree2、Binaryheap、Bloom Filter、Circular Queue Using Linked List、Cll、Cll、Main Cll、Disjoint Set |
+| Operations On Data Structures | 12 | Array Left Rotation、Array Right Rotation、Circular Linked List、Circular Queue Using Array、Get Size Of Linked List、Inorder Successor Of Bst、Intersection Of Two Arrays、Reverse A Linked List Using Recusion、Reverse Binary Tree、Selectionsortlinkedlist |
+| Range Queries | 7 | Fenwick Tree、Heavy Light Decomposition、Mo、Persistent Seg Tree Lazy Prop、Prefix Sum Array、Segtree、Sparse Table Range Queries |
+| Hashing | 7 | Chaining、Double Hash Hash Table、Linear Probing Hash Table、Md5、Quadratic Probing Hash Table、Sha1、Sha256 |
+
+#### 数学与科学计算
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Math | 60 | Aliquot Sum、Approximate Pi、Area、Armstrong Number、Binary Exponent、Binomial Calculate、Check Amicable Pair、Check Factorial、Check Prime、Complex Numbers |
+| Numerical Methods | 23 | Babylonian Method、Bisection Method、Brent Method Extrema、Composite Simpson Rule、Durand Kerner Roots、False Position、Fast Fourier Transform、Gaussian Elimination、Golden Search Extrema、Gram Schmidt |
+| Geometry | 4 | Graham Scan Algorithm、Graham Scan Functions、Jarvis Algorithm、Line Segment Intersection |
+| Probability | 7 | Addition Rule、Bayes Theorem、Binomial Dist、Exponential Dist、Geometric Dist、Poisson Dist、Windowed Median |
+| Physics | 1 | Ground To Ground Projectile Motion |
+
+#### 加解密与安全
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Ciphers | 11 | A1Z26 Cipher、Atbash Cipher、Base64 Encoding、Caesar Cipher、Elliptic Curve Key Exchange、Hill Cipher、Morse Code、Uint128 T、Uint256 T、Vigenere Cipher |
+
+#### 机器学习与人工智能
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Machine Learning | 8 | A Star Search、Adaline Learning、K Nearest Neighbors、Kohonen Som Topology、Kohonen Som Trace、Neural Network、Ordinary Least Squares Regressor、Vector Ops |
+
+#### 应用领域
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| CPU Scheduling | 2 | Fcfs Scheduling、Non Preemptive Sjf Scheduling |
+| Games | 1 | Memory Game |
+| Graphics | 1 | Spirograph |
+| Others | 27 | Buzz Number、Decimal To Binary、Decimal To Hexadecimal、Decimal To Roman Numeral、Easter、Fast Integer Input、Happy Number、Iterative Tree Traversals、Kadanes3、Kelvin To Celsius |
+
+> 使用提示：需要具体算法实现时，可通过 GitHub MCP `get_file_contents` 实时获取 `TheAlgorithms/C-Plus-Plus/<category>/<file>` 文件内容。
+
 ## 相关页面
 
 - [[wiki/coding/quick-sort-impl-patterns]] — 快速排序跨语言实现对比（含本仓库 C++ Lomuto + 3-way Dutch National Flag 实现）

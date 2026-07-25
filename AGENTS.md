@@ -58,6 +58,8 @@ Continuous-learning/
 │   │   └── experiences/
 │   │       ├── inbox/            # 待审核经验卡片（status=pending）
 │   │       └── *.md              # 已正式经验页（status=active）
+│   ├── resources/                # 领域：外部资源索引（API、数据集等，ADR-009 决策 2）
+│   ├── design/                   # 领域：设计素材（图像/视频/动画/图标/字体/颜色/3D/声音，ADR-009 决策 3）
 │   ├── emotions/                 # 领域：情感
 │   ├── reading/                  # 领域：读书
 │   └── <其他领域>/
@@ -301,6 +303,8 @@ tags: [python, async, context-manager]
 | --- | --- | --- |
 | 知识库系统 | `kb-system/` | 知识库元知识：三层架构、双索引、状态机、frontmatter、四大工作流、领域分类、持续进化门禁（ADR-008 决策 2） |
 | 编程 | `coding/` | 编程语言、框架、架构、DevOps |
+| 资源索引 | `resources/` | 外部资源索引：API 字典、开源数据集、公益资源仓库等（ADR-009 决策 2） |
+| 设计素材 | `design/` | 设计素材：图像、视频、动画、图标、字体、颜色、3D 模型、声音（ADR-009 决策 3） |
 | 情感 | `emotions/` | 心理、情绪、自我成长 |
 | 读书 | `reading/` | 书籍笔记、读后感 |
 | 学术 | `academic/` | 论文、研究方法 |

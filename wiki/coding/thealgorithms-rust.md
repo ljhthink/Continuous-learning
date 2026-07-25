@@ -58,6 +58,96 @@ Rust 强制的内存安全约束让算法实现必须显式考虑数据归属与
 | 算法清单 | DIRECTORY.md |
 | 社区 | Discord、Gitter |
 
+## 算法目录索引
+
+> 数据来源：[TheAlgorithms/Rust DIRECTORY.md](https://github.com/TheAlgorithms/Rust/blob/master/DIRECTORY.md)
+> 提取时间：2026-07-25
+> License：MIT
+
+### 一级分类总览
+
+| 一级分类 | 二级分类数 | 算法文件数 |
+| --- | --- | --- |
+| Backtracking | 0 | 10 |
+| Big Integer | 0 | 3 |
+| Bit Manipulation | 0 | 16 |
+| Ciphers | 0 | 26 |
+| Compression | 0 | 6 |
+| Conversions | 0 | 26 |
+| Data Structures | 1 | 22 |
+| Dynamic Programming | 0 | 26 |
+| Financial | 0 | 10 |
+| General | 1 | 13 |
+| Geometry | 0 | 7 |
+| Graphs | 0 | 29 |
+| Greedy | 0 | 4 |
+| Hashing | 0 | 7 |
+| Machine Learning | 2 | 21 |
+| Math | 0 | 83 |
+| Navigation | 0 | 3 |
+| Number Theory | 0 | 3 |
+| Searching | 0 | 16 |
+| Signal Analysis | 0 | 1 |
+| Sorting | 0 | 36 |
+| String | 0 | 24 |
+| 合计 | 22 个一级分类 | 392 个算法文件 |
+
+### 详细分类（代表性算法）
+
+#### 经典算法领域
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Sorting | 36 | Bead Sort、Binary Insertion Sort、Bingo Sort、Bitonic Sort、Bogo Sort、Bubble Sort、Bucket Sort、Cocktail Shaker Sort、Comb Sort、Counting Sort |
+| Searching | 16 | Binary Search、Binary Search Recursive、Exponential Search、Fibonacci Search、Interpolation Search、Jump Search、K-th Smallest、K-th Smallest Heap、Linear Search、Moore Voting |
+| String | 24 | Aho Corasick、Anagram、Autocomplete Using Trie、Boyer Moore Search、Burrows Wheeler Transform、Duval Algorithm、Hamming Distance、Isogram、Isomorphism、Jaro Winkler Distance |
+| Graphs | 29 | A*、Ant Colony Optimization、Bellman-Ford、Bipartite Matching、Breadth First Search、Centroid Decomposition、Decremental Connectivity、Depth First Search、Depth First Search Tic-Tac-Toe、Detect Cycle |
+| Dynamic Programming | 26 | Catalan Numbers、Coin Change、Egg Dropping、Fibonacci、Fractional Knapsack、Integer Partition、Is Subsequence、Knapsack、Longest Common Subsequence、Longest Common Substring |
+| Backtracking | 10 | All Combinations of Size K、Graph Coloring、Hamiltonian Cycle、Knight Tour、N-Queens、Parentheses Generator、Permutations、Rat in Maze、Subset Sum、Sudoku |
+| Greedy | 4 | Job Sequencing、Minimum Coin Change、Smallest Range、Stable Matching |
+| Bit Manipulation | 16 | Binary Coded Decimal、Binary Shifts、Counting Bits、Hamming Distance、Highest Set Bit、Is Power of Two、Missing Number、N Bits Gray Code、Previous Power of Two、Reverse Bits |
+| General | 13 | Convex Hull、Fisher Yates Shuffle、Genetic、Hanoi、Huffman Encoding、Kadane Algorithm、K-Means、Mex、Heap、Naive |
+
+#### 数据结构
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Data Structures | 22 | AVL Tree、B-Tree、Binary Search Tree、Fenwick Tree、Floyds Algorithm、Graph、Hash Table、Heap、Lazy Segment Tree、Linked List |
+| Hashing | 7 | Blake2B、Fletcher、Hashing Traits、MD5、SHA-1、SHA-2、SHA-3 |
+
+#### 数学与科学计算
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Math | 83 | Absolute、Aliquot Sum、Amicable Numbers、Area of Polygon、Area Under Curve、Armstrong Number、Average、Baby Step Giant Step、Bell Numbers、Binary Exponentiation |
+| Geometry | 7 | Closest Points、Graham Scan、Jarvis Scan、Point、Polygon Points、Ramer Douglas Peucker、Segment |
+| Number Theory | 3 | Compute Totient、Euler Totient、K-th Factor |
+| Big Integer | 3 | Fast Factorial、Multiply、Poly1305 |
+
+#### 加解密与安全
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Ciphers | 26 | AES、Affine Cipher、Another ROT13、Baconian Cipher、Base16、Base32、Base64、Base85、Caesar、Chacha |
+
+#### 机器学习与人工智能
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Machine Learning | 21 | Cholesky、Decision Tree、K-Means、K-Nearest Neighbors、Linear Regression、Logistic Regression、Naive Bayes、Perceptron、Principal Component Analysis、Random Forest |
+
+#### 应用领域
+
+| 一级分类 | 算法文件数 | 代表性算法 |
+| --- | --- | --- |
+| Conversions | 26 | Binary to Decimal、Binary to Hexadecimal、Binary to Octal、Decimal to Binary、Decimal to Hexadecimal、Decimal to Octal、Energy、Hexadecimal to Binary、Hexadecimal to Decimal、Hexadecimal to Octal |
+| Compression | 6 | Burrows-Wheeler Transform、Huffman Encoding、LZ77、Move to Front、Peak Signal-to-Noise Ratio、Run Length Encoding |
+| Financial | 10 | Depreciation、Equated Monthly Installments、Exponential Moving Average、Finance Ratios、Interest、Net Present Value、NPV Sensitivity、Payback Period、Present Value、Treynor Ratio |
+| Navigation | 3 | Bearing、Haversine、Rhumbline |
+| Signal Analysis | 1 | YIN |
+
+> 使用提示：需要具体算法实现时，可通过 GitHub MCP `get_file_contents` 实时获取 `TheAlgorithms/Rust/src/<category>/<file>` 文件内容。
+
 ## 相关页面
 
 - [[wiki/coding/thealgorithms-go]] — 同体系 Go 版本，对比 GC vs 所有权模型的算法实现

@@ -57,6 +57,8 @@
 | [docs/decisions/ADR-005-public-vs-private-repository.md](docs/decisions/ADR-005-public-vs-private-repository.md) | Explanation | public 仓库决策（vs private + Pro） |
 | [docs/decisions/ADR-006-continuous-evolution-loop.md](docs/decisions/ADR-006-continuous-evolution-loop.md) | Explanation | 持续进化闭环（config 函数化 + 两 tier 审核门禁 + /dream 老化） |
 | [docs/decisions/ADR-007-dependency-major-upgrade.md](docs/decisions/ADR-007-dependency-major-upgrade.md) | Explanation | 依赖 MAJOR 升级（zod 3→4 / js-yaml 4→5 / TypeScript 5→7 / actions v4→v7） |
+| [docs/decisions/ADR-008-kb-content-layering-and-format-unification.md](docs/decisions/ADR-008-kb-content-layering-and-format-unification.md) | Explanation | 知识库内容分层与格式统一（experiences 表头修复 + kb-system 领域拆分 + thealgorithms 深化） |
+| [docs/decisions/ADR-009-resources-and-design-domains.md](docs/decisions/ADR-009-resources-and-design-domains.md) | Explanation | 新建 resources 与 design 领域 + TheAlgorithms/素材资源沉淀策略 |
 | [docs/integration/mcp-clients.md](docs/integration/mcp-clients.md) | How-to | MCP 客户端集成指南 |
 | [docs/reports/README.md](docs/reports/README.md) | Reference | 运行时报告索引 |
 | [docs/reports/2026-07-22-knowledge-base-tech-selection.md](docs/reports/2026-07-22-knowledge-base-tech-selection.md) | Reference | 技术选型对比分析报告（选型依据） |

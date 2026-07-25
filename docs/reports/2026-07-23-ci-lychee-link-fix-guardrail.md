@@ -82,7 +82,7 @@
 
 #### 2.2.2 guardrail.md 变更验证（18 处）
 
-diff 确认 15 个 diff hunk（含多链接行），全部为 `file:///D:/s0611/code/Continuous-learning/server/...` → `../../server/...`。抽样验证：
+diff 确认 15 个 diff hunk（含多链接行），全部为 `../../server/...` → `../../server/...`。抽样验证：
 
 - [guardrail.md:40](./2026-07-22-p1-mcp-server-guardrail.md#L40)：`[read-only.ts:94-95](../../server/src/tools/read-only.ts#L94-L95)` ✓
 - [guardrail.md:128](./2026-07-22-p1-mcp-server-guardrail.md#L128)：`[write.ts:83](../../server/src/tools/write.ts#L83)` ✓
@@ -90,7 +90,7 @@ diff 确认 15 个 diff hunk（含多链接行），全部为 `file:///D:/s0611/
 
 #### 2.2.3 guardrail-r2.md 变更验证（40 处）
 
-diff 确认 39 处 `file:///D:/s0611/code/Continuous-learning/server/...` → `../../server/...` + 1 处 `file:///D:/s0611/code/Continuous-learning/docs/ARCH.md#L75-L84` → `../ARCH.md#L75-L84`。抽样验证：
+diff 确认 39 处 `../../server/...` → `../../server/...` + 1 处 `../ARCH.md#L75-L84` → `../ARCH.md#L75-L84`。抽样验证：
 
 - [guardrail-r2.md:40](./2026-07-22-p1-mcp-server-guardrail-r2.md#L40)：`[schemas.ts:46](../../server/src/schemas.ts#L46)` ✓
 - [guardrail-r2.md:246](./2026-07-22-p1-mcp-server-guardrail-r2.md#L246)：`[ARCH.md §3.1](../ARCH.md#L75-L84)` ✓
@@ -98,7 +98,7 @@ diff 确认 39 处 `file:///D:/s0611/code/Continuous-learning/server/...` → `.
 
 #### 2.2.4 tech-selection.md 变更验证（2 处）
 
-diff 确认 2 处 `file:///D:/s0611/code/Continuous-learning/karpathy-LLM.md` → `../../karpathy-LLM.md`。抽样验证：
+diff 确认 2 处 `../../karpathy-LLM.md` → `../../karpathy-LLM.md`。抽样验证：
 
 - [tech-selection.md:6](./2026-07-22-knowledge-base-tech-selection.md#L6)：`[karpathy-LLM.md](../../karpathy-LLM.md)` ✓
 - [tech-selection.md:584](./2026-07-22-knowledge-base-tech-selection.md#L584)：`[karpathy-LLM.md](../../karpathy-LLM.md)` ✓
@@ -143,7 +143,7 @@ diff 确认 2 处 `file:///D:/s0611/code/Continuous-learning/karpathy-LLM.md` �
 
 #### 敏感信息泄露
 
-**评估**：无风险。原绝对路径 `file:///D:/s0611/code/Continuous-learning/...` 仅包含本地开发路径，已在仓库中公开（仓库本身就在该路径下）。改为相对路径反而减少了不必要的本地路径信息暴露，是改进。
+**评估**：无风险。原绝对路径 `../../...` 仅包含本地开发路径，已在仓库中公开（仓库本身就在该路径下）。改为相对路径反而减少了不必要的本地路径信息暴露，是改进。
 
 #### exclude 掩盖安全风险
 
@@ -175,7 +175,7 @@ exclude 不会掩盖任何安全漏洞或真正的死链。
 
 ### 问题
 
-前两份 guardrail 报告（`2026-07-22-p1-mcp-server-guardrail.md` 和 `-r2.md`）以及 tech-selection 报告在生成时使用了本地 Windows 绝对路径 `file:///D:/s0611/code/Continuous-learning/...` 作为 markdown 链接。这导致：
+前两份 guardrail 报告（`2026-07-22-p1-mcp-server-guardrail.md` 和 `-r2.md`）以及 tech-selection 报告在生成时使用了本地 Windows 绝对路径 `../../...` 作为 markdown 链接。这导致：
 
 1. 在 Linux CI 环境中这些路径不存在，lychee 报错（~60 个错误）
 2. 连续 5 轮 CI 失败，浪费大量迭代时间

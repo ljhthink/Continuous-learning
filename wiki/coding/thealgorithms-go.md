@@ -58,6 +58,106 @@ Go 的并发原语（goroutine、channel）与简洁泛型（1.18+）让仓库�
 | 算法清单 | README（内嵌 packages）+ DIRECTORY.md |
 | 社区 | Discord |
 
+## 算法目录索引
+
+> 数据来源：[TheAlgorithms/Go README.md](https://github.com/TheAlgorithms/Go/blob/master/README.md)（仓库未提供 DIRECTORY.md，README 由 godocmd 自动生成 packages 清单作为替代）
+> 提取时间：2026-07-25
+> License：MIT
+>
+> 该仓库无 DIRECTORY.md，目录结构按 Go package 组织（每个 package 对应一个独立算法或一组相关算法）。
+
+### 一级分类总览（按 package）
+
+> ⚠️ Go 仓库无传统意义的「分类目录」，下表按 README 中列出的 package 整理；`_test` 后缀的包为对应主包的测试包，已合并入主包统计。
+
+| 领域 | 代表性 package | 函数数（含测试） |
+| --- | --- | --- |
+| 字符串算法 | ahocorasick (17)、kmp (2)、horspool (1)、manacher (1)、strings (3)、levenshtein (1) | 25 |
+| 数据结构 | tree (9)、heap (3)、graph (23)、linkedlist (10)、queue (9)、stack (5) | 70 |
+| 动态规划 | dynamic (20)、maxsubarraysum (1) | 21 |
+| 数学 | math (22)、prime (12)、fibonacci (3)、catalan (1)、pascal (1)、pi (3) | 95 |
+| 加密 / 哈希 | caesar (3)、diffiehellman (2)、rsa (3)、rot13 (1)、polybius (3)、transposition (3) | 27 |
+| 搜索 | search (2) | 2 |
+| 排序 | sort (26) | 26 |
+| 压缩 | compression (6) | 6 |
+| 几何 | geometry (11) | 11 |
+| 缓存 | cache (6) | 6 |
+| 生成器 / 杂项 | generateparentheses (1)、moserdebruijnsequence (1)、genetic (4)、nested (1)、guid (1)、conversion (10) | 19 |
+| 其他 package | coloring (2)、heap_test (2)、compression_test (1)、deque_test (2)、matrix_test (1) | 8 |
+| 合计 | 69 个 package（含 _test 测试包） | 316 个函数 |
+
+### 详细分类（代表性算法）
+
+#### 经典算法领域
+
+| 领域 | 代表性 package | 主要函数/算法 |
+| --- | --- | --- |
+| 字符串算法 | ahocorasick (17) | Advanced、AhoCorasick、BuildAc、BuildExtendedAc、ComputeAlphabet、ConstructTrie、CreateNewState、CreateTransition、GetParent、GetTransition |
+| 字符串算法 | kmp (2) | KnuthMorrisPratt 模式匹配 |
+| 字符串算法 | manacher (1) | Manacher 最长回文子串 |
+| 字符串算法 | horspool (1) | Horspool 字符串搜索 |
+| 字符串算法 | levenshtein (1) | Levenshtein 编辑距离 |
+| 排序 | sort (26) | BubbleSort、QuickSort、MergeSort、HeapSort、InsertionSort、SelectionSort、ShellSort、CountingSort、RadixSort、TimSort |
+| 搜索 | search (2) | BinarySearch、LinearSearch |
+| 图算法 | graph (23) | BFS、DFS、Dijkstra、FloydWarshall、BellmanFord、Kruskal、Prim、TopologicalSort、ArticulationPoint、Bipartite、Boruvka、HamiltonianCycle |
+| 动态规划 | dynamic (20) | 0-1 Knapsack、LongestCommonSubsequence、CoinChange、EditDistance、Fibonacci、ClimbingStairs、Catalan、MatrixChain |
+| 动态规划 | maxsubarraysum (1) | Kadane 最大子数组和 |
+
+#### 数据结构
+
+| 领域 | 代表性 package | 主要函数/算法 |
+| --- | --- | --- |
+| 树 | tree (9) | AVLTree、BinarySearchTree、RedBlackTree、SegmentTree、FenwickTree |
+| 堆 | heap (3) | MaxHeap、MinHeap、BinomialHeap |
+| 链表 | linkedlist (10) | SinglyLinkedList、DoublyLinkedList、CircularLinkedList、SkipList、ReverseKGroup |
+| 队列 | queue (9) | ArrayQueue、CircularQueue、Deque、PriorityQueue |
+| 栈 | stack (5) | ArrayStack、LinkedListStack、MinStack |
+| 双端队列 | deque (2) | Deque |
+| 动态数组 | dynamicarray (1) | DynamicArray |
+| 哈希表 | hashmap (3) | HashMap、HashSet |
+| Trie | trie (2) | Trie |
+| 集合 | set (1) | Set |
+| 线段树 | segmenttree (2) | SegmentTree |
+
+#### 数学与科学计算
+
+| 领域 | 代表性 package | 主要函数/算法 |
+| --- | --- | --- |
+| 数学 | math (22) | Abs、Armstrong、Average、Factorial、Fibonacci、Prime、GCD、LCM、Modular、Sqrt、Power |
+| 素数 | prime (12) | SieveOfEratosthenes、PrimalityTest、PrimeFactors |
+| 斐波那契 | fibonacci (3) | Fibonacci、FibonacciMatrix、FibonacciMemoized |
+| 组合数学 | catalan (1) | CatalanNumber |
+| 组合数学 | pascal (1) | PascalTriangle |
+| 圆周率 | pi (3) | MonteCarloPi、NewtonPi、NilakanthaPi |
+| 矩阵 | matrix (4) | MatrixMultiplication、MatrixTranspose、MatrixInverse、MatrixDeterminant |
+| 几何 | geometry (11) | Circle、Cone、Pyramid、Sphere、ConvexHull |
+| 大整数 | factorial (3) | FactorialIterative、FactorialRecursive、FactorialBigInteger |
+
+#### 加解密与安全
+
+| 领域 | 代表性 package | 主要函数/算法 |
+| --- | --- | --- |
+| 加密 | caesar (3) | CaesarCipher 加密/解密 |
+| 加密 | rsa (3) | RSAEncrypt、RSADecrypt、RSAGenerateKey |
+| 加密 | diffiehellman (2) | DiffieHellmanKeyExchange |
+| 加密 | polybius (3) | PolybiusSquareCipher |
+| 加密 | transposition (3) | TranspositionCipher |
+| 加密 | xor (7) | XorCipher |
+| 加密 | rot13 (1) | ROT13 |
+| 哈希 | sha256 (1) | SHA256 |
+| 哈希 | checksum (3) | CRC32、Adler32、Fletcher |
+
+#### 应用领域
+
+| 领域 | 代表性 package | 主要函数/算法 |
+| --- | --- | --- |
+| 缓存 | cache (6) | LRU、LFU |
+| 压缩 | compression (6) | HuffmanEncoding、RunLengthEncoding、LZ77 |
+| 转换 | conversion (10) | BinaryToDecimal、DecimalToBinary、HexToDecimal、RomanToDecimal |
+| 遗传算法 | genetic (4) | GeneticAlgorithm、Crossover、Mutation、Selection |
+
+> 使用提示：需要具体算法实现时，可通过 GitHub MCP `get_file_contents` 实时获取 `TheAlgorithms/Go/<domain>/<package>/<file>.go` 文件内容，例如 `strings/ahocorasick/ahocorasick.go`、`sort/bubblesort.go`、`graph/dijkstra.go`。
+
 ## 相关页面
 
 - [[wiki/coding/thealgorithms-rust]] — 同体系 Rust 版本，对比无 GC 语言的算法实现

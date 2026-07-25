@@ -171,3 +171,72 @@
   - 所有代码均标注 MIT License 归属
   - 每页包含分区策略对比表、复杂度分析、工业实现对比、常见陷阱、选择指南
   - ADR-008 决策 3 的第一批交付，后续可继续深化其他算法
+
+## [2026-07-25] ingest | DEF-011 + DEF-012：新建 resources 与 design 领域 + 迁移 public-apis
+
+- source: ADR-009（新建 resources 与 design 领域 + TheAlgorithms/素材资源沉淀策略）
+- domain: resources, design
+- pages_affected: 3
+- pages:
+  - wiki/resources/public-apis.md（from wiki/coding/public-apis.md，frontmatter domain [coding] → [resources]）
+  - wiki/design/_index.md（新建，领域索引页）
+  - wiki/coding/public-apis.md（已删除，迁移至 resources/）
+- batch: DEF-011 + DEF-012
+- changes:
+  - ADR-009 状态 Proposed → Accepted
+  - AGENTS.md §2 目录结构追加 resources/ 与 design/
+  - AGENTS.md §8.1 领域目录表追加 resources 与 design 两行
+  - index.md 新增 ## resources 与 ## design 段，从 ## coding 段移除 public-apis 条目，总页数 24 → 25
+  - docs/decisions/README.md 追加 ADR-009 条目
+  - README.md 文档索引追加 ADR-009 引用
+- notes:
+  - 用户确认 ADR-009 全部 6 项决策后开始执行
+  - public-apis 从 coding/ 迁移至 resources/，frontmatter domain 改为 [resources]，date 更新为 2026-07-25
+  - design/ 领域建立 _index.md 索引页，8 张分类页待 Phase 3 创作
+  - 后续 Phase 2：8 个 TheAlgorithms 入口页追加目录索引
+- 后续 Phase 3：design/ 8 张分类页内容创作
+
+## [2026-07-25] ingest | DEF-014 — design 分类页创作
+
+- 任务：创作 8 张 design 分类页
+- 影响页面：8 张新建 + _index.md 更新 + index.md 更新
+- 数据来源：_index.md 完整站点总览
+- 闭环状态：guardrail-enforcer + ac-verifier 待主 Agent 启动
+- 任务令牌：TKN-DESIGN-CATEGORIES-001
+- pages:
+  - wiki/design/image-resources.md（5 站点）
+  - wiki/design/icon-resources.md（3 站点）
+  - wiki/design/font-resources.md（4 站点）
+  - wiki/design/color-resources.md（5 站点）
+  - wiki/design/3d-model-resources.md（8 站点）
+  - wiki/design/sound-resources.md（5 站点）
+  - wiki/design/animation-resources.md（2 站点）
+  - wiki/design/video-resources.md（2 站点）
+- changes:
+  - _index.md 状态说明从"⚠️ 待创作"更新为"✅ 已完成"
+  - _index.md 状态与后续计划段 Phase 3 状态改为 ✅ 完成
+  - index.md design 段追加 8 个分类页条目
+  - index.md 总页数 25 → 33（+8 张分类页）
+
+## [2026-07-25] ingest | DEF-015 — TheAlgorithms 6 仓库目录索引补全
+
+- 任务：为 Java/C++/JavaScript/C/Rust/TypeScript 6 个 TheAlgorithms 入口页补全算法目录索引段
+- 数据来源：各仓库 DIRECTORY.md（GitHub MCP get_file_contents 实时获取）
+- 影响页面：6 个入口页修改 + Go 入口页追加 README 替代段 + 本日志
+- 闭环状态：guardrail-enforcer + ac-verifier 待主 Agent 启动
+- 任务令牌：TKN-THEALGORITHMS-DIR-002
+- pages:
+  - wiki/coding/thealgorithms-java.md（30 一级分类 / 1489 算法文件）
+  - wiki/coding/thealgorithms-c-plus-plus.md（24 一级分类 / 368 算法文件）
+  - wiki/coding/thealgorithms-javascript.md（22 一级分类 / 378 算法文件）
+  - wiki/coding/thealgorithms-c.md（21 一级分类 / 277 算法文件，GPLv3）
+  - wiki/coding/thealgorithms-rust.md（22 一级分类 / 392 算法文件）
+  - wiki/coding/thealgorithms-typescript.md（10 一级分类 / 104 算法文件）
+  - wiki/coding/thealgorithms-go.md（69 package / 316 函数，README 替代方案）
+- notes:
+  - Go 仓库 DIRECTORY.md 返回 404，改用 README.md 提取 packages 清单（godocmd 自动生成）作为替代
+  - TypeScript 排除 .test.ts 测试文件后统计实际算法实现文件数
+  - 各入口页 frontmatter 未修改，仅在"## 相关页面"前追加"## 算法目录索引"段
+  - 目录索引段格式与 thealgorithms-python.md 模板一致：一级分类总览表 + 详细分类（按主题分组：经典算法领域/数据结构/数学与科学计算/加解密与安全/机器学习与人工智能/应用领域）
+  - 二级分类数仅统计一级分类下的直接子目录数；URL 路径中的更深嵌套文件计入对应一级分类的算法文件总数
+  - License 合规：仅引用算法名称列表与代表性算法名，未复制完整代码；各入口页明确标注 MIT/GPLv3 License 来源
