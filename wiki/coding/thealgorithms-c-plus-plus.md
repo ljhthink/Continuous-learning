@@ -157,6 +157,7 @@ C++ 版与 Python 版的关键差异：**C++ 版提供「同目标多实现」�
 
 - [[wiki/coding/quick-sort-impl-patterns]] — 快速排序跨语言实现对比（含本仓库 C++ Lomuto + 3-way Dutch National Flag 实现）
 - [[wiki/coding/merge-sort-impl-patterns]] — 归并排序跨语言实现对比（含本仓库 C++ std::vector 临时数组实现）
+- [[wiki/coding/heap-sort-impl-patterns]] — 堆排序跨语言实现模式对比（含本仓库 C++ 模板泛型实现，建堆起点非标准）
 - [[wiki/coding/thealgorithms-c]] — 同体系 C 版本（C11 + GPLv3），对比 C/C++ 实现差异
 - [[wiki/coding/thealgorithms-java]] — 同体系 Java 版本
 - [[wiki/coding/thealgorithms-rust]] — 同体系 Rust 版本，对比内存安全模型

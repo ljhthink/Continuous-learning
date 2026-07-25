@@ -181,6 +181,7 @@ related: [[wiki/coding/thealgorithms-java]], [[wiki/coding/thealgorithms-c-plus-
 - [[wiki/coding/quick-sort-impl-patterns]] — 快速排序跨语言实现对比（含本仓库 Python 函数式实现）
 - [[wiki/coding/binary-search-impl-patterns]] — 二分搜索跨语言实现对比（含本仓库迭代/递归/bisect 实现）
 - [[wiki/coding/merge-sort-impl-patterns]] — 归并排序跨语言实现对比（含本仓库 Python 函数式实现，含 pop(0) 陷阱分析）
+- [[wiki/coding/heap-sort-impl-patterns]] — 堆排序跨语言实现模式对比（含本仓库 Python 标准 sift-down 递归实现）
 - [[wiki/coding/thealgorithms-java]] — 同体系 Java 版本，便于跨语言对比
 - [[wiki/coding/thealgorithms-c-plus-plus]] — 同体系 C++ 版本，C++17 标准
 - [[wiki/coding/thealgorithms-javascript]] — 同体系 JavaScript 版本，对比动态语言实现差异

@@ -151,6 +151,7 @@ Rust 强制的内存安全约束让算法实现必须显式考虑数据归属与
 ## 相关页面
 
 - [[wiki/coding/merge-sort-impl-patterns]] — 归并排序跨语言实现对比（含本仓库 Rust top_down + bottom_up 双实现）
+- [[wiki/coding/heap-sort-impl-patterns]] — 堆排序跨语言实现模式对比（含本仓库 Rust 升序/降序切换实现）
 - [[wiki/coding/thealgorithms-go]] — 同体系 Go 版本，对比 GC vs 所有权模型的算法实现
 - [[wiki/coding/thealgorithms-c-plus-plus]] — 同体系 C++ 版本，对比 RAII 与 Rust 所有权
 - [[wiki/coding/thealgorithms-c]] — 同体系 C 版本，对比无内存安全保证的底层实现
