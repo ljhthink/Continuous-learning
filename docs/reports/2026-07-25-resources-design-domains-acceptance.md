@@ -36,21 +36,21 @@
 
 | AC ID | 验收标准 | 验证方式 | 结果 | 证据 |
 | --- | --- | --- | --- | --- |
-| AC-1 | `wiki/resources/` 目录存在且包含 public-apis.md | `Test-Path` | 通过 | `Test-Path` 返回 True；[public-apis.md](file:///d:/s0611/code/Continuous-learning/wiki/resources/public-apis.md) 存在 |
-| AC-2 | `wiki/design/` 目录存在且包含 _index.md | `Test-Path` | 通过 | `Test-Path` 返回 True；[_index.md](file:///d:/s0611/code/Continuous-learning/wiki/design/_index.md) 存在 |
+| AC-1 | `wiki/resources/` 目录存在且包含 public-apis.md | `Test-Path` | 通过 | `Test-Path` 返回 True；[public-apis.md](../../wiki/resources/public-apis.md) 存在 |
+| AC-2 | `wiki/design/` 目录存在且包含 _index.md | `Test-Path` | 通过 | `Test-Path` 返回 True；[_index.md](../../wiki/design/_index.md) 存在 |
 | AC-3 | `wiki/coding/public-apis.md` 已删除 | `Test-Path` | 通过 | `Test-Path` 返回 False；git status 显示 `D wiki/coding/public-apis.md` |
-| AC-4 | public-apis.md frontmatter `domain: [resources]` | frontmatter 解析 | 通过 | [public-apis.md:L3](file:///d:/s0611/code/Continuous-learning/wiki/resources/public-apis.md#L3) `domain: [resources]`，单行 flow 风格 |
-| AC-5 | _index.md frontmatter `domain: [design]` | frontmatter 解析 | 通过 | [_index.md:L3](file:///d:/s0611/code/Continuous-learning/wiki/design/_index.md#L3) `domain: [design]`，单行 flow 风格 |
-| AC-6 | AGENTS.md §2 目录结构包含 resources/ 与 design/ | 文本搜索 | 通过 | [AGENTS.md:L61-L62](file:///d:/s0611/code/Continuous-learning/AGENTS.md#L61-L62) 追加 `resources/` 与 `design/` 两行 |
-| AC-7 | AGENTS.md §8.1 领域目录表包含 resources 与 design 两行 | 文本搜索 | 通过 | [AGENTS.md:L306-L307](file:///d:/s0611/code/Continuous-learning/AGENTS.md#L306-L307) 追加"资源索引 resources/"与"设计素材 design/"两行 |
-| AC-8 | index.md 包含 ## resources 段与 ## design 段 | 文本搜索 | 通过 | [index.md:L48](file:///d:/s0611/code/Continuous-learning/index.md#L48) `## resources`；[index.md:L55](file:///d:/s0611/code/Continuous-learning/index.md#L55) `## design` |
-| AC-9 | index.md 总页数为 25 | 计数验证 | 通过 | [index.md:L3](file:///d:/s0611/code/Continuous-learning/index.md#L3) `总页数：25`；逐段清点 9+10+1+1+4=25 |
-| AC-10 | index.md coding 段不再包含 public-apis 条目 | 文本搜索 | 通过 | [index.md:L30](file:///d:/s0611/code/Continuous-learning/index.md#L30) 注释说明已迁移；coding 段仅含 thealgorithms×8 + impl-patterns×2 |
-| AC-11 | log.md 包含 DEF-011+DEF-012 ingest 日志条目 | 文本搜索 | 通过 | [log.md:L175](file:///d:/s0611/code/Continuous-learning/log.md#L175) `## [2026-07-25] ingest \| DEF-011 + DEF-012` |
-| AC-12 | README.md 包含 ADR-009 引用 | 文本搜索 | 通过 | [README.md:L61](file:///d:/s0611/code/Continuous-learning/README.md#L61) `ADR-009-resources-and-design-domains.md` |
-| AC-13 | docs/decisions/README.md 包含 ADR-009 条目 | 文本搜索 | 通过 | [docs/decisions/README.md:L19](file:///d:/s0611/code/Continuous-learning/docs/decisions/README.md#L19) ADR-009 条目，状态 Accepted |
+| AC-4 | public-apis.md frontmatter `domain: [resources]` | frontmatter 解析 | 通过 | [public-apis.md:L3](../../wiki/resources/public-apis.md#L3) `domain: [resources]`，单行 flow 风格 |
+| AC-5 | _index.md frontmatter `domain: [design]` | frontmatter 解析 | 通过 | [_index.md:L3](../../wiki/design/_index.md#L3) `domain: [design]`，单行 flow 风格 |
+| AC-6 | AGENTS.md §2 目录结构包含 resources/ 与 design/ | 文本搜索 | 通过 | [AGENTS.md:L61-L62](../../AGENTS.md#L61-L62) 追加 `resources/` 与 `design/` 两行 |
+| AC-7 | AGENTS.md §8.1 领域目录表包含 resources 与 design 两行 | 文本搜索 | 通过 | [AGENTS.md:L306-L307](../../AGENTS.md#L306-L307) 追加"资源索引 resources/"与"设计素材 design/"两行 |
+| AC-8 | index.md 包含 ## resources 段与 ## design 段 | 文本搜索 | 通过 | [index.md:L48](../../index.md#L48) `## resources`；[index.md:L55](../../index.md#L55) `## design` |
+| AC-9 | index.md 总页数为 25 | 计数验证 | 通过 | [index.md:L3](../../index.md#L3) `总页数：25`；逐段清点 9+10+1+1+4=25 |
+| AC-10 | index.md coding 段不再包含 public-apis 条目 | 文本搜索 | 通过 | [index.md:L30](../../index.md#L30) 注释说明已迁移；coding 段仅含 thealgorithms×8 + impl-patterns×2 |
+| AC-11 | log.md 包含 DEF-011+DEF-012 ingest 日志条目 | 文本搜索 | 通过 | [log.md:L175](../../log.md#L175) `## [2026-07-25] ingest \| DEF-011 + DEF-012` |
+| AC-12 | README.md 包含 ADR-009 引用 | 文本搜索 | 通过 | [README.md:L61](../../README.md#L61) `ADR-009-resources-and-design-domains.md` |
+| AC-13 | docs/decisions/README.md 包含 ADR-009 条目 | 文本搜索 | 通过 | [docs/decisions/README.md:L19](../decisions/README.md#L19) ADR-009 条目，状态 Accepted |
 | AC-14 | 全仓库无失效的 `[[wiki/coding/public-apis]]` 双链 | 全局搜索 | 通过 | 全仓库搜索 `[[wiki/coding/public-apis]]` 仅命中 guardrail 报告中 2 处描述性文本（引用该字符串本身），wiki/index/log/ADR 中无失效双链 |
-| AC-15 | ADR-009 状态为 Accepted | frontmatter 检查 | 通过 | [ADR-009:L5](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-009-resources-and-design-domains.md#L5) `状态 \| Accepted`；LOW-1/LOW-2 已修复（L241-242 状态更新、L276 确认声明） |
+| AC-15 | ADR-009 状态为 Accepted | frontmatter 检查 | 通过 | [ADR-009:L5](../decisions/ADR-009-resources-and-design-domains.md#L5) `状态 \| Accepted`；LOW-1/LOW-2 已修复（L241-242 状态更新、L276 确认声明） |
 | AC-16 | 所有新增/修改的 .md 文件通过 markdownlint | CI 检查 | **失败** | ADR-009 有 7 处 MD032 错误；guardrail 报告有 5 处错误（MD031×2 + MD040×1 + MD032×2）。详见 §4.1 |
 | AC-17 | 所有 .md 文件中的外部链接通过 lychee 检查 | CI 检查 | 条件性通过 | lychee 本地不可用；手动检查外部链接格式正确；apilayer.com 返回 200；github.com 本地超时（疑似沙箱网络限制）。详见 §4.3 |
 | AC-18 | consistency-check.js 通过 | CI 检查 | 通过 | `node scripts/consistency-check.js` 输出"一致性检查通过 ✓"，退出码 0 |
@@ -89,22 +89,22 @@ npx --yes markdownlint-cli2 "docs/decisions/ADR-009-resources-and-design-domains
 
 | 行号 | 错误 | 根因 | 前一行内容 |
 | --- | --- | --- | --- |
-| L56 | MD032 | `**问题**：` 后直接跟列表，缺空行 | [ADR-009:L54](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-009-resources-and-design-domains.md#L54) |
-| L100 | MD032 | `**理由**：` 后直接跟列表，缺空行 | [ADR-009:L99](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-009-resources-and-design-domains.md#L99) |
-| L120 | MD032 | `**理由**：` 后直接跟列表，缺空行 | [ADR-009:L119](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-009-resources-and-design-domains.md#L119) |
-| L146 | MD032 | `**每页统一结构**：` 后直接跟有序列表，缺空行 | [ADR-009:L145](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-009-resources-and-design-domains.md#L145) |
-| L155 | MD032 | `**理由**：` 后直接跟列表，缺空行 | [ADR-009:L154](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-009-resources-and-design-domains.md#L154) |
-| L175 | MD032 | `**理由**：` 后直接跟列表，缺空行 | [ADR-009:L174](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-009-resources-and-design-domains.md#L174) |
-| L260 | MD032 | `理由：` 后直接跟列表，缺空行 | [ADR-009:L259](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-009-resources-and-design-domains.md#L259) |
+| L56 | MD032 | `**问题**：` 后直接跟列表，缺空行 | [ADR-009:L54](../decisions/ADR-009-resources-and-design-domains.md#L54) |
+| L100 | MD032 | `**理由**：` 后直接跟列表，缺空行 | [ADR-009:L99](../decisions/ADR-009-resources-and-design-domains.md#L99) |
+| L120 | MD032 | `**理由**：` 后直接跟列表，缺空行 | [ADR-009:L119](../decisions/ADR-009-resources-and-design-domains.md#L119) |
+| L146 | MD032 | `**每页统一结构**：` 后直接跟有序列表，缺空行 | [ADR-009:L145](../decisions/ADR-009-resources-and-design-domains.md#L145) |
+| L155 | MD032 | `**理由**：` 后直接跟列表，缺空行 | [ADR-009:L154](../decisions/ADR-009-resources-and-design-domains.md#L154) |
+| L175 | MD032 | `**理由**：` 后直接跟列表，缺空行 | [ADR-009:L174](../decisions/ADR-009-resources-and-design-domains.md#L174) |
+| L260 | MD032 | `理由：` 后直接跟列表，缺空行 | [ADR-009:L259](../decisions/ADR-009-resources-and-design-domains.md#L259) |
 
 **guardrail 报告错误明细（5 处）**：
 
 | 行号 | 错误 | 根因 |
 | --- | --- | --- |
-| L242 | MD031 + MD040 | [guardrail:L241](file:///d:/s0611/code/Continuous-learning/docs/reports/2026-07-25-resources-design-domains-guardrail.md#L241) 代码块开始前缺空行 + 代码块未标注语言 |
-| L245 | MD031 | [guardrail:L244](file:///d:/s0611/code/Continuous-learning/docs/reports/2026-07-25-resources-design-domains-guardrail.md#L244) 代码块结束后缺空行 |
-| L260 | MD032 | [guardrail:L258](file:///d:/s0611/code/Continuous-learning/docs/reports/2026-07-25-resources-design-domains-guardrail.md#L258) `README.md L60-61 已追加：` 后直接跟列表 |
-| L419 | MD032 | [guardrail:L417](file:///d:/s0611/code/Continuous-learning/docs/reports/2026-07-25-resources-design-domains-guardrail.md#L417) `建议 ac-verifier 执行：` 后直接跟列表 |
+| L242 | MD031 + MD040 | [guardrail:L241](../reports/2026-07-25-resources-design-domains-guardrail.md#L241) 代码块开始前缺空行 + 代码块未标注语言 |
+| L245 | MD031 | [guardrail:L244](../reports/2026-07-25-resources-design-domains-guardrail.md#L244) 代码块结束后缺空行 |
+| L260 | MD032 | [guardrail:L258](../reports/2026-07-25-resources-design-domains-guardrail.md#L258) `README.md L60-61 已追加：` 后直接跟列表 |
+| L419 | MD032 | [guardrail:L417](../reports/2026-07-25-resources-design-domains-guardrail.md#L417) `建议 ac-verifier 执行：` 后直接跟列表 |
 
 **回归基线验证**：
 

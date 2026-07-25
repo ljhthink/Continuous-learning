@@ -322,21 +322,21 @@ public-apis.md L103-112 的 bash 代码块标注 ` ```bash ` ✓。
 
 #### LOW-1：ADR-009 后续任务清单状态未同步更新
 
-- **文件**：[ADR-009:L241-L245](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-009-resources-and-design-domains.md#L241-L245)
+- **文件**：[ADR-009:L241-L245](../decisions/ADR-009-resources-and-design-domains.md#L241-L245)
 - **现象**：ADR-009 状态已为 Accepted（L5），但"后续任务清单"表中 DEF-011 与 DEF-012 的"状态"列仍为"待开始"，与实际已执行的事实矛盾。
 - **风险**：误导后续 Agent 或用户误判任务进度。
 - **建议修复**：将 DEF-011 与 DEF-012 状态更新为"已完成（Phase 1）"。
 
 #### LOW-2：ADR-009"待用户确认事项"段在 Accepted 状态下语义矛盾
 
-- **文件**：[ADR-009:L274-L285](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-009-resources-and-design-domains.md#L274-L285)
+- **文件**：[ADR-009:L274-L285](../decisions/ADR-009-resources-and-design-domains.md#L274-L285)
 - **现象**：该段以"请在以下选项中明示您的决策，确认后本 ADR 状态将变更为 Accepted"结尾，但 ADR 状态已为 Accepted，说明用户已确认。段落语义与状态字段矛盾。
 - **风险**：读者可能误以为 ADR 尚未确认。
 - **建议修复**：在该段首行追加"✅ 以下 6 项已全部经用户确认（2026-07-25），本 ADR 状态已变更为 Accepted。以下内容保留作为决策过程记录。"保留原文不删除（历史记录原则）。
 
 #### LOW-3：public-apis.md 与 query-workflow.md 双向引用不对称（可选优化）
 
-- **文件**：[public-apis.md:L8](file:///d:/s0611/code/Continuous-learning/wiki/resources/public-apis.md#L8)（frontmatter `related: [[wiki/kb-system/query-workflow]]`）、[query-workflow.md](file:///d:/s0611/code/Continuous-learning/wiki/kb-system/query-workflow.md)
+- **文件**：[public-apis.md:L8](../../wiki/resources/public-apis.md#L8)（frontmatter `related: [[wiki/kb-system/query-workflow]]`）、[query-workflow.md](../../wiki/kb-system/query-workflow.md)
 - **现象**：public-apis.md 在 frontmatter `related` 和正文"相关页面"段均引用 query-workflow，但 query-workflow.md 未反向引用 public-apis。
 - **风险**：不影响功能，仅降低从 query-workflow 发现 public-apis 的可发现性。
 - **判定**：可接受的单向引用。query-workflow 是工作流概念页，不强制枚举所有资源。此项为可选优化，不强制修复。
