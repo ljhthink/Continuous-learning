@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   P4 设计系统 — CSS 变量层（主题切换的核心）
+   ============================================================ */
+
+/* 布局尺寸变量（App.tsx grid 引用） */
+:root {
+  --topbar-h: 48px;
+  --statusbar-h: 28px;
+  --left-w: 240px;
+  --right-w: 320px;
+}
+
+:root[data-theme="dark"] {
+  --bg-canvas:    #0f1115;
+  --bg-surface:   #161a21;
+  --bg-elevated:  #1e232c;
+  --bg-hover:     #252b35;
+  --bg-active:    #2d3441;
+  --text-primary:   #e6e9ef;
+  --text-secondary: #9aa3b2;
+  --text-muted:     #6b7280;
+  --accent-primary:   #4a9eff;
+  --accent-secondary: #5ba88a;
+  --accent-warning:   #e0a458;
+  --accent-danger:    #e57373;
+  --border-subtle: #2a2f3a;
+  --border-strong: #3a4150;
+  --code-bg:    #0a0c10;
+  --code-text:  #c8d3e0;
+}
+
+:root[data-theme="light"] {
+  --bg-canvas:    #ffffff;
+  --bg-surface:   #f6f8fa;
+  --bg-elevated:  #eaeef2;
+  --bg-hover:     #d8dee4;
+  --bg-active:    #c8d1da;
+  --text-primary:   #1f2328;
+  --text-secondary: #59636e;
+  --text-muted:     #818b98;
+  --accent-primary:   #0969da;
+  --accent-secondary: #1a7f37;
+  --accent-warning:   #9a6700;
+  --accent-danger:    #cf222e;
+  --border-subtle: #d0d7de;
+  --border-strong: #afb8c1;
+  --code-bg:    #eff1f3;
+  --code-text:  #24292f;
+}
+
+/* ============================================================
+   全局基础样式
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Material Symbols Outlined 基础样式 */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'opsz' 24, 'wght' 400, 'FILL' 0, 'GRAD' 0;
+}
+
+/* 滚动条样式（暗色主题适配） */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* 焦点可见性 */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}

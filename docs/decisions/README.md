@@ -18,6 +18,7 @@
 | [ADR-008](ADR-008-kb-content-layering-and-format-unification.md) | 知识库内容分层与格式统一（experiences 表头修复 + kb-system 领域拆分 + thealgorithms 深化） | Accepted | 2026-07-24 |
 | [ADR-009](ADR-009-resources-and-design-domains.md) | 新建 resources 与 design 领域 + TheAlgorithms/素材资源沉淀策略 | Accepted | 2026-07-25 |
 | [ADR-010](ADR-010-ci-file-absolute-path-detection.md) | CI 新增 file:/// 绝对路径检测门禁 | Accepted | 2026-07-25 |
-| [ADR-011](ADR-011-duplicate-detection-and-quality-scoring.md) | 经验卡重复检测与质量评分（Levenshtein + Sorensen-Dice + 4 维度 rubric） | Proposed | 2026-07-26 |
+| [ADR-011](ADR-011-duplicate-detection-and-quality-scoring.md) | 经验卡重复检测与质量评分（Levenshtein + Sorensen-Dice + 4 维度 rubric） | Accepted | 2026-07-26 |
+| [ADR-012](ADR-012-p4-gui-tech-stack.md) | P4 GUI 技术栈（Tauri v2 + React + Vite + TailwindCSS） | Proposed | 2026-07-26 |
 
 <!-- 新增 ADR 时在此追加一行，并保证文件名以 ADR-NNN- 开头 -->

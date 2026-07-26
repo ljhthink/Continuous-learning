@@ -44,3 +44,5 @@
 | 2026-07-25 | DEF-015 TheAlgorithms 6 仓库目录索引补全安全与质量审计 | guardrail | [2026-07-25-thealgorithms-dir-index-guardrail.md](2026-07-25-thealgorithms-dir-index-guardrail.md) |
 | 2026-07-26 | P3 /dream 去重 + 质量评分安全与质量审计 | guardrail | [2026-07-26-p3-dream-dedup-guardrail.md](2026-07-26-p3-dream-dedup-guardrail.md) |
 | 2026-07-26 | P3 /dream 去重 + 质量评分验收测试 | acceptance | [2026-07-26-p3-dream-dedup-acceptance.md](2026-07-26-p3-dream-dedup-acceptance.md) |
+| 2026-07-26 | P4 Phase 4a Tauri 骨架 + 设计系统 + 10 静态组件安全与质量审计 | guardrail | [2026-07-26-p4a-guardrail.md](2026-07-26-p4a-guardrail.md) |
+| 2026-07-26 | P4 Phase 4a Tauri 骨架 + 设计系统 + 10 静态组件验收测试 | acceptance | [2026-07-26-p4a-acceptance.md](2026-07-26-p4a-acceptance.md) |
