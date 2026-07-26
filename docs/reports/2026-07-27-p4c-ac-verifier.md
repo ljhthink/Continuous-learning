@@ -11,7 +11,7 @@
 | 任务域 | P4 Phase 4c — 知识图谱可视化 + MCP CLI bridge + 反向链接面板 + LLM 集成策略 |
 | 报告日期 | 2026-07-27 |
 | 分支 / HEAD | `feat/p4a-tauri-skeleton` / `b6b7be8`（功能 commit `19c4cff`，PR #33） |
-| 验收依据 | [PRD US-004](../PRD.md) / [P4 实施计划 §8.1/§8.3/§8.4](../../.trae/documents/p4-gui-implementation-plan.md) / [ADR-013](../decisions/ADR-013-p4-llm-integration-strategy.md) / [ADR-014](../decisions/ADR-014-p4-python-parser-and-staging-workflow.md) |
+| 验收依据 | [PRD US-004](../PRD.md) / P4 实施计划 §8.1/§8.3/§8.4（`.trae/documents/p4-gui-implementation-plan.md`，本地未入库） / [ADR-013](../decisions/ADR-013-p4-llm-integration-strategy.md) / [ADR-014](../decisions/ADR-014-p4-python-parser-and-staging-workflow.md) |
 | 前序报告 | [2026-07-27-p4b-ac-verifier.md](2026-07-27-p4b-ac-verifier.md)（4b 验收） |
 | 测试架构 skill | test-architect |
 | 主 Agent 签发上下文 | 限制 C-1/C-2/C-3（见 §7）；盲区：Tauri 桌面运行时未实测、macOS 未验证、PDF 解析 DLL 未跑、500 节点性能无数据 |
