@@ -2,28 +2,84 @@
  * BacklinksPanel — 反向链接面板（右栏，preview 视图时显示）
  *
  * P4 计划 §4.4.10：三段折叠（反向链接 / 出链 / related）。
- * 4a 为静态 mock，4c 接入 kb_get_page 返回的 links 字段。
+ * 4c 接入 callMcpTool("kb_get_backlinks")，根据 currentPagePath 加载。
+ *
+ * 数据来源：
+ *   - Tauri 环境：callMcpTool("kb_get_backlinks", { page_path })
+ *   - 浏览器 dev：mockBacklinks
+ *
+ * 点击条目：跳转到对应页面预览（setCurrentPagePath）
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useViewStore } from "@/store/viewStore";
 import { mockBacklinks } from "@/data/mockData";
+import type { BacklinksData } from "@/types";
+import { callMcpTool, isTauri } from "@/lib/ipc";
 
 type Section = "backlinks" | "outbound" | "related";
 
 export function BacklinksPanel() {
+  const { currentPagePath, setCurrentPagePath } = useViewStore();
   const [open, setOpen] = useState<Record<Section, boolean>>({
     backlinks: true,
     outbound: true,
     related: true,
   });
+  const [data, setData] = useState<BacklinksData>(mockBacklinks);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const tauriEnv = isTauri();
 
-  const { backlinks, outbound, related } = mockBacklinks;
+  useEffect(() => {
+    if (!tauriEnv) {
+      setData(mockBacklinks);
+      return;
+    }
+    if (!currentPagePath) {
+      setData({ backlinks: [], outbound: [], related: [] });
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    callMcpTool("kb_get_backlinks", { page_path: currentPagePath })
+      .then((result) => {
+        if (result.success && result.data) {
+          setData(result.data as BacklinksData);
+        } else {
+          setError(result.error ?? "加载反向链接失败");
+          setData({ backlinks: [], outbound: [], related: [] });
+        }
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : String(err));
+        setData({ backlinks: [], outbound: [], related: [] });
+      })
+      .finally(() => setLoading(false));
+  }, [currentPagePath, tauriEnv]);
+
+  const handleNavigate = (path: string) => {
+    setCurrentPagePath(path.replace(/\.md$/, ""));
+  };
+
+  const { backlinks, outbound, related } = data;
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-3 py-2 text-[10px] font-semibold tracking-wider text-text-muted uppercase border-b border-border-subtle">
-        反向链接
+      <div className="px-3 py-2 text-[10px] font-semibold tracking-wider text-text-muted uppercase border-b border-border-subtle flex items-center justify-between">
+        <span>反向链接</span>
+        {loading && (
+          <span className="material-symbols-outlined animate-spin text-text-muted" style={{ fontSize: 12 }}>
+            progress_activity
+          </span>
+        )}
       </div>
+
+      {error && (
+        <div className="px-3 py-2 text-[11px] text-red-400 border-b border-border-subtle">
+          ⚠️ {error}
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto">
         {/* 反向链接 */}
@@ -35,7 +91,7 @@ export function BacklinksPanel() {
           onToggle={() => setOpen((s) => ({ ...s, backlinks: !s.backlinks }))}
         >
           {backlinks.length === 0 ? (
-            <Empty text="无反向链接" />
+            <Empty text={loading ? "加载中..." : "无反向链接"} />
           ) : (
             backlinks.map((bl) => (
               <BacklinkItem
@@ -43,6 +99,7 @@ export function BacklinksPanel() {
                 title={bl.title}
                 path={bl.path}
                 context={bl.context}
+                onClick={() => handleNavigate(bl.path)}
               />
             ))
           )}
@@ -57,10 +114,15 @@ export function BacklinksPanel() {
           onToggle={() => setOpen((s) => ({ ...s, outbound: !s.outbound }))}
         >
           {outbound.length === 0 ? (
-            <Empty text="无出链" />
+            <Empty text={loading ? "加载中..." : "无出链"} />
           ) : (
             outbound.map((ol) => (
-              <SimpleItem key={ol.path} title={ol.title} path={ol.path} />
+              <SimpleItem
+                key={ol.path}
+                title={ol.title}
+                path={ol.path}
+                onClick={() => handleNavigate(ol.path)}
+              />
             ))
           )}
         </Section>
@@ -74,10 +136,15 @@ export function BacklinksPanel() {
           onToggle={() => setOpen((s) => ({ ...s, related: !s.related }))}
         >
           {related.length === 0 ? (
-            <Empty text="无 related 字段" />
+            <Empty text={loading ? "加载中..." : "无 related 字段"} />
           ) : (
             related.map((r) => (
-              <SimpleItem key={r.path} title={r.title} path={r.path} />
+              <SimpleItem
+                key={r.path}
+                title={r.title}
+                path={r.path}
+                onClick={() => handleNavigate(r.path)}
+              />
             ))
           )}
         </Section>
@@ -127,10 +194,21 @@ function Section({
   );
 }
 
-function BacklinkItem({ title, path, context }: { title: string; path: string; context: string }) {
+function BacklinkItem({
+  title,
+  path,
+  context,
+  onClick,
+}: {
+  title: string;
+  path: string;
+  context: string;
+  onClick: () => void;
+}) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className="w-full text-left px-3 py-2 hover:bg-hover transition-colors block"
     >
       <div className="text-[12px] text-accent-primary hover:underline truncate">{title}</div>
@@ -142,10 +220,19 @@ function BacklinkItem({ title, path, context }: { title: string; path: string; c
   );
 }
 
-function SimpleItem({ title, path }: { title: string; path: string }) {
+function SimpleItem({
+  title,
+  path,
+  onClick,
+}: {
+  title: string;
+  path: string;
+  onClick: () => void;
+}) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className="w-full text-left px-3 py-1.5 hover:bg-hover transition-colors block"
     >
       <div className="text-[12px] text-accent-primary hover:underline truncate">{title}</div>
@@ -155,7 +242,5 @@ function SimpleItem({ title, path }: { title: string; path: string }) {
 }
 
 function Empty({ text }: { text: string }) {
-  return (
-    <div className="px-3 py-3 text-[11px] text-text-muted italic">{text}</div>
-  );
+  return <div className="px-3 py-3 text-[11px] text-text-muted italic">{text}</div>;
 }

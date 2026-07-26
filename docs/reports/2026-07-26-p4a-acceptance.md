@@ -31,16 +31,16 @@
 
 | AC ID | 验收标准 | 测试用例 ID | 结果 | 证据 |
 | --- | --- | --- | --- | --- |
-| AC-4a-1 | 10 个组件静态版本存在 | TC-01 | PASS | [components/](file:///d:/s0611/code/Continuous-learning/frontend/src/components) 下 12 个 .tsx 文件（10 必需 + TopBar + StatusBar），`pnpm build` 47 模块编译通过 |
-| AC-4a-2 | 暗色主题生效 | TC-02 | PASS | [globals.css](file:///d:/s0611/code/Continuous-learning/frontend/src/styles/globals.css) 定义 dark/light 两套 CSS 变量；[tailwind.config.js](file:///d:/s0611/code/Continuous-learning/frontend/tailwind.config.js) 语义色绑定；[App.tsx:31-33](file:///d:/s0611/code/Continuous-learning/frontend/src/App.tsx#L31-L33) `data-theme` 绑定到 `<html>` |
-| AC-4a-3 | CI 通过 | TC-03 | PASS | [frontend-ci.yml](file:///d:/s0611/code/Continuous-learning/.github/workflows/frontend-ci.yml) YAML 语法有效；`pnpm build` ✓ + `cargo check` ✓ 本地复现 |
-| AC-4a-4 | 三栏布局（240/flex/320） | TC-04 | PASS | [App.tsx:64-72](file:///d:/s0611/code/Continuous-learning/frontend/src/App.tsx#L64-L72) `gridTemplateColumns: "var(--left-w) 1fr var(--right-w)"`；[globals.css:11-14](file:///d:/s0611/code/Continuous-learning/frontend/src/styles/globals.css#L11-L14) `--left-w:240px` `--right-w:320px` |
-| AC-4a-5 | 视图路由（upload/preview/review/graph） | TC-05 | PASS | [App.tsx:100-126](file:///d:/s0611/code/Continuous-learning/frontend/src/App.tsx#L100-L126) `MainContent` switch 4 分支；[viewStore.ts:13](file:///d:/s0611/code/Continuous-learning/frontend/src/store/viewStore.ts#L13) `currentView: ViewName` |
-| AC-4a-6 | 全局快捷键（⌘1-4 / ⌘G / ⌘,） | TC-06 | PASS | [App.tsx:36-59](file:///d:/s0611/code/Continuous-learning/frontend/src/App.tsx#L36-L59) `useEffect` keydown handler：⌘1-4 切视图 / ⌘G 图谱 / ⌘, 设置 |
+| AC-4a-1 | 10 个组件静态版本存在 | TC-01 | PASS | [components/](../../frontend/src/components) 下 12 个 .tsx 文件（10 必需 + TopBar + StatusBar），`pnpm build` 47 模块编译通过 |
+| AC-4a-2 | 暗色主题生效 | TC-02 | PASS | [globals.css](../../frontend/src/styles/globals.css) 定义 dark/light 两套 CSS 变量；[tailwind.config.js](../../frontend/tailwind.config.js) 语义色绑定；[App.tsx:31-33](../../frontend/src/App.tsx#L31-L33) `data-theme` 绑定到 `<html>` |
+| AC-4a-3 | CI 通过 | TC-03 | PASS | [frontend-ci.yml](../../.github/workflows/frontend-ci.yml) YAML 语法有效；`pnpm build` ✓ + `cargo check` ✓ 本地复现 |
+| AC-4a-4 | 三栏布局（240/flex/320） | TC-04 | PASS | [App.tsx:64-72](../../frontend/src/App.tsx#L64-L72) `gridTemplateColumns: "var(--left-w) 1fr var(--right-w)"`；[globals.css:11-14](../../frontend/src/styles/globals.css#L11-L14) `--left-w:240px` `--right-w:320px` |
+| AC-4a-5 | 视图路由（upload/preview/review/graph） | TC-05 | PASS | [App.tsx:100-126](../../frontend/src/App.tsx#L100-L126) `MainContent` switch 4 分支；[viewStore.ts:13](../../frontend/src/store/viewStore.ts#L13) `currentView: ViewName` |
+| AC-4a-6 | 全局快捷键（⌘1-4 / ⌘G / ⌘,） | TC-06 | PASS | [App.tsx:36-59](../../frontend/src/App.tsx#L36-L59) `useEffect` keydown handler：⌘1-4 切视图 / ⌘G 图谱 / ⌘, 设置 |
 | AC-4a-7 | Tauri 骨架编译通过 | TC-07 | PASS | `pnpm build` ✓（249.35 KB / 74.36 KB gzip）；`cargo check` ✓（18.01s，0 error） |
-| AC-4a-8 | ADR-012 文档化技术栈决策 | TC-08 | PASS | [ADR-012](file:///d:/s0611/code/Continuous-learning/docs/decisions/ADR-012-p4-gui-tech-stack.md) 含背景/决策 D1-D5/后果/验证；[README.md](file:///d:/s0611/code/Continuous-learning/docs/decisions/README.md#L22) 索引已追加 |
-| AC-4a-9 | CREDITS.md 素材 License 凭证 | TC-09 | PASS | [CREDITS.md](file:///d:/s0611/code/Continuous-learning/frontend/assets/CREDITS.md) 记录 3 字体（OFL 1.1）+ Material Symbols（Apache 2.0）+ 合规声明 |
-| AC-4a-10 | GraphView 静态 mock（节点边编码 + 双模 + 筛选） | TC-10 | PASS（有缺陷） | [GraphView.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx) 实现形状编码（圆/方/菱/三角）+ 边编码（实线/虚线/点线）+ global/local 双模 + 领域/边类型筛选 + 图例；但 mock 数据有一致性缺陷（DEF-4a-001/002） |
+| AC-4a-8 | ADR-012 文档化技术栈决策 | TC-08 | PASS | [ADR-012](../../docs/decisions/ADR-012-p4-gui-tech-stack.md) 含背景/决策 D1-D5/后果/验证；[README.md](../../docs/decisions/README.md#L22) 索引已追加 |
+| AC-4a-9 | CREDITS.md 素材 License 凭证 | TC-09 | PASS | [CREDITS.md](../../frontend/assets/CREDITS.md) 记录 3 字体（OFL 1.1）+ Material Symbols（Apache 2.0）+ 合规声明 |
+| AC-4a-10 | GraphView 静态 mock（节点边编码 + 双模 + 筛选） | TC-10 | PASS（有缺陷） | [GraphView.tsx](../../frontend/src/components/GraphView.tsx) 实现形状编码（圆/方/菱/三角）+ 边编码（实线/虚线/点线）+ global/local 双模 + 领域/边类型筛选 + 图例；但 mock 数据有一致性缺陷（DEF-4a-001/002） |
 
 ---
 
@@ -80,7 +80,7 @@
 | JSON lint | `python -c json.load(...)` | 0 | N/A | PASS — tauri.conf.json 语法有效 |
 | ESLint | N/A | — | — | SKIP — 项目未配置 ESLint（package.json 无 lint 脚本），4b 阶段引入 |
 
-**tsconfig.json strict 配置证据**（[tsconfig.json:18-21](file:///d:/s0611/code/Continuous-learning/frontend/tsconfig.json#L18-L21)）：
+**tsconfig.json strict 配置证据**（[tsconfig.json:18-21](../../frontend/tsconfig.json#L18-L21)）：
 
 ```json
 "strict": true,
@@ -113,8 +113,8 @@ dist/assets/index-BtfweTcM.js   249.35 kB │ gzip: 74.36 kB
 | 场景 | 结果 | 证据 |
 | --- | --- | --- |
 | 组件导入链完整性 | PASS | `pnpm build` 47 模块全部解析成功，12 个组件均被 App.tsx 导入 |
-| 类型契约一致性 | PASS | [types/index.ts](file:///d:/s0611/code/Continuous-learning/frontend/src/types/index.ts) 定义 Domain/PageType/GraphData 等 12 个接口，所有组件 props 类型正确 |
-| Zustand store 集成 | PASS | [viewStore.ts](file:///d:/s0611/code/Continuous-learning/frontend/src/store/viewStore.ts) 被 7 个组件引用（App/TopBar/StatusBar/CategoryTree/SearchBar/SettingsPanel/GraphView），编译通过 |
+| 类型契约一致性 | PASS | [types/index.ts](../../frontend/src/types/index.ts) 定义 Domain/PageType/GraphData 等 12 个接口，所有组件 props 类型正确 |
+| Zustand store 集成 | PASS | [viewStore.ts](../../frontend/src/store/viewStore.ts) 被 7 个组件引用（App/TopBar/StatusBar/CategoryTree/SearchBar/SettingsPanel/GraphView），编译通过 |
 | CSS 变量 → Tailwind 语义色绑定 | PASS | tailwind.config.js 16 个语义色全部绑定到 CSS 变量，2 套主题（dark/light）变量完整 |
 
 ### 4.4 端到端测试
@@ -131,22 +131,22 @@ dist/assets/index-BtfweTcM.js   249.35 kB │ gzip: 74.36 kB
 
 | # | 组件 | 文件 | 功能 | AC |
 | --- | --- | --- | --- | --- |
-| 1 | TopBar | [TopBar.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/TopBar.tsx) | 48px 顶部栏：品牌 + 搜索 + 视图切换 + 主题/设置 | AC-4a-4 |
-| 2 | StatusBar | [StatusBar.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/StatusBar.tsx) | 28px 状态栏：MCP 状态 + 统计 + 快捷键提示 | AC-4a-4 |
-| 3 | CategoryTree | [CategoryTree.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/CategoryTree.tsx) | 左栏：8 领域分类 + 视图切换 | AC-4a-1 |
-| 4 | SearchBar | [SearchBar.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/SearchBar.tsx) | ⌘K 聚焦 + debounce 300ms + top 10 下拉 | AC-4a-1 |
-| 5 | DropZone | [DropZone.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/DropZone.tsx) | 拖拽上传区（empty/hover 双态） | AC-4a-1 |
-| 6 | FileList | [FileList.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/FileList.tsx) | staging 文件卡片列表 + 预览/确认/拒绝按钮 | AC-4a-1 |
-| 7 | MarkdownPreview | [MarkdownPreview.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/MarkdownPreview.tsx) | frontmatter 卡 + 简化 markdown 渲染（wikilink + code） | AC-4a-1 |
-| 8 | ExperienceInbox | [ExperienceInbox.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/ExperienceInbox.tsx) | 双栏经验卡审核（列表 + 详情 + promote/reject） | AC-4a-1 |
-| 9 | BacklinksPanel | [BacklinksPanel.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/BacklinksPanel.tsx) | 三段折叠（反向链接/出链/related） | AC-4a-1 |
-| 10 | LogTimeline | [LogTimeline.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/LogTimeline.tsx) | log.md 时间线 + 类型筛选（6 类） | AC-4a-1 |
-| 11 | SettingsPanel | [SettingsPanel.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/SettingsPanel.tsx) | 设置 Modal：主题 + LLM 模式 + API Key + MCP 重启 | AC-4a-1 |
-| 12 | GraphView | [GraphView.tsx](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx) | SVG 知识图谱：节点形状 + 边编码 + 双模 + 筛选 + 图例 | AC-4a-10 |
+| 1 | TopBar | [TopBar.tsx](../../frontend/src/components/TopBar.tsx) | 48px 顶部栏：品牌 + 搜索 + 视图切换 + 主题/设置 | AC-4a-4 |
+| 2 | StatusBar | [StatusBar.tsx](../../frontend/src/components/StatusBar.tsx) | 28px 状态栏：MCP 状态 + 统计 + 快捷键提示 | AC-4a-4 |
+| 3 | CategoryTree | [CategoryTree.tsx](../../frontend/src/components/CategoryTree.tsx) | 左栏：8 领域分类 + 视图切换 | AC-4a-1 |
+| 4 | SearchBar | [SearchBar.tsx](../../frontend/src/components/SearchBar.tsx) | ⌘K 聚焦 + debounce 300ms + top 10 下拉 | AC-4a-1 |
+| 5 | DropZone | [DropZone.tsx](../../frontend/src/components/DropZone.tsx) | 拖拽上传区（empty/hover 双态） | AC-4a-1 |
+| 6 | FileList | [FileList.tsx](../../frontend/src/components/FileList.tsx) | staging 文件卡片列表 + 预览/确认/拒绝按钮 | AC-4a-1 |
+| 7 | MarkdownPreview | [MarkdownPreview.tsx](../../frontend/src/components/MarkdownPreview.tsx) | frontmatter 卡 + 简化 markdown 渲染（wikilink + code） | AC-4a-1 |
+| 8 | ExperienceInbox | [ExperienceInbox.tsx](../../frontend/src/components/ExperienceInbox.tsx) | 双栏经验卡审核（列表 + 详情 + promote/reject） | AC-4a-1 |
+| 9 | BacklinksPanel | [BacklinksPanel.tsx](../../frontend/src/components/BacklinksPanel.tsx) | 三段折叠（反向链接/出链/related） | AC-4a-1 |
+| 10 | LogTimeline | [LogTimeline.tsx](../../frontend/src/components/LogTimeline.tsx) | log.md 时间线 + 类型筛选（6 类） | AC-4a-1 |
+| 11 | SettingsPanel | [SettingsPanel.tsx](../../frontend/src/components/SettingsPanel.tsx) | 设置 Modal：主题 + LLM 模式 + API Key + MCP 重启 | AC-4a-1 |
+| 12 | GraphView | [GraphView.tsx](../../frontend/src/components/GraphView.tsx) | SVG 知识图谱：节点形状 + 边编码 + 双模 + 筛选 + 图例 | AC-4a-10 |
 
 ### 5.2 GraphView 视觉编码详情（AC-4a-10）
 
-**节点编码**（[GraphView.tsx:19-30](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L19-L30)）：
+**节点编码**（[GraphView.tsx:19-30](../../frontend/src/components/GraphView.tsx#L19-L30)）：
 
 | PageType | 形状 | 路径生成 |
 | --- | --- | --- |
@@ -155,13 +155,13 @@ dist/assets/index-BtfweTcM.js   249.35 kB │ gzip: 74.36 kB
 | source | 菱形 | `M 0 -r L r 0 L 0 r L -r 0 Z` |
 | experience | 三角形 | `M 0 -r L r 0.8r L -r 0.8r Z` |
 
-- 节点颜色：按领域（8 色，[types/index.ts:35-44](file:///d:/s0611/code/Continuous-learning/frontend/src/types/index.ts#L35-L44) DOMAIN_COLORS）
-- 节点大小：按入度（`nodeRadius(inDegree) = max(6, min(24, sqrt(inDegree+1)*4))`，[GraphView.tsx:32-34](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L32-L34)）
+- 节点颜色：按领域（8 色，[types/index.ts:35-44](../../frontend/src/types/index.ts#L35-L44) DOMAIN_COLORS）
+- 节点大小：按入度（`nodeRadius(inDegree) = max(6, min(24, sqrt(inDegree+1)*4))`，[GraphView.tsx:32-34](../../frontend/src/components/GraphView.tsx#L32-L34)）
 - 节点边框：高入度加粗（≥4 → 2.5px，≥2 → 1.8px，其他 → 1.5px）
 - archived 状态：fillOpacity 降至 0.2
 - staging/pending 状态：虚线边框
 
-**边编码**（[GraphView.tsx:215-228](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L215-L228)）：
+**边编码**（[GraphView.tsx:215-228](../../frontend/src/components/GraphView.tsx#L215-L228)）：
 
 | 边类型 | 线型 | 颜色 | 宽度 | 默认显示 |
 | --- | --- | --- | --- | --- |
@@ -169,12 +169,12 @@ dist/assets/index-BtfweTcM.js   249.35 kB │ gzip: 74.36 kB
 | related | 虚线（4 2） | #5ba88a | 1.3px | 是 |
 | tags | 点线（1 3） | #e0a458 | 1px | 否（默认隐藏） |
 
-**双模切换**（[GraphView.tsx:64-85](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L64-L85)）：
+**双模切换**（[GraphView.tsx:64-85](../../frontend/src/components/GraphView.tsx#L64-L85)）：
 
 - 全局网络：显示全部节点 + 筛选后的边
 - 局部模式：聚焦最高入度节点，计算 1-hop 邻域，非邻域节点/边降至 0.05-0.1 透明度
 
-**筛选面板**（[GraphView.tsx:138-186](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L138-L186)）：
+**筛选面板**（[GraphView.tsx:138-186](../../frontend/src/components/GraphView.tsx#L138-L186)）：
 
 - 领域筛选：8 领域 toggle 按钮
 - 边类型筛选：wikilink / related / tags 三按钮
@@ -185,7 +185,7 @@ dist/assets/index-BtfweTcM.js   249.35 kB │ gzip: 74.36 kB
 
 ### 6.1 CSS 变量定义
 
-[globals.css:17-53](file:///d:/s0611/code/Continuous-learning/frontend/src/styles/globals.css#L17-L53) 定义了两套完整主题：
+[globals.css:17-53](../../frontend/src/styles/globals.css#L17-L53) 定义了两套完整主题：
 
 | CSS 变量 | Dark 值 | Light 值 | 语义 |
 | --- | --- | --- | --- |
@@ -210,7 +210,7 @@ dist/assets/index-BtfweTcM.js   249.35 kB │ gzip: 74.36 kB
 
 ### 6.2 Tailwind 语义色绑定
 
-[tailwind.config.js:7-31](file:///d:/s0611/code/Continuous-learning/frontend/tailwind.config.js#L7-L31) 将 16 个语义色全部绑定到 CSS 变量：
+[tailwind.config.js:7-31](../../frontend/tailwind.config.js#L7-L31) 将 16 个语义色全部绑定到 CSS 变量：
 
 ```javascript
 colors: {
@@ -223,11 +223,11 @@ colors: {
 
 ### 6.3 主题切换机制
 
-- [App.tsx:31-33](file:///d:/s0611/code/Continuous-learning/frontend/src/App.tsx#L31-L33)：`useEffect` 将 `theme` 状态绑定到 `document.documentElement.setAttribute("data-theme", theme)`
-- [viewStore.ts:45-48](file:///d:/s0611/code/Continuous-learning/frontend/src/store/viewStore.ts#L45-L48)：`theme: "dark"` 默认值 + `toggleTheme` + `setTheme`
-- [TopBar.tsx:69](file:///d:/s0611/code/Continuous-learning/frontend/src/components/TopBar.tsx#L69)：主题切换按钮调用 `toggleTheme`
-- [SettingsPanel.tsx:64-78](file:///d:/s0611/code/Continuous-learning/frontend/src/components/SettingsPanel.tsx#L64-L78)：设置面板主题选择调用 `setTheme`
-- [tailwind.config.js:4](file:///d:/s0611/code/Continuous-learning/frontend/tailwind.config.js#L4)：`darkMode: ["class", '[data-theme="dark"]']`
+- [App.tsx:31-33](../../frontend/src/App.tsx#L31-L33)：`useEffect` 将 `theme` 状态绑定到 `document.documentElement.setAttribute("data-theme", theme)`
+- [viewStore.ts:45-48](../../frontend/src/store/viewStore.ts#L45-L48)：`theme: "dark"` 默认值 + `toggleTheme` + `setTheme`
+- [TopBar.tsx:69](../../frontend/src/components/TopBar.tsx#L69)：主题切换按钮调用 `toggleTheme`
+- [SettingsPanel.tsx:64-78](../../frontend/src/components/SettingsPanel.tsx#L64-L78)：设置面板主题选择调用 `setTheme`
+- [tailwind.config.js:4](../../frontend/tailwind.config.js#L4)：`darkMode: ["class", '[data-theme="dark"]']`
 
 ---
 
@@ -235,7 +235,7 @@ colors: {
 
 ### 7.1 验证脚本结果
 
-使用 Python 脚本解析 [mockData.ts](file:///d:/s0611/code/Continuous-learning/frontend/src/data/mockData.ts) 中的 nodes/edges/summary，交叉验证一致性：
+使用 Python 脚本解析 [mockData.ts](../../frontend/src/data/mockData.ts) 中的 nodes/edges/summary，交叉验证一致性：
 
 | 验证项 | 声明值 | 实际值 | 结果 |
 | --- | --- | --- | --- |
@@ -275,7 +275,7 @@ colors: {
 | lychee-ci-exp | 1 | 3 | 3 | 4 |
 | ... | ... | ... | ... | ... |
 
-**影响分析**：GraphView 使用 `node.inDegree` 计算节点半径（[GraphView.tsx:252](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L252)）和文字粗细（[GraphView.tsx:278](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L278)）。声明值与实际边拓扑不符意味着节点视觉大小与实际连接数不一致。对于 4a 静态 mock 阶段，这不会导致运行时错误（因为数据是硬编码的），但数据不自洽。
+**影响分析**：GraphView 使用 `node.inDegree` 计算节点半径（[GraphView.tsx:252](../../frontend/src/components/GraphView.tsx#L252)）和文字粗细（[GraphView.tsx:278](../../frontend/src/components/GraphView.tsx#L278)）。声明值与实际边拓扑不符意味着节点视觉大小与实际连接数不一致。对于 4a 静态 mock 阶段，这不会导致运行时错误（因为数据是硬编码的），但数据不自洽。
 
 ---
 
@@ -286,13 +286,13 @@ colors: {
 | 前端无硬编码密钥 | PASS | `Select-String -Pattern "(api[_-]?key\|token\|secret\|password)\s*=\s*['"][^'']+['"]"` 返回 0 匹配 |
 | SQL 注入防护 | N/A | 4a 阶段无数据库交互 |
 | XSS 防护 | PASS | React 默认转义；无 `dangerouslySetInnerHTML`；MarkdownPreview 自实现渲染器使用 React JSX（非 innerHTML） |
-| API Key 输入安全 | PASS | [SettingsPanel.tsx:98](file:///d:/s0611/code/Continuous-learning/frontend/src/components/SettingsPanel.tsx#L98) `type="password"`；仅存 useState 内存（4c 接入 tauri-plugin-store 加密存储） |
+| API Key 输入安全 | PASS | [SettingsPanel.tsx:98](../../frontend/src/components/SettingsPanel.tsx#L98) `type="password"`；仅存 useState 内存（4c 接入 tauri-plugin-store 加密存储） |
 | 敏感操作权限验证 | N/A | 4a 阶段无 IPC 命令、无服务端操作 |
-| CSP 配置 | **FAIL（DEF-4a-004）** | [tauri.conf.json:25](file:///d:/s0611/code/Continuous-learning/frontend/src-tauri/tauri.conf.json#L25) `"csp": null` — 无内容安全策略，4b/4c 必修 |
-| 非空断言加固 | **FAIL（DEF-4a-005）** | [GraphView.tsx:91](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L91) 和 [GraphView.tsx:238](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L238) 使用 `!.` 非空断言，`find()` 返回 undefined 时会运行时崩溃，4b 必修 |
-| CDN 资源 SRI | **INFO（DEF-4a-006）** | [index.html:10-21](file:///d:/s0611/code/Continuous-learning/frontend/index.html#L10-L21) Google Fonts CDN 无 SRI（Subresource Integrity），4c 阶段处理 |
+| CSP 配置 | **FAIL（DEF-4a-004）** | [tauri.conf.json:25](../../frontend/src-tauri/tauri.conf.json#L25) `"csp": null` — 无内容安全策略，4b/4c 必修 |
+| 非空断言加固 | **FAIL（DEF-4a-005）** | [GraphView.tsx:91](../../frontend/src/components/GraphView.tsx#L91) 和 [GraphView.tsx:238](../../frontend/src/components/GraphView.tsx#L238) 使用 `!.` 非空断言，`find()` 返回 undefined 时会运行时崩溃，4b 必修 |
+| CDN 资源 SRI | **INFO（DEF-4a-006）** | [index.html:10-21](../../frontend/index.html#L10-L21) Google Fonts CDN 无 SRI（Subresource Integrity），4c 阶段处理 |
 | 依赖审计 | PASS | `pnpm audit --prod` → No known vulnerabilities found |
-| CI 权限最小化 | PASS | [frontend-ci.yml:13-14](file:///d:/s0611/code/Continuous-learning/.github/workflows/frontend-ci.yml#L13-L14) `permissions: contents: read`（S-2 修复验证） |
+| CI 权限最小化 | PASS | [frontend-ci.yml:13-14](../../.github/workflows/frontend-ci.yml#L13-L14) `permissions: contents: read`（S-2 修复验证） |
 
 ---
 
@@ -312,12 +312,12 @@ colors: {
 
 | ID | 严重度 | 关联 AC | 描述 | 复现步骤 | 证据 | 修复阶段 |
 | --- | --- | --- | --- | --- | --- | --- |
-| DEF-4a-001 | Medium | AC-4a-10 | mockData summary.domains.coding=15，实际 coding 节点=12，summary.domains 总和=40≠totalNodes=37 | 1. 打开 mockData.ts 2. 统计 domain="coding" 的节点数 3. 对比 summary.domains.coding | [mockData.ts:154](file:///d:/s0611/code/Continuous-learning/frontend/src/data/mockData.ts#L154) `coding: 15`；实际 12 个 coding 节点；GraphStats 面板显示错误分布 | 4b |
+| DEF-4a-001 | Medium | AC-4a-10 | mockData summary.domains.coding=15，实际 coding 节点=12，summary.domains 总和=40≠totalNodes=37 | 1. 打开 mockData.ts 2. 统计 domain="coding" 的节点数 3. 对比 summary.domains.coding | [mockData.ts:154](../../frontend/src/data/mockData.ts#L154) `coding: 15`；实际 12 个 coding 节点；GraphStats 面板显示错误分布 | 4b |
 | DEF-4a-002 | Low | AC-4a-10 | 25 个节点 inDegree + 12 个节点 outDegree 声明值与实际边拓扑不符 | 1. 解析 edges 数组计算每节点实际入度/出度 2. 对比节点声明的 inDegree/outDegree 字段 | 脚本验证输出 25+12 处不一致；影响 GraphView 节点大小编码 | 4b |
-| DEF-4a-003 | Low | — | mockData.ts 注释 line 4 写 "56 边"，实际 edges=60（summary 已修复但注释未同步） | 1. 读取 mockData.ts line 4 | [mockData.ts:4](file:///d:/s0611/code/Continuous-learning/frontend/src/data/mockData.ts#L4) `37 页 / 56 边 / 4 经验卡` | 4b |
-| DEF-4a-004 | Medium | 安全 | tauri.conf.json CSP=null，无内容安全策略 | 1. 读取 tauri.conf.json 2. 检查 app.security.csp | [tauri.conf.json:25](file:///d:/s0611/code/Continuous-learning/frontend/src-tauri/tauri.conf.json#L25) `"csp": null` | 4b/4c |
-| DEF-4a-005 | Low | 代码质量 | GraphView.tsx 2 处非空断言（`!.`），find() 返回 undefined 时运行时崩溃 | 1. 读取 GraphView.tsx line 91, 238 2. 检查 `mockGraphData.nodes.find(...)!` | [GraphView.tsx:91](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L91) [GraphView.tsx:238](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L238) | 4b |
-| DEF-4a-006 | Low | 安全 | index.html Google Fonts CDN 无 SRI（Subresource Integrity） | 1. 读取 index.html 2. 检查 link 标签无 integrity 属性 | [index.html:10-21](file:///d:/s0611/code/Continuous-learning/frontend/index.html#L10-L21) | 4c |
+| DEF-4a-003 | Low | — | mockData.ts 注释 line 4 写 "56 边"，实际 edges=60（summary 已修复但注释未同步） | 1. 读取 mockData.ts line 4 | [mockData.ts:4](../../frontend/src/data/mockData.ts#L4) `37 页 / 56 边 / 4 经验卡` | 4b |
+| DEF-4a-004 | Medium | 安全 | tauri.conf.json CSP=null，无内容安全策略 | 1. 读取 tauri.conf.json 2. 检查 app.security.csp | [tauri.conf.json:25](../../frontend/src-tauri/tauri.conf.json#L25) `"csp": null` | 4b/4c |
+| DEF-4a-005 | Low | 代码质量 | GraphView.tsx 2 处非空断言（`!.`），find() 返回 undefined 时运行时崩溃 | 1. 读取 GraphView.tsx line 91, 238 2. 检查 `mockGraphData.nodes.find(...)!` | [GraphView.tsx:91](../../frontend/src/components/GraphView.tsx#L91) [GraphView.tsx:238](../../frontend/src/components/GraphView.tsx#L238) | 4b |
+| DEF-4a-006 | Low | 安全 | index.html Google Fonts CDN 无 SRI（Subresource Integrity） | 1. 读取 index.html 2. 检查 link 标签无 integrity 属性 | [index.html:10-21](../../frontend/index.html#L10-L21) | 4c |
 
 ---
 

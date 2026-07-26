@@ -3,11 +3,14 @@
  *
  * P4 计划 §4.4.7：数据源 kb_list_recent(limit: 50)。
  * 顶部分类筛选：[全部] [ingest] [experience] [promote] [dream] [lint]。
+ *
+ * 4c：接入 callMcpTool("kb_list_recent")，浏览器 dev 回退 mockLogEntries。
  */
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { mockLogEntries } from "@/data/mockData";
 import type { LogEntry } from "@/types";
+import { callMcpTool, isTauri } from "@/lib/ipc";
 
 const TYPE_FILTERS: Array<{ key: LogEntry["type"] | "all"; label: string }> = [
   { key: "all", label: "全部" },
@@ -29,17 +32,46 @@ const TYPE_COLORS: Record<LogEntry["type"], string> = {
 
 export function LogTimeline() {
   const [filter, setFilter] = useState<LogEntry["type"] | "all">("all");
+  const [entries, setEntries] = useState<LogEntry[]>(mockLogEntries);
+  const [loading, setLoading] = useState(false);
+  const tauriEnv = isTauri();
+
+  useEffect(() => {
+    if (!tauriEnv) {
+      setEntries(mockLogEntries);
+      return;
+    }
+    setLoading(true);
+    callMcpTool("kb_list_recent", { limit: 50 })
+      .then((result) => {
+        if (result.success && result.data) {
+          const data = result.data as { entries?: LogEntry[] };
+          if (data.entries && data.entries.length > 0) {
+            setEntries(data.entries);
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn("[LogTimeline] kb_list_recent failed:", err);
+      })
+      .finally(() => setLoading(false));
+  }, [tauriEnv]);
 
   const filtered = useMemo(
-    () => (filter === "all" ? mockLogEntries : mockLogEntries.filter((e) => e.type === filter)),
-    [filter],
+    () => (filter === "all" ? entries : entries.filter((e) => e.type === filter)),
+    [entries, filter],
   );
 
   return (
     <div className="flex flex-col h-full">
       {/* 标题 */}
-      <div className="px-3 py-2 text-[10px] font-semibold tracking-wider text-text-muted uppercase border-b border-border-subtle">
-        时间线
+      <div className="px-3 py-2 text-[10px] font-semibold tracking-wider text-text-muted uppercase border-b border-border-subtle flex items-center justify-between">
+        <span>时间线</span>
+        {loading && (
+          <span className="material-symbols-outlined animate-spin text-text-muted" style={{ fontSize: 12 }}>
+            progress_activity
+          </span>
+        )}
       </div>
 
       {/* 筛选 */}
@@ -62,6 +94,9 @@ export function LogTimeline() {
 
       {/* 时间线列表 */}
       <div className="flex-1 overflow-y-auto">
+        {filtered.length === 0 && !loading && (
+          <div className="px-3 py-4 text-[11px] text-text-muted italic">无日志条目</div>
+        )}
         {filtered.map((entry, idx) => (
           <div
             key={idx}
@@ -70,14 +105,14 @@ export function LogTimeline() {
             <div className="flex items-center gap-2 mb-0.5">
               <span
                 className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0"
-                style={{ background: TYPE_COLORS[entry.type] }}
+                style={{ background: TYPE_COLORS[entry.type] ?? "var(--text-muted)" }}
               />
               <span className="font-mono text-[10px] text-text-muted">{entry.date}</span>
               <span
                 className="font-mono text-[10px] px-1.5 py-0.5 rounded-sm"
                 style={{
-                  color: TYPE_COLORS[entry.type],
-                  background: `color-mix(in srgb, ${TYPE_COLORS[entry.type]} 15%, transparent)`,
+                  color: TYPE_COLORS[entry.type] ?? "var(--text-muted)",
+                  background: `color-mix(in srgb, ${TYPE_COLORS[entry.type] ?? "var(--text-muted)"} 15%, transparent)`,
                 }}
               >
                 {entry.type}

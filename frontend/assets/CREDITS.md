@@ -43,9 +43,28 @@
 | --- | --- | --- |
 | Tauri 默认图标 | 应用图标（占位，4c 替换） | `src-tauri/icons/` |
 
+## Python 解析依赖（P4 Phase 4b）
+
+> L8 修复：pymupdf 的 AGPL-3.0 是强 copyleft license，需在分发时向接收方明确披露。
+> 详见 [ADR-014](../../docs/decisions/ADR-014-p4-python-parser-and-staging-workflow.md) 与 [parser/README.md](../../parser/README.md)。
+
+| 依赖 | 版本 | License | 用途 | 风险评估 |
+| --- | --- | --- | --- | --- |
+| pymupdf | 1.24.10 | **AGPL-3.0**（非商业免费） | PDF 解析 | 强 copyleft：衍生项目需开源。本项目为开源仓库，合规。商业闭源分发需购买商业 License 或改用 pdfplumber (BSD) |
+| python-docx | 1.1.2 | MIT | DOCX 解析 | 无风险 |
+| openpyxl | 3.1.5 | MIT | XLSX 解析 | 无风险 |
+| PyInstaller | 6.10.0 | GPL-2.0（bootloader 例外） | 打包为 sidecar | bootloader 例外允许商业分发；仅打包工具，不进入运行时 |
+
+**AGPL-3.0 合规措施**：
+
+- 本项目仓库已开源（符合 AGPL-3.0 衍生项目开源要求）
+- ADR-014 已记录 license 权衡与回退方案（pdfplumber BSD）
+- 商业闭源分发场景需替换 pymupdf 为 pdfplumber（详见 ADR-014 负面影响节）
+
 ## 合规声明
 
-- 所有素材 License 均为 🟢 宽松类型（OFL / Apache 2.0 / Pixabay），无 GPL/CC-BY-NC 限制
+- GUI 素材（字体/图标/动画/插画）License 均为 🟢 宽松类型（OFL / Apache 2.0 / Pixabay），无 GPL/CC-BY-NC 限制
+- **Python 解析依赖含 AGPL-3.0（pymupdf）**，详见上表与 ADR-014
 - CDN 加载的字体仅在应用运行时从 Google Fonts 服务器获取，不随应用分发
 - 后续若改为本地打包字体，需在 `fonts/` 目录下保留各字体的 LICENSE 文件副本
 
@@ -54,3 +73,4 @@
 | 日期 | 变更 | 操作者 |
 | --- | --- | --- |
 | 2026-07-26 | 初始创建，记录 CDN 字体 + Material Symbols | P4 Phase 4a |
+| 2026-07-27 | L8 修复：补充 Python 解析依赖 License 凭证（pymupdf AGPL-3.0 披露） | P4 Phase 4b |

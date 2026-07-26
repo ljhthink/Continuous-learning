@@ -20,5 +20,7 @@
 | [ADR-010](ADR-010-ci-file-absolute-path-detection.md) | CI 新增 file:/// 绝对路径检测门禁 | Accepted | 2026-07-25 |
 | [ADR-011](ADR-011-duplicate-detection-and-quality-scoring.md) | 经验卡重复检测与质量评分（Levenshtein + Sorensen-Dice + 4 维度 rubric） | Accepted | 2026-07-26 |
 | [ADR-012](ADR-012-p4-gui-tech-stack.md) | P4 GUI 技术栈（Tauri v2 + React + Vite + TailwindCSS） | Proposed | 2026-07-26 |
+| [ADR-013](ADR-013-p4-llm-integration-strategy.md) | P4 LLM 集成策略（三态切换 + 延迟到 P5 接入） | Proposed | 2026-07-27 |
+| [ADR-014](ADR-014-p4-python-parser-and-staging-workflow.md) | P4 Python parser 与 staging 工作流（pymupdf + Tauri IPC + MCP 工具） | Accepted | 2026-07-27 |
 
 <!-- 新增 ADR 时在此追加一行，并保证文件名以 ADR-NNN- 开头 -->

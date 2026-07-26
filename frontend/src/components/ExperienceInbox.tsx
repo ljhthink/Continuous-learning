@@ -2,27 +2,137 @@
  * ExperienceInbox — 经验卡片审核队列
  *
  * P4 计划 §4.4.4：双栏（左 inbox 列表 + 右详情）。
- * promote 时若返回 duplicate_with 非空 → 弹出确认对话框。
- * 4a 为静态 mock，4c 接入 kb_promote_experience / kb_reject。
+ * promote 时若返回 duplicate_with 非空 → 显示重复警告。
+ *
+ * 4c：接入 callMcpTool("kb_list_inbox") 加载列表 +
+ *      callMcpTool("kb_promote_experience") 执行 promote/reject。
+ *      浏览器 dev 回退 mockExperienceCards。
  */
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { mockExperienceCards } from "@/data/mockData";
 import { DOMAIN_COLORS, DOMAIN_LABELS } from "@/types";
 import type { ExperienceCard } from "@/types";
+import { callMcpTool, isTauri } from "@/lib/ipc";
+
+interface PromoteResult {
+  status: string;
+  tier?: string;
+  duplicate_with?: string[];
+  duplicate_max_content_sim?: number;
+}
 
 export function ExperienceInbox() {
+  const [cards, setCards] = useState<ExperienceCard[]>(mockExperienceCards);
   const [selectedIdx, setSelectedIdx] = useState(0);
-  const selected: ExperienceCard | undefined = mockExperienceCards[selectedIdx];
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [busyPath, setBusyPath] = useState<string | null>(null);
+  const [promoteResult, setPromoteResult] = useState<PromoteResult | null>(null);
+  const tauriEnv = isTauri();
+
+  const refresh = useCallback(async () => {
+    if (!tauriEnv) {
+      setCards(mockExperienceCards);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await callMcpTool("kb_list_inbox", {});
+      if (result.success && result.data) {
+        const data = result.data as { cards?: ExperienceCard[] };
+        setCards(data.cards ?? []);
+        if (data.cards && data.cards.length > 0) {
+          setSelectedIdx(0);
+        }
+      } else {
+        setError(result.error ?? "加载 inbox 失败");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  }, [tauriEnv]);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const handlePromote = useCallback(
+    async (card: ExperienceCard) => {
+      if (!tauriEnv) return;
+      setBusyPath(card.path);
+      setPromoteResult(null);
+      try {
+        const result = await callMcpTool("kb_promote_experience", {
+          inbox_path: card.path,
+          action: "promote",
+        });
+        if (result.success && result.data) {
+          setPromoteResult(result.data as PromoteResult);
+          // Refresh list after successful promote
+          await refresh();
+        } else {
+          setError(result.error ?? "promote 失败");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setBusyPath(null);
+      }
+    },
+    [tauriEnv, refresh],
+  );
+
+  const handleReject = useCallback(
+    async (card: ExperienceCard) => {
+      if (!tauriEnv) return;
+      setBusyPath(card.path);
+      setPromoteResult(null);
+      try {
+        const result = await callMcpTool("kb_promote_experience", {
+          inbox_path: card.path,
+          action: "reject",
+        });
+        if (result.success) {
+          await refresh();
+        } else {
+          setError(result.error ?? "reject 失败");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setBusyPath(null);
+      }
+    },
+    [tauriEnv, refresh],
+  );
+
+  const selected: ExperienceCard | undefined = cards[selectedIdx];
 
   return (
     <div className="flex h-full">
       {/* 左栏：inbox 列表 */}
       <div className="w-80 border-r border-border-subtle bg-surface overflow-y-auto">
-        <div className="px-4 py-2 text-[10px] font-semibold tracking-wider text-text-muted uppercase border-b border-border-subtle">
-          待审核经验卡片（{mockExperienceCards.length}）
+        <div className="px-4 py-2 text-[10px] font-semibold tracking-wider text-text-muted uppercase border-b border-border-subtle flex items-center justify-between">
+          <span>待审核经验卡片（{cards.length}）</span>
+          {loading && (
+            <span className="material-symbols-outlined animate-spin text-text-muted" style={{ fontSize: 12 }}>
+              progress_activity
+            </span>
+          )}
         </div>
-        {mockExperienceCards.map((card, idx) => (
+        {error && (
+          <div className="px-4 py-2 text-[11px] text-red-400 border-b border-border-subtle">⚠️ {error}</div>
+        )}
+        {cards.length === 0 && !loading && (
+          <div className="px-4 py-6 text-[12px] text-text-muted italic text-center">
+            inbox 为空
+          </div>
+        )}
+        {cards.map((card, idx) => (
           <button
             key={card.path}
             type="button"
@@ -37,10 +147,10 @@ export function ExperienceInbox() {
             <div className="flex items-center gap-2 mb-1">
               <span
                 className="inline-block w-2 h-2 rounded-full flex-shrink-0"
-                style={{ background: DOMAIN_COLORS[card.domain] }}
+                style={{ background: DOMAIN_COLORS[card.domain] ?? "#888" }}
               />
               <span className="text-[11px] font-mono text-text-muted">
-                {DOMAIN_LABELS[card.domain]}
+                {DOMAIN_LABELS[card.domain] ?? card.domain}
               </span>
               <span className="ml-auto text-[11px] font-mono text-accent-warning">
                 conf={card.confidence.toFixed(2)}
@@ -63,9 +173,11 @@ export function ExperienceInbox() {
               <div className="flex items-center gap-2 mb-2 text-[11px] font-mono">
                 <span
                   className="inline-block w-2 h-2 rounded-full"
-                  style={{ background: DOMAIN_COLORS[selected.domain] }}
+                  style={{ background: DOMAIN_COLORS[selected.domain] ?? "#888" }}
                 />
-                <span className="text-text-secondary">{DOMAIN_LABELS[selected.domain]}</span>
+                <span className="text-text-secondary">
+                  {DOMAIN_LABELS[selected.domain] ?? selected.domain}
+                </span>
                 <span className="text-text-muted">·</span>
                 <span className="text-text-secondary">experience</span>
                 <span className="text-text-muted">·</span>
@@ -77,17 +189,20 @@ export function ExperienceInbox() {
               <div className="text-[11px] font-mono text-text-muted mt-1">
                 source_task: {selected.sourceTask}
               </div>
+              <div className="text-[11px] font-mono text-text-muted mt-0.5">
+                path: {selected.path}
+              </div>
             </div>
 
             {/* body */}
             <div className="bg-surface border border-border-subtle rounded-lg p-4 mb-4">
               <pre className="text-[13px] text-text-primary font-sans whitespace-pre-wrap leading-relaxed">
-                {selected.body.replace(/\\n/g, "\n")}
+                {selected.body}
               </pre>
             </div>
 
-            {/* 重复警告（mock） */}
-            {selected.duplicateWith && selected.duplicateWith.length > 0 && (
+            {/* 重复检测结果 */}
+            {promoteResult?.duplicate_with && promoteResult.duplicate_with.length > 0 && (
               <div className="bg-elevated border border-accent-warning rounded-lg p-3 mb-4 flex items-start gap-2">
                 <span
                   className="material-symbols-outlined text-accent-warning"
@@ -100,13 +215,34 @@ export function ExperienceInbox() {
                     疑似重复检测
                   </div>
                   <div className="text-[11px] text-text-muted mt-0.5">
-                    与 {selected.duplicateWith.length} 张已有经验卡相似度超阈值：
+                    与 {promoteResult.duplicate_with.length} 张已有经验卡相似度超阈值
+                    {promoteResult.duplicate_max_content_sim !== undefined &&
+                      ` (max_sim=${promoteResult.duplicate_max_content_sim.toFixed(3)})`}
+                    ：
                   </div>
-                  {selected.duplicateWith.map((p) => (
+                  {promoteResult.duplicate_with.map((p) => (
                     <div key={p} className="text-[11px] font-mono text-accent-warning mt-1">
                       {p}
                     </div>
                   ))}
+                  <div className="text-[11px] text-text-muted mt-1">
+                    tier={promoteResult.tier ?? "manual"} · 已提升但需人工复核
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* promote 成功提示 */}
+            {promoteResult?.status === "active" && !promoteResult.duplicate_with?.length && (
+              <div className="bg-elevated border border-accent-secondary rounded-lg p-3 mb-4 flex items-center gap-2">
+                <span
+                  className="material-symbols-outlined text-accent-secondary"
+                  style={{ fontSize: 18 }}
+                >
+                  check_circle
+                </span>
+                <div className="text-[13px] text-text-primary">
+                  已提升为正式经验卡（tier={promoteResult.tier ?? "auto"}）
                 </div>
               </div>
             )}
@@ -115,30 +251,25 @@ export function ExperienceInbox() {
             <div className="flex gap-2">
               <button
                 type="button"
-                className="flex items-center gap-1.5 px-4 py-2 bg-accent-secondary text-white rounded-md text-[13px] font-medium hover:opacity-90 transition-opacity"
+                onClick={() => handlePromote(selected)}
+                disabled={busyPath === selected.path}
+                className="flex items-center gap-1.5 px-4 py-2 bg-accent-secondary text-white rounded-md text-[13px] font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-                  check
+                  {busyPath === selected.path ? "progress_activity" : "check"}
                 </span>
                 Promote（提升为正式）
               </button>
               <button
                 type="button"
-                className="flex items-center gap-1.5 px-4 py-2 bg-elevated text-accent-danger rounded-md text-[13px] font-medium hover:bg-hover transition-colors"
+                onClick={() => handleReject(selected)}
+                disabled={busyPath === selected.path}
+                className="flex items-center gap-1.5 px-4 py-2 bg-elevated text-accent-danger rounded-md text-[13px] font-medium hover:bg-hover transition-colors disabled:opacity-50"
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                   close
                 </span>
                 Reject（驳回）
-              </button>
-              <button
-                type="button"
-                className="flex items-center gap-1.5 px-4 py-2 bg-elevated text-text-secondary rounded-md text-[13px] font-medium hover:bg-hover transition-colors"
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-                  edit
-                </span>
-                编辑
               </button>
             </div>
           </>

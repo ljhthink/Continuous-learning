@@ -3,11 +3,16 @@
  *
  * P4 计划 §4.4.5：数据源 kb_list_categories(include_stats: true)。
  * 领域名前圆点用 §4.2.1 领域配色。点击切换 currentDomain。
+ *
+ * 4c：接入 callMcpTool("kb_list_categories")，浏览器 dev 回退 mockCategories。
  */
 
+import { useState, useEffect } from "react";
 import { useViewStore } from "@/store/viewStore";
 import { mockCategories } from "@/data/mockData";
-import type { ViewName } from "@/types";
+import { DOMAIN_COLORS, DOMAIN_LABELS } from "@/types";
+import type { ViewName, CategoryItem, Domain } from "@/types";
+import { callMcpTool, isTauri } from "@/lib/ipc";
 
 const VIEW_SWITCHER: Array<{ view: ViewName; icon: string; label: string; kbd: string }> = [
   { view: "upload", icon: "upload_file", label: "上传", kbd: "⌘1" },
@@ -18,6 +23,35 @@ const VIEW_SWITCHER: Array<{ view: ViewName; icon: string; label: string; kbd: s
 
 export function CategoryTree() {
   const { currentDomain, setDomain, currentView, setView } = useViewStore();
+  const [categories, setCategories] = useState<CategoryItem[]>(mockCategories);
+  const tauriEnv = isTauri();
+
+  useEffect(() => {
+    if (!tauriEnv) {
+      setCategories(mockCategories);
+      return;
+    }
+    callMcpTool("kb_list_categories", { include_stats: true })
+      .then((result) => {
+        if (result.success && result.data) {
+          const data = result.data as { categories?: CategoryItem[] };
+          if (data.categories && data.categories.length > 0) {
+            // Merge with DOMAIN_COLORS/LABELS to ensure consistent display
+            const merged = data.categories.map((c) => ({
+              ...c,
+              color: DOMAIN_COLORS[c.domain] ?? c.color,
+              label: DOMAIN_LABELS[c.domain] ?? c.label,
+            }));
+            setCategories(merged);
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn("[CategoryTree] kb_list_categories failed:", err);
+      });
+  }, [tauriEnv]);
+
+  const totalCount = categories.reduce((a, c) => a + c.pageCount, 0);
 
   return (
     <aside
@@ -29,22 +63,22 @@ export function CategoryTree() {
         领域分类
       </div>
       <div>
-        <CategoryItem
+        <CategoryItemRow
           label="全部"
           color="var(--text-muted)"
-          count={mockCategories.reduce((a, c) => a + c.pageCount, 0)}
+          count={totalCount}
           active={currentDomain === null}
           onClick={() => setDomain(null)}
         />
-        {mockCategories.map((cat) => (
-          <CategoryItem
+        {categories.map((cat) => (
+          <CategoryItemRow
             key={cat.domain}
             label={cat.label}
             color={cat.color}
             count={cat.pageCount}
             expCount={cat.experienceCount}
             active={currentDomain === cat.domain}
-            onClick={() => setDomain(cat.domain)}
+            onClick={() => setDomain(cat.domain as Domain)}
           />
         ))}
       </div>
@@ -90,7 +124,7 @@ interface CategoryItemProps {
   onClick: () => void;
 }
 
-function CategoryItem({ label, color, count, expCount, active, onClick }: CategoryItemProps) {
+function CategoryItemRow({ label, color, count, expCount, active, onClick }: CategoryItemProps) {
   return (
     <button
       type="button"

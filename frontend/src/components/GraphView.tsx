@@ -5,64 +5,80 @@
  * + 边编码（实线 wikilink / 虚线 related / 点线 tags）
  * + 全局/局部双模 + 筛选面板 + 图例。
  *
- * Phase 4a：纯 SVG 静态 mock（圆形布局），不含 d3-force 交互。
- * Phase 4c：替换为 react-force-graph-2d + d3-force 力导向布局。
+ * Phase 4c：使用 react-force-graph-2d + d3-force 力导向布局，接入真实
+ * MCP server 的 kb_get_graph 数据。浏览器 dev 模式回退到 mockGraphData。
+ *
+ * 节点编码：
+ *   - 颜色 = 领域（DOMAIN_COLORS）
+ *   - 大小 = 入度（sqrt scale）
+ *   - 形状 = type（concept 圆 / entity 方 / source 菱 / experience 三角）
+ *   - 描边 = 入度（粗 = 高引用）
+ *   - 虚线描边 = status（staging/pending）
+ *
+ * 边编码：
+ *   - wikilink: 蓝色实线，opacity 0.6
+ *   - related:  绿色虚线 4-2，opacity 0.5
+ *   - tags:     橙色点线 1-3，opacity 0.3
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import ForceGraph2D, { type ForceGraphMethods } from "react-force-graph-2d";
 import { useViewStore } from "@/store/viewStore";
 import { mockGraphData } from "@/data/mockData";
 import { DOMAIN_COLORS, DOMAIN_LABELS } from "@/types";
-import type { GraphNode, GraphEdge, Domain, PageType } from "@/types";
+import type { GraphNode, GraphEdge, Domain, PageType, GraphData } from "@/types";
+import { callMcpTool, isTauri } from "@/lib/ipc";
 
-// 节点形状路径生成
-function nodeShapePath(type: PageType, r: number): string {
+// ---------------------------------------------------------------------------
+// 节点形状渲染（Canvas 2D）
+// ---------------------------------------------------------------------------
+
+function drawNodeShape(ctx: CanvasRenderingContext2D, type: PageType, r: number): void {
   switch (type) {
     case "concept": // 圆
-      return `M ${-r} 0 a ${r} ${r} 0 1 0 ${r * 2} 0 a ${r} ${r} 0 1 0 ${-r * 2} 0 Z`;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      break;
     case "entity": // 方
-      return `M ${-r} ${-r} L ${r} ${-r} L ${r} ${r} L ${-r} ${r} Z`;
+      ctx.beginPath();
+      ctx.rect(-r, -r, r * 2, r * 2);
+      ctx.fill();
+      ctx.stroke();
+      break;
     case "source": // 菱
-      return `M 0 ${-r} L ${r} 0 L 0 ${r} L ${-r} 0 Z`;
+      ctx.beginPath();
+      ctx.moveTo(0, -r);
+      ctx.lineTo(r, 0);
+      ctx.lineTo(0, r);
+      ctx.lineTo(-r, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      break;
     case "experience": // 三角
-      return `M 0 ${-r} L ${r} ${r * 0.8} L ${-r} ${r * 0.8} Z`;
+      ctx.beginPath();
+      ctx.moveTo(0, -r);
+      ctx.lineTo(r, r * 0.8);
+      ctx.lineTo(-r, r * 0.8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      break;
   }
 }
 
 function nodeRadius(inDegree: number): number {
-  return Math.max(6, Math.min(24, Math.sqrt(inDegree + 1) * 4));
+  return Math.max(5, Math.min(20, Math.sqrt(inDegree + 1) * 3.5));
 }
 
-// 圆形布局：按领域分扇区
-function computeLayout(nodes: GraphNode[]): Record<string, { x: number; y: number }> {
-  const W = 900, H = 600;
-  const cx = W / 2, cy = H / 2;
-  const domains: Domain[] = ["kb-system", "coding", "design", "resources", "emotions", "reading", "academic", "life"];
-  const layout: Record<string, { x: number; y: number }> = {};
-
-  domains.forEach((domain, dIdx) => {
-    const domainNodes = nodes.filter((n) => n.domain === domain);
-    const sectorAngle = (Math.PI * 2) / domains.length;
-    const baseAngle = dIdx * sectorAngle;
-    const baseR = 200;
-    const domainCx = cx + Math.cos(baseAngle) * baseR;
-    const domainCy = cy + Math.sin(baseAngle) * baseR;
-
-    domainNodes.forEach((node, nIdx) => {
-      const localR = Math.min(60, domainNodes.length * 8);
-      const localAngle = (nIdx / Math.max(domainNodes.length, 1)) * Math.PI * 2;
-      layout[node.id] = {
-        x: domainCx + Math.cos(localAngle) * localR,
-        y: domainCy + Math.sin(localAngle) * localR,
-      };
-    });
-  });
-
-  return layout;
-}
+// ---------------------------------------------------------------------------
+// 主组件
+// ---------------------------------------------------------------------------
 
 export function GraphView() {
-  const { graphMode, setGraphMode } = useViewStore();
+  const { graphMode, setGraphMode, setCurrentPagePath, setView } = useViewStore();
   const [filterDomains, setFilterDomains] = useState<Set<Domain>>(
     new Set(Object.keys(DOMAIN_COLORS) as Domain[]),
   );
@@ -70,67 +86,290 @@ export function GraphView() {
     new Set(["wikilink", "related"]),
   );
   const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
+  const [graphData, setGraphData] = useState<GraphData>(mockGraphData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const graphRef = useRef<ForceGraphMethods | undefined>(undefined);
+  const tauriEnv = isTauri();
 
-  const layout = useMemo(() => computeLayout(mockGraphData.nodes), []);
+  // 加载真实图谱数据（仅 Tauri 环境）
+  useEffect(() => {
+    if (!tauriEnv) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    callMcpTool("kb_get_graph", { include_statuses: ["active", "staging"] })
+      .then((result) => {
+        if (cancelled) return;
+        if (result.success && result.data) {
+          const data = result.data as GraphData;
+          if (data.nodes && data.nodes.length > 0) {
+            setGraphData(data);
+          }
+        } else {
+          setError(result.error ?? "加载图谱失败");
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : String(err));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tauriEnv]);
 
   // 局部模式：计算聚焦节点的 1-hop 邻域
   const neighborhood = useMemo(() => {
     if (graphMode !== "local" || !focusedNodeId) return null;
     const nb = new Set<string>([focusedNodeId]);
-    mockGraphData.edges.forEach((e) => {
+    graphData.edges.forEach((e) => {
       if (e.source === focusedNodeId) nb.add(e.target);
       if (e.target === focusedNodeId) nb.add(e.source);
     });
     return nb;
-  }, [graphMode, focusedNodeId]);
+  }, [graphMode, focusedNodeId, graphData]);
 
-  const visibleNodes = mockGraphData.nodes.filter(
-    (n) => filterDomains.has(n.domain),
+  // 过滤后的节点和边
+  const filteredGraph = useMemo(() => {
+    const visibleNodes = graphData.nodes.filter((n) => filterDomains.has(n.domain));
+    const visibleNodeIds = new Set(visibleNodes.map((n) => n.id));
+    const visibleEdges = graphData.edges.filter(
+      (e) =>
+        filterEdgeTypes.has(e.type) &&
+        visibleNodeIds.has(e.source) &&
+        visibleNodeIds.has(e.target),
+    );
+
+    // react-force-graph-2d 期望 `links` 而非 `edges`，且 source/target 为 id 字符串
+    // （内部会替换为节点对象引用）
+    return {
+      nodes: visibleNodes.map((n) => ({ ...n })),
+      links: visibleEdges.map((e) => ({
+        source: e.source,
+        target: e.target,
+        type: e.type,
+      })),
+    };
+  }, [graphData, filterDomains, filterEdgeTypes]);
+
+  // 节点点击：局部模式切换聚焦 / 全局模式跳转预览
+  const handleNodeClick = useCallback(
+    (node: { id?: string }) => {
+      const nodeId = node.id;
+      if (!nodeId) return;
+      if (graphMode === "local") {
+        setFocusedNodeId(nodeId);
+      } else {
+        // 全局模式：点击节点跳转到预览
+        const graphNode = graphData.nodes.find((n) => n.id === nodeId);
+        if (graphNode) {
+          setCurrentPagePath(graphNode.path);
+          setView("preview");
+        }
+      }
+    },
+    [graphMode, graphData.nodes, setCurrentPagePath, setView],
   );
-  const visibleEdges = mockGraphData.edges.filter(
-    (e) => filterEdgeTypes.has(e.type) && filterDomains.has(mockGraphData.nodes.find((n) => n.id === e.source)!.domain) && filterDomains.has(mockGraphData.nodes.find((n) => n.id === e.target)!.domain),
+
+  // 节点 hover：显示 title tooltip（react-force-graph-2d 内置 nodeLabel）
+  const nodeLabel = useCallback((node: { title?: string; domain?: string; inDegree?: number }) => {
+    return `<div style="background:var(--bg-surface);color:var(--text-primary);padding:6px 10px;border:1px solid var(--border-subtle);border-radius:4px;font-size:12px;max-width:240px">
+      <div style="font-weight:600">${node.title ?? "(untitled)"}</div>
+      <div style="color:var(--text-muted);font-size:11px;margin-top:2px">
+        ${node.domain ?? ""} · inDeg=${node.inDegree ?? 0}
+      </div>
+    </div>`;
+  }, []);
+
+  // 节点 Canvas 绘制
+  const nodeCanvasObject = useCallback(
+    (node: unknown, ctx: CanvasRenderingContext2D, globalScale: number) => {
+      const n = node as GraphNode & { x?: number; y?: number };
+      if (n.x === undefined || n.y === undefined) return;
+      const r = nodeRadius(n.inDegree);
+      const color = DOMAIN_COLORS[n.domain] ?? "#888";
+
+      const isDimmed = neighborhood !== null && !neighborhood.has(n.id);
+      const isFocused = n.id === focusedNodeId;
+
+      ctx.save();
+      ctx.translate(n.x, n.y);
+
+      // 透明度：邻域外的节点淡化
+      ctx.globalAlpha = isDimmed ? 0.12 : 1;
+
+      // 填充 + 描边
+      ctx.fillStyle = color;
+      ctx.globalAlpha = isDimmed ? 0.05 : n.status === "archived" ? 0.15 : 0.2;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = isFocused ? 3.5 / globalScale : n.inDegree >= 4 ? 2.5 / globalScale : 1.5 / globalScale;
+      if (n.status === "staging" || n.status === "pending") {
+        ctx.setLineDash([4 / globalScale, 2 / globalScale]);
+      }
+
+      drawNodeShape(ctx, n.type, r);
+
+      // 聚焦节点的脉冲外环
+      if (isFocused) {
+        ctx.globalAlpha = 0.8;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2 / globalScale;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.arc(0, 0, r + 6 / globalScale, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+
+      // 标签：仅在缩放足够或入度高时显示
+      if (globalScale >= 1.5 || n.inDegree >= 4 || isFocused) {
+        ctx.save();
+        ctx.translate(n.x, n.y);
+        ctx.globalAlpha = isDimmed ? 0.2 : 1;
+        ctx.font = `${n.inDegree >= 4 ? 11 : 10}px Inter, sans-serif`;
+        ctx.fillStyle = n.inDegree >= 4 ? "var(--text-primary)" : "var(--text-secondary)";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        const label = n.title.length > 28 ? n.title.slice(0, 27) + "…" : n.title;
+        ctx.fillText(label, 0, r + 4);
+        ctx.restore();
+      }
+    },
+    [neighborhood, focusedNodeId],
   );
+
+  // 边绘制（颜色 + 虚线样式）
+  const linkCanvasObject = useCallback(
+    (link: unknown, ctx: CanvasRenderingContext2D, globalScale: number) => {
+      const l = link as { source?: { x?: number; y?: number }; target?: { x?: number; y?: number }; type?: string };
+      const source = l.source as { x?: number; y?: number } | undefined;
+      const target = l.target as { x?: number; y?: number } | undefined;
+      if (!source?.x || !source?.y || !target?.x || !target?.y) return;
+
+      const type = l.type as GraphEdge["type"];
+      const color = type === "wikilink" ? "#4a9eff" : type === "related" ? "#5ba88a" : "#e0a458";
+      const opacity = type === "wikilink" ? 0.6 : type === "related" ? 0.5 : 0.3;
+
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.globalAlpha = opacity;
+      ctx.lineWidth = (type === "wikilink" ? 1.5 : type === "related" ? 1.3 : 1) / globalScale;
+      if (type === "related") {
+        ctx.setLineDash([4 / globalScale, 2 / globalScale]);
+      } else if (type === "tags") {
+        ctx.setLineDash([1 / globalScale, 3 / globalScale]);
+      } else {
+        ctx.setLineDash([]);
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(source.x, source.y);
+      ctx.lineTo(target.x, target.y);
+      ctx.stroke();
+      ctx.restore();
+    },
+    [],
+  );
+
+  // 切换到局部模式时自动聚焦最高入度节点
+  useEffect(() => {
+    if (graphMode === "local" && !focusedNodeId && graphData.nodes.length > 0) {
+      const maxInDeg = graphData.nodes.reduce((a, b) => (a.inDegree > b.inDegree ? a : b));
+      setFocusedNodeId(maxInDeg.id);
+    }
+  }, [graphMode, focusedNodeId, graphData.nodes]);
+
+  // 重置视图按钮
+  const handleResetView = useCallback(() => {
+    if (graphRef.current) {
+      graphRef.current.zoomToFit(400, 60);
+    }
+    setFocusedNodeId(null);
+  }, []);
+
+  const handleFitView = useCallback(() => {
+    if (graphRef.current) {
+      graphRef.current.zoomToFit(400, 60);
+    }
+  }, []);
 
   return (
     <div className="relative w-full h-full bg-canvas overflow-hidden">
-      {/* 工具栏（顶部居中）：模式切换 */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 flex bg-surface border border-border-subtle rounded-md p-0.5 shadow-md z-10">
-        <button
-          type="button"
-          onClick={() => setGraphMode("global")}
-          className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-sm transition-all ${
-            graphMode === "global"
-              ? "bg-active text-accent-primary"
-              : "text-text-secondary hover:bg-hover hover:text-text-primary"
-          }`}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>public</span>
-          全局网络
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setGraphMode("local");
-            if (!focusedNodeId) {
-              const maxInDeg = mockGraphData.nodes.reduce((a, b) => (a.inDegree > b.inDegree ? a : b));
-              setFocusedNodeId(maxInDeg.id);
-            }
-          }}
-          className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-sm transition-all ${
-            graphMode === "local"
-              ? "bg-active text-accent-primary"
-              : "text-text-secondary hover:bg-hover hover:text-text-primary"
-          }`}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>center_focus_strong</span>
-          局部 1/2/3-hop
-        </button>
+      {/* 工具栏（顶部居中）：模式切换 + 重置/适应 */}
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        <div className="flex bg-surface border border-border-subtle rounded-md p-0.5 shadow-md">
+          <button
+            type="button"
+            onClick={() => setGraphMode("global")}
+            className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-sm transition-all ${
+              graphMode === "global"
+                ? "bg-active text-accent-primary"
+                : "text-text-secondary hover:bg-hover hover:text-text-primary"
+            }`}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>public</span>
+            全局网络
+          </button>
+          <button
+            type="button"
+            onClick={() => setGraphMode("local")}
+            className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-sm transition-all ${
+              graphMode === "local"
+                ? "bg-active text-accent-primary"
+                : "text-text-secondary hover:bg-hover hover:text-text-primary"
+            }`}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>center_focus_strong</span>
+            局部 1-hop
+          </button>
+        </div>
+        <div className="flex bg-surface border border-border-subtle rounded-md p-0.5 shadow-md">
+          <button
+            type="button"
+            onClick={handleResetView}
+            className="flex items-center gap-1.5 px-3 py-1 text-xs rounded-sm text-text-secondary hover:bg-hover hover:text-text-primary transition-all"
+            title="重置视图（清除聚焦 + 缩放适应）"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>restart_alt</span>
+            重置
+          </button>
+          <button
+            type="button"
+            onClick={handleFitView}
+            className="flex items-center gap-1.5 px-3 py-1 text-xs rounded-sm text-text-secondary hover:bg-hover hover:text-text-primary transition-all"
+            title="缩放至适应所有节点"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>fit_screen</span>
+            适应
+          </button>
+        </div>
       </div>
 
       {/* 局部模式提示 */}
       {graphMode === "local" && focusedNodeId && (
         <div className="absolute top-14 left-1/2 -translate-x-1/2 px-3.5 py-1.5 bg-surface border border-accent-primary rounded-md text-[11px] font-mono text-accent-primary z-10 shadow-md">
-          聚焦：{mockGraphData.nodes.find((n) => n.id === focusedNodeId)?.title} · 1-hop 邻域（{neighborhood?.size ?? 0} 节点）· 点击其他节点切换
+          聚焦：{graphData.nodes.find((n) => n.id === focusedNodeId)?.title} · 1-hop 邻域（{neighborhood?.size ?? 0} 节点）· 点击其他节点切换
+        </div>
+      )}
+
+      {/* 加载状态 */}
+      {loading && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-2 bg-surface border border-border-subtle rounded-md text-xs text-text-secondary z-10 shadow-md">
+          <span className="material-symbols-outlined animate-spin" style={{ fontSize: 16, verticalAlign: "middle" }}>progress_activity</span>
+          {" "}加载知识图谱...
+        </div>
+      )}
+
+      {/* 错误提示 */}
+      {error && !loading && (
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 px-3.5 py-1.5 bg-surface border border-red-500 rounded-md text-[11px] text-red-400 z-10 shadow-md max-w-md">
+          ⚠️ {error}（显示 mock 数据）
         </div>
       )}
 
@@ -200,105 +439,32 @@ export function GraphView() {
         </div>
       </div>
 
-      {/* SVG 图谱 */}
-      <svg viewBox="0 0 900 600" preserveAspectRatio="xMidYMid meet" className="w-full h-full">
-        {/* 边 */}
-        <g className="edges">
-          {visibleEdges.map((edge, idx) => {
-            const source = layout[edge.source];
-            const target = layout[edge.target];
-            if (!source || !target) return null;
-            const isDimmed = neighborhood && (!neighborhood.has(edge.source) || !neighborhood.has(edge.target));
-            const isHighlighted = neighborhood && (edge.source === focusedNodeId || edge.target === focusedNodeId);
-
-            return (
-              <line
-                key={`edge-${idx}`}
-                x1={source.x}
-                y1={source.y}
-                x2={target.x}
-                y2={target.y}
-                stroke={
-                  edge.type === "wikilink" ? "#4a9eff" : edge.type === "related" ? "#5ba88a" : "#e0a458"
-                }
-                strokeWidth={edge.type === "wikilink" ? 1.5 : edge.type === "related" ? 1.3 : 1}
-                strokeDasharray={edge.type === "related" ? "4 2" : edge.type === "tags" ? "1 3" : undefined}
-                opacity={isDimmed ? 0.05 : isHighlighted ? 1 : edge.type === "wikilink" ? 0.6 : edge.type === "related" ? 0.5 : 0.3}
-                style={{ transition: "opacity 0.2s" }}
-              />
-            );
-          })}
-        </g>
-
-        {/* 聚焦节点的脉冲外环 */}
-        {graphMode === "local" && focusedNodeId && layout[focusedNodeId] && (
-          <circle
-            cx={layout[focusedNodeId].x}
-            cy={layout[focusedNodeId].y}
-            r={nodeRadius(mockGraphData.nodes.find((n) => n.id === focusedNodeId)!.inDegree) + 8}
-            fill="none"
-            stroke="#4a9eff"
-            strokeWidth={2}
-            opacity={0.8}
-            style={{ animation: "pulse-focus 1.5s ease-in-out infinite" }}
-          />
-        )}
-
-        {/* 节点 */}
-        <g className="nodes">
-          {visibleNodes.map((node) => {
-            const pos = layout[node.id];
-            if (!pos) return null;
-            const r = nodeRadius(node.inDegree);
-            const color = DOMAIN_COLORS[node.domain];
-            const isDimmed = neighborhood && !neighborhood.has(node.id);
-            const isFocused = node.id === focusedNodeId;
-
-            return (
-              <g
-                key={node.id}
-                transform={`translate(${pos.x}, ${pos.y})`}
-                onClick={() => {
-                  if (graphMode === "local") setFocusedNodeId(node.id);
-                }}
-                style={{ cursor: "pointer", opacity: isDimmed ? 0.1 : 1, transition: "opacity 0.2s" }}
-              >
-                <path
-                  d={nodeShapePath(node.type, r)}
-                  fill={color}
-                  fillOpacity={node.status === "archived" ? 0.2 : 0.18}
-                  stroke={color}
-                  strokeWidth={isFocused ? 3.5 : node.inDegree >= 4 ? 2.5 : node.inDegree >= 2 ? 1.8 : 1.5}
-                  strokeDasharray={node.status === "staging" ? "4 2" : node.status === "pending" ? "2 2" : undefined}
-                />
-                <text
-                  y={r + 12}
-                  textAnchor="middle"
-                  fontSize={10}
-                  fill={node.inDegree >= 4 ? "var(--text-primary)" : "var(--text-secondary)"}
-                  fontWeight={node.inDegree >= 4 ? 600 : 400}
-                  style={{ pointerEvents: "none", userSelect: "none" }}
-                >
-                  {node.title}
-                </text>
-              </g>
-            );
-          })}
-        </g>
-      </svg>
+      {/* 力导向图谱 */}
+      <ForceGraph2D
+        ref={graphRef}
+        graphData={filteredGraph}
+        nodeCanvasObject={nodeCanvasObject}
+        linkCanvasObject={linkCanvasObject}
+        nodeRelSize={6}
+        nodeId="id"
+        nodeLabel={nodeLabel as (node: unknown) => string}
+        linkSource="source"
+        linkTarget="target"
+        onNodeClick={handleNodeClick as (node: unknown) => void}
+        cooldownTicks={150}
+        width={typeof window !== "undefined" ? window.innerWidth - 48 : 1200}
+        height={typeof window !== "undefined" ? window.innerHeight - 120 : 800}
+        backgroundColor="transparent"
+        enableNodeDrag
+        enableZoomInteraction
+        enablePanInteraction
+      />
 
       {/* 底部统计 */}
       <div className="absolute bottom-3 left-3 px-3 py-1 bg-surface border border-border-subtle rounded-md text-[11px] font-mono text-text-muted z-10">
-        {visibleNodes.length} 节点 · {visibleEdges.length} 边 · 孤儿页: {mockGraphData.summary.orphanPages} · 最大连通分量: {mockGraphData.summary.largestCcSize}
+        {filteredGraph.nodes.length} 节点 · {filteredGraph.links.length} 边 · 孤儿页: {graphData.summary.orphanPages} · 最大连通分量: {graphData.summary.largestCcSize}
+        {!tauriEnv && <span className="ml-2 text-amber-400">（mock 数据）</span>}
       </div>
-
-      {/* 脉冲动画 keyframes（内联，避免全局污染） */}
-      <style>{`
-        @keyframes pulse-focus {
-          0%, 100% { stroke-width: 2; opacity: 0.9; }
-          50%      { stroke-width: 5; opacity: 0.35; }
-        }
-      `}</style>
     </div>
   );
 }
