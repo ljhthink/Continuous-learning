@@ -18,6 +18,14 @@
 // Tauri v2 exposes `invoke` via `@tauri-apps/api/core`. We import lazily
 // so that browser-only dev mode (no Tauri) does not crash on import.
 
+// Tauri v2 在运行时向 window 注入 `__TAURI_INTERNALS__`，但 TS 类型定义未包含。
+// 扩展 Window 接口以避免 `as any` 类型断言。
+declare global {
+  interface Window {
+    __TAURI_INTERNALS__?: unknown;
+  }
+}
+
 async function getInvoke(): Promise<
   (cmd: string, args?: Record<string, unknown>) => Promise<unknown>
 > {
@@ -30,9 +38,8 @@ async function getInvoke(): Promise<
 function isTauriEnvironment(): boolean {
   return (
     typeof window !== "undefined" &&
-    // Tauri v2 injects this on window
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).__TAURI_INTERNALS__ !== undefined
+    // Tauri v2 injects __TAURI_INTERNALS__ on window at runtime
+    window.__TAURI_INTERNALS__ !== undefined
   );
 }
 

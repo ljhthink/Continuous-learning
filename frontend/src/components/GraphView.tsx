@@ -84,6 +84,16 @@ const ALL_TYPES: PageType[] = ["concept", "entity", "source", "experience"];
 const ALL_STATUSES: PageStatus[] = ["active", "staging", "pending", "archived"];
 const ALL_EDGE_TYPES: GraphEdge["type"][] = ["wikilink", "related", "tags"];
 
+/**
+ * react-force-graph-2d 的 ForceGraphMethods 类型定义缺少 `getGraph()` 方法
+ * （运行时存在，用于访问底层 d3-force 图数据）。扩展类型以避免 `as any`。
+ */
+type ForceGraphWithD3Graph = ForceGraphMethods & {
+  getGraph?: () => {
+    nodes?: () => Array<{ id?: string; x?: number; y?: number }>;
+  };
+};
+
 // ---------------------------------------------------------------------------
 // 右键菜单
 // ---------------------------------------------------------------------------
@@ -486,10 +496,9 @@ export function GraphView() {
         case "Tab": {
           e.preventDefault();
           if (!fg) break;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const simNodes = (fg as any).getGraph?.()?.nodes?.() as
-            | Array<{ id?: string; x?: number; y?: number }>
-            | undefined;
+          // getGraph() 存在于运行时但不在 ForceGraphMethods 类型定义中
+          const fgWithGraph = fg as ForceGraphWithD3Graph;
+          const simNodes = fgWithGraph.getGraph?.()?.nodes?.();
           if (!simNodes || simNodes.length === 0) break;
           const ids = simNodes
             .map((n) => n.id)
@@ -503,10 +512,8 @@ export function GraphView() {
           setSelectedNodeId(nextId);
           const nextNode = simNodes.find((n) => n.id === nextId);
           if (nextNode && typeof nextNode.x === "number" && typeof nextNode.y === "number") {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (fg as any).centerAt?.(nextNode.x, nextNode.y, 300);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (fg as any).zoom?.(1.8, 300);
+            fg.centerAt(nextNode.x, nextNode.y, 300);
+            fg.zoom(1.8, 300);
           }
           break;
         }
