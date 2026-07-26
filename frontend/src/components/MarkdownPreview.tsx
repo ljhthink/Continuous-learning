@@ -13,6 +13,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 import { useViewStore } from "@/store/viewStore";
 import { mockPageDetail } from "@/data/mockData";
 import { DOMAIN_COLORS, DOMAIN_LABELS } from "@/types";
@@ -140,9 +143,11 @@ export function MarkdownPreview() {
         </div>
       </div>
 
-      {/* body 渲染：react-markdown + 自定义 wikilink */}
+      {/* body 渲染：react-markdown + GFM + 语法高亮（DEF-6 修复；Mermaid 推迟 P5） */}
       <div className="prose prose-invert max-w-none text-text-primary">
         <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeHighlight]}
           components={{
             // 自定义链接：内部 wikilink vs 外部 URL
             a: ({ href, children }) => {
@@ -174,11 +179,24 @@ export function MarkdownPreview() {
               );
             },
             // 代码块
-            pre: ({ children }) => (
-              <pre className="bg-code-bg text-code-text font-mono text-xs p-4 rounded-md overflow-x-auto my-3">
-                {children}
-              </pre>
-            ),
+            pre: ({ children, className }) => {
+              // rehype-mermaid "pre-mermaid" strategy 产出 <pre class="mermaid">
+              if (className === "mermaid") {
+                return (
+                  <pre className="mermaid bg-surface border border-border-subtle rounded-md p-4 my-3 text-xs font-mono text-text-secondary overflow-x-auto">
+                    {children}
+                    <div className="mt-2 text-[10px] text-text-muted">
+                      （Mermaid 图表 — 客户端渲染待 P5 启用）
+                    </div>
+                  </pre>
+                );
+              }
+              return (
+                <pre className="bg-code-bg text-code-text font-mono text-xs p-4 rounded-md overflow-x-auto my-3">
+                  {children}
+                </pre>
+              );
+            },
             code: ({ className, children, ...props }) => {
               const isInline = !className;
               if (isInline) {
@@ -191,6 +209,7 @@ export function MarkdownPreview() {
                   </code>
                 );
               }
+              // rehype-highlight 添加的 hljs / language-xxx 类名保留
               return (
                 <code className={className} {...props}>
                   {children}
