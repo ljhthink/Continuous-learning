@@ -73,6 +73,7 @@ const visibleNodes = graphData.nodes.filter(
 ```
 
 筛选面板 UI 新增三个区块：
+
 - **类型**：concept / entity / source / experience（4 按钮）
 - **状态**：active / staging / pending / archived（4 按钮）
 - **局部跳数**：1-hop / 2-hop / 3-hop（仅 `graphMode === "local"` 时显示）
@@ -156,6 +157,7 @@ const handleNodeRightClick = useCallback(
 ```
 
 菜单项：
+
 - 跳转到预览（`description` 图标）
 - 聚焦此节点（`center_focus_strong` 图标，切换到局部模式并聚焦）
 - 复制路径（`content_copy` 图标，`navigator.clipboard.writeText`）
@@ -185,7 +187,7 @@ import "highlight.js/styles/github-dark.css";
 >
 ```
 
-3. **调整 code 组件**：rehype-highlight 添加的 `hljs` / `language-xxx` 类名保留传递，配合 `github-dark.css` 主题生效。
+1. **调整 code 组件**：rehype-highlight 添加的 `hljs` / `language-xxx` 类名保留传递，配合 `github-dark.css` 主题生效。
 
 **Mermaid 推迟 P5**：原计划用 `rehype-mermaid`，但实测引入后 mermaid 全量库（含 dagre/cytoscape/katex 等 132 个传递依赖）使主 chunk 从 613KB 膨胀到 1.4MB（gzip 388KB），违反 PRD §8.3 包体积要求。决策：Mermaid 推迟到 P5，用客户端动态 import + `strategy: "pre-mermaid"` 实现。当前 mermaid 代码块以普通代码块显示（rehype-highlight 不识别 `mermaid` 语言，保持原样），`pre` 组件已预留 `className === "mermaid"` 检测分支为 P5 接口。
 

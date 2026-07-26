@@ -112,7 +112,7 @@
 
 **命令**：`cd server && node --import tsx scripts/graph-sanity-check.ts`
 
-```
+```text
 === kb_get_graph (default filter) ===
 totalNodes: 37
 totalEdges: 522
@@ -132,7 +132,7 @@ first backlink context: ...[[wiki/coding/thealgorithms-python]] — Python...
 
 **命令**：`cd frontend && pnpm build`（`tsc && vite build`）
 
-```
+```text
 ✓ 1246 modules transformed.
 dist/index.html                    1.12 kB │ gzip:   0.58 kB
 dist/assets/index-CndOJD7_.css    17.53 kB │ gzip:   4.48 kB
@@ -222,6 +222,7 @@ dist/assets/index-eQAHNHS8.js    573.68 kB │ gzip: 179.49 kB
 **Phase 4c 核心交付已达成且经客观验证**：知识图谱可视化（GraphView 四维节点编码 + 三类边编码 + 全局/局部双模）、反向链接面板（三段折叠 + 引用上下文）、MCP CLI bridge（`call_mcp_tool` 白名单 + 11 工具注册）、LLM 集成策略（ADR-013 三态 UI 预留）均已落地；14 个单元测试 + 真实 KB sanity check + 前端构建均通过；安全核查无硬编码 Key、CSP/路径穿越/shell 注入/日志注入防御齐全。
 
 **阻碍无条件 PASS 的硬缺口**（建议合并前或 P5 初修复）：
+
 1. **DEF-1（中）**：键盘快捷键完全缺失——这是 §8.4 明确列出的 7 个按键绑定，当前 0 实现；
 2. **DEF-2（中）**：筛选面板 5 维只做了 2 维；
 3. **DEF-3（中）**：局部模式 1/2/3-hop 只做了 1-hop。
