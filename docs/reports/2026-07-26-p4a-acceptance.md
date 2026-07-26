@@ -170,10 +170,12 @@ dist/assets/index-BtfweTcM.js   249.35 kB │ gzip: 74.36 kB
 | tags | 点线（1 3） | #e0a458 | 1px | 否（默认隐藏） |
 
 **双模切换**（[GraphView.tsx:64-85](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L64-L85)）：
+
 - 全局网络：显示全部节点 + 筛选后的边
 - 局部模式：聚焦最高入度节点，计算 1-hop 邻域，非邻域节点/边降至 0.05-0.1 透明度
 
 **筛选面板**（[GraphView.tsx:138-186](file:///d:/s0611/code/Continuous-learning/frontend/src/components/GraphView.tsx#L138-L186)）：
+
 - 领域筛选：8 领域 toggle 按钮
 - 边类型筛选：wikilink / related / tags 三按钮
 
@@ -380,6 +382,7 @@ Phase 4a 作为静态组件阶段，以下条件已满足：
 ### 13.4 与 guardrail-enforcer R2 结论一致性
 
 本报告与 [guardrail R2 报告](2026-07-26-p4a-guardrail.md) 结论一致：
+
 - R2 已修复的 3 项中风险（S-2 CI permissions / Q-3 StatusBar 硬编码 / Q-4 mockData 边数）在本报告中均验证通过
 - R2 锁定的 4b/4c 必修项（CSP 收紧 / 非空断言加固 / audit 扫描）在本报告中均作为缺陷记录（DEF-4a-004/005）
 - 本报告额外发现 mockData domains/inDegree/outDegree 一致性问题（DEF-4a-001/002），为 R2 未覆盖项

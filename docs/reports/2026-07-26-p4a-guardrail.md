@@ -78,6 +78,7 @@
 ### 3.2 输入与边界审计（Stage 1）
 
 #### 1.1 数值与类型边界
+
 - App.tsx:39-43 快捷键 `["1","2","3","4"].includes(e.key)` 后 `parseInt(e.key,10)-1`，includes 已限定范围，索引 0-3 落在 views 数组内。✅
 - GraphView.tsx:33 `nodeRadius = Math.max(6, Math.min(24, Math.sqrt(inDegree+1)*4))`，上下界 [6,24] 显式 clamp。✅
 - GraphView.tsx:52 `localR = Math.min(60, domainNodes.length*8)`，上界 60。✅
@@ -85,6 +86,7 @@
 - StatusBar.tsx:21 硬编码 37+4 反向减法，见 Q-3。⚠️
 
 #### 1.2 集合与缓冲区边界
+
 - GraphView.tsx:91,238 非空断言 `!`，见 Q-1/Q-2。⚠️
 - GraphView.tsx:210,251 `if (!source\|\|!target) return null` / `if (!pos) return null` 已防御 layout 缺失。✅
 - MarkdownPreview.tsx:159 `while (remaining.length>0)` 循环，每轮 `remaining.slice(...)` 必推进，无死循环。✅
@@ -92,6 +94,7 @@
 - ExperienceInbox.tsx:16 `mockExperienceCards[selectedIdx]` 返回 `ExperienceCard \| undefined`，line 59 `{selected && (...)}` 已防御 undefined。✅
 
 #### 1.3 业务状态机约束
+
 - types/index.ts PageStatus/ViewName/GraphMode 枚举与 AGENTS.md §3.4 状态机一致。✅
 - MarkdownPreview.tsx:46-53 仅区分 active / 非 active 两态（staging/pending/archived/rejected 统一 warning 样式），4a 简化可接受。✅
 - GraphView.tsx:269-272 区分 archived（fillOpacity 0.2）/ staging（dash 4 2）/ pending（dash 2 2）/ 默认。✅
@@ -109,7 +112,7 @@
 
 ### 3.4 密钥与配置安全（Stage 4）
 
-- **硬编码密钥扫描**：已 grep `password|secret|token|api[_-]?key|sk-[a-zA-Z0-9]{20}|Bearer `，仅命中 SettingsPanel.tsx 的 apiKey 变量声明与 input（预期，初始空串，无真值）。✅
+- **硬编码密钥扫描**：已 grep `password|secret|token|api[_-]?key|sk-[a-zA-Z0-9]{20}|Bearer`，仅命中 SettingsPanel.tsx 的 apiKey 变量声明与 input（预期，初始空串，无真值）。✅
 - **敏感配置**：tauri.conf.json identifier `com.ljh.continuous-learning` 是反向域名应用标识，非敏感。无内部 IP/域名硬编码。✅
 - **.gitignore**：已覆盖 `.env`/`.env.local`/`.env.*.local`/`!.env.example`、`node_modules/`、`dist/`、`target/`、`*.log`、`logs/`。✅
 - **锁文件提交状态**：`pnpm-lock.yaml` 与 `Cargo.lock` 存在但 `git ls-files` 返回空（frontend/ 整体 untracked）。**commit 时必须 `git add` 这两个锁文件**，否则违反 CLAUDE.md §18.3「所有依赖必须提交锁文件」。见 S-5。
@@ -130,6 +133,7 @@
 - [ ] **阻断**
 
 **判定依据**：
+
 - 无 blocking 级安全漏洞（无注入、无硬编码密钥、无命令执行、无 XSS 转义缺口）。
 - 1 项高风险（S-1 CSP null）在 4a 静态阶段风险可控，已锁定为 4b 必修项，不构成 4a 阻断。
 - §5.1 三项低成本中风险（S-2 CI 权限、Q-3 StatusBar 硬编码、Q-4 mock summary 不一致）已于 R2 修复并经本 Agent 实读代码验证通过；S-5（锁文件 git add）为主 Agent commit 时承诺项。
@@ -257,6 +261,7 @@
 **结论升级**：R1「有条件通过」→ R2「通过」。4a 阶段可进入测试/合并流程。
 
 **遗留项（不阻塞 4a，按阶段处理）**：
+
 - S-5：commit 时必须 `git add` 两个锁文件（主 Agent 承诺，未验证前不视为完成）
 - S-1/Q-1/Q-2/S-6：锁定 4b 接入 IPC 前硬门禁（见 §5.2）
 - S-3/S-4/Q-5/Q-6/Q-7/S-7：4c 阶段建议项（见 §5.3）
