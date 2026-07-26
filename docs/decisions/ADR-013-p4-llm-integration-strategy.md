@@ -5,7 +5,7 @@
 | 状态 | Proposed |
 | 日期 | 2026-07-27 |
 | 决策者 | 主 Agent（P4 Phase 4c 阶段） |
-| 关联文档 | [P4 实施计划](../../.trae/documents/p4-gui-implementation-plan.md) §4.4.8 设置面板 / [ADR-012](ADR-012-p4-gui-tech-stack.md)（GUI 技术栈） / [ADR-001](ADR-001-knowledge-base-tech-stack.md)（核心依赖 ≤5 原则） |
+| 关联文档 | P4 实施计划 `.trae/documents/p4-gui-implementation-plan.md` §4.4.8 设置面板 / [ADR-012](ADR-012-p4-gui-tech-stack.md)（GUI 技术栈） / [ADR-001](ADR-001-knowledge-base-tech-stack.md)（核心依赖 ≤5 原则） |
 | 风险等级 | P3（涉及密钥存储、网络调用、隐私边界） |
 | 前序 ADR | [ADR-012](ADR-012-p4-gui-tech-stack.md)（已选 Tauri v2 + React），本文决定 LLM 接入方式 |
 
@@ -151,6 +151,6 @@ SettingsPanel 在 cloud-first 模式下显示醒目提示：
 - [ADR-001](ADR-001-knowledge-base-tech-stack.md)：知识库技术栈（核心依赖 ≤5 原则）
 - [ADR-012](ADR-012-p4-gui-tech-stack.md)：P4 GUI 技术栈（Tauri v2 + React）
 - [ADR-014](ADR-014-p4-python-parser-and-staging-workflow.md)：Python parser 与 staging 工作流（本文 D2 的 parser 依赖项）
-- [P4 实施计划](../../.trae/documents/p4-gui-implementation-plan.md) §4.4.8：SettingsPanel 设计
+- P4 实施计划 `.trae/documents/p4-gui-implementation-plan.md` §4.4.8：SettingsPanel 设计
 - [Tauri plugin-store 文档](https://v2.tauri.app/plugin/store/)（P5 接入时参考）
 - [Ollama API 文档](https://github.com/ollama/ollama/blob/main/docs/api.md)（P5 local-first 模式参考）

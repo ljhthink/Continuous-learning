@@ -5,7 +5,7 @@
 | 状态 | Accepted |
 | 日期 | 2026-07-27 |
 | 决策者 | 主 Agent（P4 Phase 4b 实施阶段） |
-| 关联文档 | [P4 实施计划](../../.trae/documents/p4-gui-implementation-plan.md) / [ADR-012](ADR-012-p4-gui-tech-stack.md)（Tauri v2 技术栈） |
+| 关联文档 | P4 实施计划 `.trae/documents/p4-gui-implementation-plan.md` / [ADR-012](ADR-012-p4-gui-tech-stack.md)（Tauri v2 技术栈） |
 | 风险等级 | P2（新组件 + 跨语言集成，但无既有代码破坏风险） |
 | 前序 ADR | [ADR-012](ADR-012-p4-gui-tech-stack.md)（P4 GUI 技术栈，已预留 sidecar 机制） |
 
@@ -19,7 +19,7 @@ Phase 4b 需完成：
 2. **staging 工作流**：FileList 显示 staging 页面 → 用户确认（→ active）/ 拒绝（→ rejected）
 3. **MCP server 扩展**：外部 Agent 也能通过 MCP 查询/确认 staging 页面
 
-原计划（[P4 实施计划](../../.trae/documents/p4-gui-implementation-plan.md)）使用 MinerU + office2md + PyInstaller sidecar。但实施时发现：
+原计划（P4 实施计划 `.trae/documents/p4-gui-implementation-plan.md`）使用 MinerU + office2md + PyInstaller sidecar。但实施时发现：
 
 - **MinerU 过重**：MinerU 依赖 PyTorch + 多个 ML 模型（数 GB），不适合个人知识库轻量场景
 - **office2md 维护停滞**：社区方案，无持续维护，与 python-docx/openpyxl 重叠

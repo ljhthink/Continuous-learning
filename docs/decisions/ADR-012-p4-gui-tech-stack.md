@@ -5,7 +5,7 @@
 | 状态 | Proposed |
 | 日期 | 2026-07-26 |
 | 决策者 | 主 Agent（P4 Phase 4a 启动阶段） |
-| 关联文档 | [P4 实施计划](../../.trae/documents/p4-gui-implementation-plan.md) / [PRD](../PRD.md) US-004 / [ADR-001](ADR-001-knowledge-base-tech-stack.md)（核心依赖 ≤5 原则） |
+| 关联文档 | P4 实施计划 `.trae/documents/p4-gui-implementation-plan.md` / [PRD](../PRD.md) US-004 / [ADR-001](ADR-001-knowledge-base-tech-stack.md)（核心依赖 ≤5 原则） |
 | 风险等级 | P3（新框架 Tauri + 全新 frontend/ 目录） |
 | 前序 ADR | [ADR-001](ADR-001-knowledge-base-tech-stack.md)（知识库技术栈，未涵盖 GUI） |
 
