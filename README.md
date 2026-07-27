@@ -61,6 +61,9 @@
 | [docs/decisions/ADR-009-resources-and-design-domains.md](docs/decisions/ADR-009-resources-and-design-domains.md) | Explanation | 新建 resources 与 design 领域 + TheAlgorithms/素材资源沉淀策略 |
 | [docs/decisions/ADR-010-ci-file-absolute-path-detection.md](docs/decisions/ADR-010-ci-file-absolute-path-detection.md) | Explanation | CI 新增 file:/// 绝对路径检测门禁 |
 | [docs/decisions/ADR-011-duplicate-detection-and-quality-scoring.md](docs/decisions/ADR-011-duplicate-detection-and-quality-scoring.md) | Explanation | 经验卡重复检测与质量评分（Levenshtein + Sorensen-Dice + 4 维度 rubric） |
+| [docs/decisions/ADR-012-p4-gui-tech-stack.md](docs/decisions/ADR-012-p4-gui-tech-stack.md) | Explanation | P4 GUI 技术栈（Tauri v2 + React + Vite + TailwindCSS） |
+| [docs/decisions/ADR-013-p4-llm-integration-strategy.md](docs/decisions/ADR-013-p4-llm-integration-strategy.md) | Explanation | P4 LLM 集成策略（三态切换 + 延迟到 P5 接入） |
+| [docs/decisions/ADR-014-p4-python-parser-and-staging-workflow.md](docs/decisions/ADR-014-p4-python-parser-and-staging-workflow.md) | Explanation | P4 Python parser 与 staging 工作流（pymupdf + Tauri IPC + MCP 工具） |
 | [docs/integration/mcp-clients.md](docs/integration/mcp-clients.md) | How-to | MCP 客户端集成指南 |
 | [docs/reports/README.md](docs/reports/README.md) | Reference | 运行时报告索引 |
 | [docs/reports/2026-07-22-knowledge-base-tech-selection.md](docs/reports/2026-07-22-knowledge-base-tech-selection.md) | Reference | 技术选型对比分析报告（选型依据） |

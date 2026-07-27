@@ -81,10 +81,10 @@ test("kb_get_page: increments use_count and persists across calls", async () => 
       "body text\n"
     );
 
-    const r1 = await kbGetPage({ path: "wiki/coding/foo" });
+    const r1 = await kbGetPage({ page_path: "wiki/coding/foo" });
     assert.equal(parseResult(r1).frontmatter.use_count, 1);
 
-    const r2 = await kbGetPage({ path: "wiki/coding/foo" });
+    const r2 = await kbGetPage({ page_path: "wiki/coding/foo" });
     assert.equal(parseResult(r2).frontmatter.use_count, 2);
 
     // Body preserved (writeback must not truncate). DEF-008 changed
@@ -118,10 +118,10 @@ test("kb_get_page: section read writes back the FULL body, not the truncated vie
     );
 
     // Read only section B
-    await kbGetPage({ path: "wiki/coding/sec", section: "B" });
+    await kbGetPage({ page_path: "wiki/coding/sec", section: "B" });
 
     // Re-read full page — body must be intact, not truncated to section B
-    const full = await kbGetPage({ path: "wiki/coding/sec" });
+    const full = await kbGetPage({ page_path: "wiki/coding/sec" });
     const body = parseResult(full).body;
     assert.ok(body.includes("## A"), "section A must survive a section-B read");
     assert.ok(body.includes("alpha"));

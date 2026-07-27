@@ -29,11 +29,13 @@
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import ForceGraph2D, { type ForceGraphMethods } from "react-force-graph-2d";
+import { forceCollide } from "d3-force-3d";
 import { useViewStore } from "@/store/viewStore";
-import { mockGraphData } from "@/data/mockData";
+import { useGraphStore } from "@/store/graphStore";
 import { DOMAIN_COLORS, DOMAIN_LABELS } from "@/types";
 import type { GraphNode, GraphEdge, Domain, PageType, PageStatus, GraphData } from "@/types";
 import { callMcpTool, isTauri } from "@/lib/ipc";
+import { escapeHtml } from "@/lib/html-utils";
 
 // ---------------------------------------------------------------------------
 // 节点形状渲染（Canvas 2D）
@@ -75,24 +77,31 @@ function drawNodeShape(ctx: CanvasRenderingContext2D, type: PageType, r: number)
   }
 }
 
-function nodeRadius(inDegree: number): number {
-  return Math.max(5, Math.min(20, Math.sqrt(inDegree + 1) * 3.5));
+/** 页面类型中文标签（用于筛选提示条） */
+const PAGE_TYPE_LABELS: Record<PageType, string> = {
+  concept: "概念",
+  entity: "实体",
+  source: "来源",
+  experience: "经验",
+};
+
+function nodeRadius(inDegree: number, type?: PageType): number {
+  // 按类型设置最小半径，确保低入度节点也清晰可见
+  // experience 节点通常入度低（0-1），但作为高价值内容不应被埋没
+  const minRadiusByType: Record<PageType, number> = {
+    experience: 12,
+    source: 10,
+    concept: 7,
+    entity: 7,
+  };
+  const minRadius = type ? minRadiusByType[type] : 5;
+  return Math.max(minRadius, Math.min(20, Math.sqrt(inDegree + 1) * 3.5));
 }
 
 /** 所有类型/状态的枚举数组（用于筛选面板渲染） */
 const ALL_TYPES: PageType[] = ["concept", "entity", "source", "experience"];
 const ALL_STATUSES: PageStatus[] = ["active", "staging", "pending", "archived"];
 const ALL_EDGE_TYPES: GraphEdge["type"][] = ["wikilink", "related", "tags"];
-
-/**
- * react-force-graph-2d 的 ForceGraphMethods 类型定义缺少 `getGraph()` 方法
- * （运行时存在，用于访问底层 d3-force 图数据）。扩展类型以避免 `as any`。
- */
-type ForceGraphWithD3Graph = ForceGraphMethods & {
-  getGraph?: () => {
-    nodes?: () => Array<{ id?: string; x?: number; y?: number }>;
-  };
-};
 
 // ---------------------------------------------------------------------------
 // 右键菜单
@@ -111,10 +120,13 @@ interface ContextMenuState {
 export function GraphView() {
   const {
     currentView,
+    currentDomain,
+    currentType,
     graphMode,
     setGraphMode,
     setCurrentPagePath,
     setView,
+    theme,
   } = useViewStore();
   const [filterDomains, setFilterDomains] = useState<Set<Domain>>(
     new Set(Object.keys(DOMAIN_COLORS) as Domain[]),
@@ -138,9 +150,9 @@ export function GraphView() {
   // DEF-4: 右键菜单
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
 
-  const [graphData, setGraphData] = useState<GraphData>(mockGraphData);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // 图谱数据从共享 graphStore 读取（GraphStats 右栏面板也读取同一份），
+  // 避免重复请求 kb_get_graph，且确保统计面板显示真实数据而非 mock。
+  const { graphData, loading, error, setGraphData, setLoading, setError } = useGraphStore();
   const graphRef = useRef<ForceGraphMethods | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement | null>(null);
   // 双击检测：onNodeDoubleClick 不在 react-force-graph-2d 的 props 中，
@@ -148,6 +160,18 @@ export function GraphView() {
   const lastClickTimeRef = useRef<number>(0);
   const lastClickNodeIdRef = useRef<string | null>(null);
   const tauriEnv = isTauri();
+
+  // Canvas 2D API 不支持 CSS 变量（如 `var(--text-primary)`），需读取实际颜色值。
+  // 在主题切换时重新读取。
+  const themeColors = useRef({ primary: "#e6e9ef", secondary: "#9aa3b2" });
+  useEffect(() => {
+    const root = document.documentElement;
+    const style = getComputedStyle(root);
+    themeColors.current = {
+      primary: style.getPropertyValue("--text-primary").trim() || "#e6e9ef",
+      secondary: style.getPropertyValue("--text-secondary").trim() || "#9aa3b2",
+    };
+  }, [theme]);
 
   // 加载真实图谱数据（仅 Tauri 环境）
   useEffect(() => {
@@ -205,11 +229,18 @@ export function GraphView() {
   }, [graphMode, focusedNodeId, graphData, localHop]);
 
   // 过滤后的节点和边（DEF-2: 五维筛选）
+  // currentDomain 来自 viewStore（CategoryTree 点击），优先级高于本地图谱筛选面板。
+  // 当用户在左栏点击某领域时，currentDomain 被设置，图谱只显示该领域的节点。
+  // 当 currentDomain 为 null（"全部"），使用本地 filterDomains 集合。
+  // currentType 来自 viewStore（CategoryTree "按类型筛选"点击），非 null 时只显示该类型。
   const filteredGraph = useMemo(() => {
+    const activeDomainFilter = currentDomain
+      ? new Set<Domain>([currentDomain])
+      : filterDomains;
     const visibleNodes = graphData.nodes.filter(
       (n) =>
-        filterDomains.has(n.domain) &&
-        filterTypes.has(n.type) &&
+        activeDomainFilter.has(n.domain) &&
+        (currentType ? n.type === currentType : filterTypes.has(n.type)) &&
         filterStatuses.has(n.status),
     );
     const visibleNodeIds = new Set(visibleNodes.map((n) => n.id));
@@ -222,15 +253,71 @@ export function GraphView() {
 
     // react-force-graph-2d 期望 `links` 而非 `edges`，且 source/target 为 id 字符串
     // （内部会替换为节点对象引用）
+    // 注意：不 spread 节点对象（`{...n}`），保持引用稳定——否则 force simulation
+    // 每次重渲染都视为新节点，丢失 x/y 坐标，导致拖动后无法再次拖动。
     return {
-      nodes: visibleNodes.map((n) => ({ ...n })),
+      nodes: visibleNodes,
       links: visibleEdges.map((e) => ({
         source: e.source,
         target: e.target,
         type: e.type,
       })),
     };
-  }, [graphData, filterDomains, filterEdgeTypes, filterTypes, filterStatuses]);
+  }, [graphData, filterDomains, filterEdgeTypes, filterTypes, filterStatuses, currentDomain, currentType]);
+
+  // d3-force 物理参数配置
+  // 修复"三个大领域节点混在一起"+"物理效果缺失"问题：
+  //   - charge -500：强斥力让同类节点自然聚拢、异类节点分开
+  //   - linkDistance 90：加长边，给节点更多空间避免重叠
+  //   - center gravity 0.08：适度收敛，避免图谱散开过远
+  //   - forceCollide：碰撞检测，防止节点重叠（核心修复）
+  //   - velocityDecay 0.4：通过 prop 设置（d3VelocityDecay 方法不在 react-kapsule 白名单中）
+  //
+  // 关键修复：依赖数组改为 [graphData.nodes.length]
+  // 原因：当 mock 数据（37 节点）切换到真实 kb_get_graph 数据时，
+  // react-force-graph-2d 会重建 simulation，但旧的 force 配置会丢失。
+  // 必须在节点数量变化时重新配置力参数。
+  // 用 nodes.length 而非 graphData 引用，避免 filteredGraph 变化导致的频繁重配置。
+  useEffect(() => {
+    const fg = graphRef.current;
+    if (!fg) return;
+    // charge: 节点间斥力（负值），-500 强斥力确保节点分散
+    const charge = fg.d3Force("charge");
+    if (charge) charge.strength(-500);
+    // link: 边的弹簧力，distance 90 增加边长
+    const link = fg.d3Force("link");
+    if (link) link.distance(90);
+    // center gravity: 向中心聚集的力
+    const gravity = fg.d3Force("center");
+    if (gravity) gravity.strength(0.08);
+    // collide: 碰撞检测力，防止节点重叠
+    // radius = 节点视觉半径 + 8px 间距，iterations=3 提高碰撞检测精度
+    fg.d3Force(
+      "collide",
+      forceCollide((node: unknown) => {
+        const n = node as GraphNode;
+        return nodeRadius(n.inDegree ?? 0, n.type) + 8;
+      }).iterations(3),
+    );
+    // 重新加热模拟
+    fg.d3ReheatSimulation();
+  }, [graphData.nodes.length]);
+
+  // 当 currentDomain 变化（CategoryTree 点击）时，重新加热模拟以重布局
+  // 筛选后的节点子集。不重新配置 force 参数（避免叠加）。
+  // 守卫：仅在图谱可见时执行 reheat + zoomToFit，避免 display:none 时浪费 CPU。
+  // 不可见时切换的领域过滤会在切回图谱视图后由 filteredGraph 自动应用。
+  useEffect(() => {
+    if (currentView !== "graph") return;
+    const fg = graphRef.current;
+    if (!fg) return;
+    fg.d3ReheatSimulation();
+    // 给 simulation 一点时间稳定后 zoomToFit
+    const timer = setTimeout(() => {
+      fg.zoomToFit(400, 60);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [currentDomain, currentType, currentView]);
 
   // 跳转到预览（复用于双击、Enter、右键菜单）
   const navigateToNode = useCallback(
@@ -290,12 +377,22 @@ export function GraphView() {
   }, [contextMenu]);
 
   // 节点 hover：显示 title tooltip（react-force-graph-2d 内置 nodeLabel）
+  // XSS 防御：node.title / node.domain / node.type 来自 wiki 页面 frontmatter（用户可控），
+  // react-force-graph-2d 内部用 innerHTML 渲染 tooltip，直接拼接会导致存储型 XSS。
+  // 在 Tauri 环境下 webview XSS 可能通过 IPC 导致 RCE，所以所有用户可控字段
+  // 必须经 escapeHtml 转义后再插入 HTML 字符串。
+  // 数值字段（inDegree/outDegree）虽然来自后端计算，也一并转义以保持一致性与防御深度。
   const nodeLabel = useCallback(
     (node: { title?: string; domain?: string; inDegree?: number; outDegree?: number; type?: string }) => {
+      const title = escapeHtml(node.title ?? "(untitled)");
+      const domain = escapeHtml(node.domain ?? "");
+      const type = escapeHtml(node.type ?? "");
+      const inDeg = escapeHtml(node.inDegree ?? 0);
+      const outDeg = escapeHtml(node.outDegree ?? 0);
       return `<div style="background:var(--bg-surface);color:var(--text-primary);padding:6px 10px;border:1px solid var(--border-subtle);border-radius:4px;font-size:12px;max-width:240px">
-        <div style="font-weight:600">${node.title ?? "(untitled)"}</div>
+        <div style="font-weight:600">${title}</div>
         <div style="color:var(--text-muted);font-size:11px;margin-top:2px">
-          ${node.domain ?? ""} · ${node.type ?? ""} · inDeg=${node.inDegree ?? 0} · outDeg=${node.outDegree ?? 0}
+          ${domain} · ${type} · inDeg=${inDeg} · outDeg=${outDeg}
         </div>
       </div>`;
     },
@@ -307,7 +404,7 @@ export function GraphView() {
     (node: unknown, ctx: CanvasRenderingContext2D, globalScale: number) => {
       const n = node as GraphNode & { x?: number; y?: number };
       if (n.x === undefined || n.y === undefined) return;
-      const r = nodeRadius(n.inDegree);
+      const r = nodeRadius(n.inDegree ?? 0, n.type);
       const color = DOMAIN_COLORS[n.domain] ?? "#888";
 
       const isDimmed = neighborhood !== null && !neighborhood.has(n.id);
@@ -317,10 +414,9 @@ export function GraphView() {
       ctx.save();
       ctx.translate(n.x, n.y);
 
-      // 透明度：邻域外的节点淡化
-      ctx.globalAlpha = isDimmed ? 0.12 : 1;
-
       // 填充 + 描边
+      // 透明度：邻域外的节点淡化，archived 节点更淡
+      // 修复死码：原 L402 globalAlpha 被 L406 覆盖，合并为一处设置
       ctx.fillStyle = color;
       ctx.globalAlpha = isDimmed ? 0.05 : n.status === "archived" ? 0.15 : 0.2;
       ctx.strokeStyle = color;
@@ -365,13 +461,19 @@ export function GraphView() {
 
       ctx.restore();
 
-      // 标签：仅在缩放足够或入度高时显示
-      if (globalScale >= 1.5 || n.inDegree >= 4 || isFocused || isSelected) {
+      // 标签：experience/source 类型始终显示（高价值内容不应被埋没）
+      // concept/entity 在缩放足够或入度高时显示
+      const alwaysShowLabel = n.type === "experience" || n.type === "source";
+      if (alwaysShowLabel || globalScale >= 1.5 || n.inDegree >= 4 || isFocused || isSelected) {
         ctx.save();
         ctx.translate(n.x, n.y);
         ctx.globalAlpha = isDimmed ? 0.2 : 1;
-        ctx.font = `${n.inDegree >= 4 ? 11 : 10}px Inter, sans-serif`;
-        ctx.fillStyle = n.inDegree >= 4 ? "var(--text-primary)" : "var(--text-secondary)";
+        // experience/source 节点用更大字号和主色，确保可读性
+        const isHighValue = alwaysShowLabel;
+        ctx.font = `${n.inDegree >= 4 || isHighValue ? 11 : 10}px Inter, sans-serif`;
+        ctx.fillStyle = n.inDegree >= 4 || isHighValue
+          ? themeColors.current.primary
+          : themeColors.current.secondary;
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
         const label = n.title.length > 28 ? n.title.slice(0, 27) + "…" : n.title;
@@ -496,17 +598,14 @@ export function GraphView() {
         case "Tab": {
           e.preventDefault();
           if (!fg) break;
-          // getGraph() 存在于运行时但不在 ForceGraphMethods 类型定义中
-          const fgWithGraph = fg as ForceGraphWithD3Graph;
-          const simNodes = fgWithGraph.getGraph?.()?.nodes?.();
+          // 修复：getGraph() 不在 react-kapsule methodNames 白名单中，恒返回 undefined。
+          // 改为从 filteredGraph（当前可见节点）读取节点列表。
+          // filteredGraph.nodes 保留了 d3-force 添加的 x/y 坐标（引用稳定，不 spread）。
+          const simNodes = filteredGraph.nodes as Array<GraphNode & { x?: number; y?: number }>;
           if (!simNodes || simNodes.length === 0) break;
-          const ids = simNodes
-            .map((n) => n.id)
-            .filter((id): id is string => typeof id === "string");
+          const ids = simNodes.map((n) => n.id).filter((id): id is string => typeof id === "string");
           if (ids.length === 0) break;
-          const curIdx = selectedNodeId
-            ? ids.indexOf(selectedNodeId)
-            : -1;
+          const curIdx = selectedNodeId ? ids.indexOf(selectedNodeId) : -1;
           const nextIdx = (curIdx + 1) % ids.length;
           const nextId = ids[nextIdx];
           setSelectedNodeId(nextId);
@@ -546,6 +645,7 @@ export function GraphView() {
     contextMenu,
     setGraphMode,
     navigateToNode,
+    filteredGraph,
   ]);
 
   // 右键菜单项：复制路径
@@ -652,6 +752,41 @@ export function GraphView() {
       {graphMode === "local" && focusedNodeId && (
         <div className="absolute top-14 left-1/2 -translate-x-1/2 px-3.5 py-1.5 bg-surface border border-accent-primary rounded-md text-[11px] font-mono text-accent-primary z-10 shadow-md">
           聚焦：{graphData.nodes.find((n) => n.id === focusedNodeId)?.title} · {localHop}-hop 邻域（{neighborhood?.size ?? 0} 节点）· 点击其他节点切换聚焦
+        </div>
+      )}
+
+      {/* 领域过滤提示（来自左栏 CategoryTree 点击） */}
+      {currentDomain && (
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1.5 bg-surface border rounded-md text-[11px] z-10 shadow-md"
+          style={{ borderColor: DOMAIN_COLORS[currentDomain], color: DOMAIN_COLORS[currentDomain] }}
+        >
+          <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: DOMAIN_COLORS[currentDomain] }} />
+          <span>领域筛选：{DOMAIN_LABELS[currentDomain]}（{graphData.nodes.filter((n) => n.domain === currentDomain).length} 节点）</span>
+          <button
+            type="button"
+            onClick={() => useViewStore.getState().setDomain(null)}
+            className="ml-1 px-1.5 py-0.5 text-[10px] rounded-sm bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            title="清除领域筛选（显示全部）"
+          >
+            ✕ 清除
+          </button>
+        </div>
+      )}
+
+      {/* 类型筛选提示条 */}
+      {currentType && (
+        <div className={`absolute ${currentDomain ? "top-24" : "top-14"} left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1.5 bg-surface border rounded-md text-[11px] z-10 shadow-md`}
+          style={{ borderColor: "var(--accent-primary)", color: "var(--accent-primary)" }}
+        >
+          <span>类型筛选：{PAGE_TYPE_LABELS[currentType]}（{graphData.nodes.filter((n) => n.type === currentType).length} 节点）</span>
+          <button
+            type="button"
+            onClick={() => useViewStore.getState().setType(null)}
+            className="ml-1 px-1.5 py-0.5 text-[10px] rounded-sm bg-elevated text-text-secondary hover:text-text-primary transition-colors"
+            title="清除类型筛选（显示全部）"
+          >
+            ✕ 清除
+          </button>
         </div>
       )}
 
@@ -801,6 +936,7 @@ export function GraphView() {
         onNodeRightClick={handleNodeRightClick as (node: unknown, ev: unknown) => void}
         onBackgroundClick={handleBackgroundClick}
         cooldownTicks={150}
+        d3VelocityDecay={0.4}
         width={typeof window !== "undefined" ? window.innerWidth - 48 : 1200}
         height={typeof window !== "undefined" ? window.innerHeight - 120 : 800}
         backgroundColor="transparent"

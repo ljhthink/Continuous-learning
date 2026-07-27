@@ -20,7 +20,7 @@ import { callMcpTool, isTauri } from "@/lib/ipc";
 type Section = "backlinks" | "outbound" | "related";
 
 export function BacklinksPanel() {
-  const { currentPagePath, setCurrentPagePath } = useViewStore();
+  const { currentPagePath, setCurrentPagePath, setView } = useViewStore();
   const [open, setOpen] = useState<Record<Section, boolean>>({
     backlinks: true,
     outbound: true,
@@ -60,6 +60,7 @@ export function BacklinksPanel() {
 
   const handleNavigate = (path: string) => {
     setCurrentPagePath(path.replace(/\.md$/, ""));
+    setView("preview");
   };
 
   const { backlinks, outbound, related } = data;

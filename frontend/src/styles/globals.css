@@ -15,6 +15,7 @@
 }
 
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --bg-canvas:    #0f1115;
   --bg-surface:   #161a21;
   --bg-elevated:  #1e232c;
@@ -34,6 +35,7 @@
 }
 
 :root[data-theme="light"] {
+  color-scheme: light;
   --bg-canvas:    #ffffff;
   --bg-surface:   #f6f8fa;
   --bg-elevated:  #eaeef2;
@@ -91,6 +93,7 @@ body {
   word-wrap: normal;
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
   font-variation-settings: 'opsz' 24, 'wght' 400, 'FILL' 0, 'GRAD' 0;
 }

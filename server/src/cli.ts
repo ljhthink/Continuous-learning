@@ -50,28 +50,31 @@ import type { ToolResult } from "./tools/helpers.js";
 
 type ToolHandler = (args: Record<string, unknown>) => Promise<ToolResult>;
 
+// Tool functions have specific parameter types (e.g., { page_path: string }),
+// but the registry needs a uniform type for dynamic dispatch. We cast to
+// ToolHandler — the Zod schemas validate inputs before the handler runs.
 const TOOL_REGISTRY: Record<string, ToolHandler> = {
   // Read-only
-  kb_search: kbSearch,
-  kb_get_page: kbGetPage,
-  kb_list_categories: kbListCategories,
-  kb_list_recent: kbListRecent,
-  kb_health: kbHealth,
+  kb_search: kbSearch as unknown as ToolHandler,
+  kb_get_page: kbGetPage as unknown as ToolHandler,
+  kb_list_categories: kbListCategories as unknown as ToolHandler,
+  kb_list_recent: kbListRecent as unknown as ToolHandler,
+  kb_health: kbHealth as unknown as ToolHandler,
   // Lint
-  kb_lint: kbLint,
+  kb_lint: kbLint as unknown as ToolHandler,
   // Graph (P4c)
-  kb_get_graph: kbGetGraph,
-  kb_get_backlinks: kbGetBacklinks,
+  kb_get_graph: kbGetGraph as unknown as ToolHandler,
+  kb_get_backlinks: kbGetBacklinks as unknown as ToolHandler,
   // Inbox (P4c)
-  kb_list_inbox: kbListInbox,
+  kb_list_inbox: kbListInbox as unknown as ToolHandler,
   // Staging (P4b)
-  kb_list_staging: kbListStaging,
-  kb_confirm_staging: kbConfirmStaging,
-  kb_reject_staging: kbRejectStaging,
+  kb_list_staging: kbListStaging as unknown as ToolHandler,
+  kb_confirm_staging: kbConfirmStaging as unknown as ToolHandler,
+  kb_reject_staging: kbRejectStaging as unknown as ToolHandler,
   // Write (ingest + experience)
-  kb_ingest_source: kbIngestSource,
-  kb_write_experience: kbWriteExperience,
-  kb_promote_experience: kbPromoteExperience,
+  kb_ingest_source: kbIngestSource as unknown as ToolHandler,
+  kb_write_experience: kbWriteExperience as unknown as ToolHandler,
+  kb_promote_experience: kbPromoteExperience as unknown as ToolHandler,
 };
 
 // ---------------------------------------------------------------------------

@@ -174,10 +174,10 @@ export async function kbListRecent(args: {
 // ---------------------------------------------------------------------------
 
 export async function kbGetPage(args: {
-  path: string;
+  page_path: string;
   section?: string;
 }): Promise<ToolResult> {
-  const { path: pagePath, section } = args;
+  const { page_path: pagePath, section } = args;
   const kbRoot = getKbRoot();
 
   // Resolve path relative to KB root

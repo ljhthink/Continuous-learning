@@ -11,8 +11,16 @@ import { useState, useEffect } from "react";
 import { useViewStore } from "@/store/viewStore";
 import { mockCategories } from "@/data/mockData";
 import { DOMAIN_COLORS, DOMAIN_LABELS } from "@/types";
-import type { ViewName, CategoryItem, Domain } from "@/types";
+import type { ViewName, CategoryItem, Domain, PageType } from "@/types";
 import { callMcpTool, isTauri } from "@/lib/ipc";
+
+/** 页面类型中文标签 + 图标 */
+const PAGE_TYPE_META: Array<{ type: PageType; label: string; icon: string }> = [
+  { type: "experience", label: "经验", icon: "lightbulb" },
+  { type: "source", label: "来源", icon: "description" },
+  { type: "concept", label: "概念", icon: "menu_book" },
+  { type: "entity", label: "实体", icon: "category" },
+];
 
 const VIEW_SWITCHER: Array<{ view: ViewName; icon: string; label: string; kbd: string }> = [
   { view: "upload", icon: "upload_file", label: "上传", kbd: "⌘1" },
@@ -22,7 +30,7 @@ const VIEW_SWITCHER: Array<{ view: ViewName; icon: string; label: string; kbd: s
 ];
 
 export function CategoryTree() {
-  const { currentDomain, setDomain, currentView, setView } = useViewStore();
+  const { currentDomain, setDomain, currentType, setType, currentView, setView } = useViewStore();
   const [categories, setCategories] = useState<CategoryItem[]>(mockCategories);
   const tauriEnv = isTauri();
 
@@ -34,14 +42,27 @@ export function CategoryTree() {
     callMcpTool("kb_list_categories", { include_stats: true })
       .then((result) => {
         if (result.success && result.data) {
-          const data = result.data as { categories?: CategoryItem[] };
-          if (data.categories && data.categories.length > 0) {
-            // Merge with DOMAIN_COLORS/LABELS to ensure consistent display
-            const merged = data.categories.map((c) => ({
-              ...c,
-              color: DOMAIN_COLORS[c.domain] ?? c.color,
-              label: DOMAIN_LABELS[c.domain] ?? c.label,
-            }));
+          // Backend returns { name, page_count, last_update } — map to
+          // CategoryItem { domain, label, color, pageCount, experienceCount }.
+          // 修复字段名不匹配：后端用 snake_case，前端 Type 用 camelCase。
+          const data = result.data as {
+            categories?: Array<{
+              name: string;
+              page_count?: number;
+              last_update?: string | null;
+            }>;
+          };
+          if (data.categories) {
+            const merged: CategoryItem[] = data.categories.map((c) => {
+              const domain = c.name as Domain;
+              return {
+                domain,
+                label: DOMAIN_LABELS[domain] ?? c.name,
+                color: DOMAIN_COLORS[domain] ?? "#888",
+                pageCount: c.page_count ?? 0,
+                experienceCount: 0,
+              };
+            });
             setCategories(merged);
           }
         }
@@ -80,6 +101,40 @@ export function CategoryTree() {
             active={currentDomain === cat.domain}
             onClick={() => setDomain(cat.domain as Domain)}
           />
+        ))}
+      </div>
+
+      <div className="h-px bg-border-subtle mx-4 my-3" />
+
+      {/* 按类型筛选 */}
+      <div className="px-4 pb-1.5 text-[10px] font-semibold tracking-wider text-text-muted uppercase">
+        按类型筛选
+      </div>
+      <div className="px-2">
+        {PAGE_TYPE_META.map((item) => (
+          <button
+            key={item.type}
+            type="button"
+            onClick={() => {
+              // 切换：点击已选中类型则取消，点击新类型则选中
+              setType(currentType === item.type ? null : item.type);
+              // 自动切换到图谱视图以查看筛选效果
+              if (currentView !== "graph") setView("graph");
+            }}
+            className={`w-full flex items-center gap-2.5 px-3 py-1.5 my-0.5 rounded-md text-[13px] transition-all ${
+              currentType === item.type
+                ? "bg-active text-accent-primary"
+                : "text-text-secondary hover:bg-hover hover:text-text-primary"
+            }`}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+              {item.icon}
+            </span>
+            <span>{item.label}</span>
+            {currentType === item.type && (
+              <span className="ml-auto text-[10px] text-text-muted">筛选中</span>
+            )}
+          </button>
         ))}
       </div>
 

@@ -214,7 +214,7 @@ test("AC-4 site 5: kb_get_page use_count writeback normalizes a legacy (block-st
       },
       "legacy body\n"
     );
-    await kbGetPage({ path: "wiki/coding/legacy" });
+    await kbGetPage({ page_path: "wiki/coding/legacy" });
     const content = await fs.readFile(
       path.join(tmp, "wiki/coding/legacy.md"),
       "utf-8"
@@ -251,19 +251,19 @@ test("AC-7 integration: kb_get_page repeated writebacks reach a format fixed poi
     // Read 3 times — each triggers a use_count writeback via
     // serializeFrontmatter. The file content after the 2nd and 3rd reads
     // must be byte-identical (fixed point).
-    await kbGetPage({ path: "wiki/coding/fp" });
+    await kbGetPage({ page_path: "wiki/coding/fp" });
     const after1 = await fs.readFile(
       path.join(tmp, "wiki/coding/fp.md"),
       "utf-8"
     );
 
-    await kbGetPage({ path: "wiki/coding/fp" });
+    await kbGetPage({ page_path: "wiki/coding/fp" });
     const after2 = await fs.readFile(
       path.join(tmp, "wiki/coding/fp.md"),
       "utf-8"
     );
 
-    await kbGetPage({ path: "wiki/coding/fp" });
+    await kbGetPage({ page_path: "wiki/coding/fp" });
     const after3 = await fs.readFile(
       path.join(tmp, "wiki/coding/fp.md"),
       "utf-8"
@@ -321,7 +321,7 @@ test("AC-4 E2E: write experience → get page → promote → get page keeps fro
     assertFormatInvariants(inboxContent, "E2E stage 1 (write → inbox)");
 
     // Stage 2: get page (use_count writeback on inbox file)
-    await kbGetPage({ path: inboxPath.replace(/\.md$/, "") });
+    await kbGetPage({ page_path: inboxPath.replace(/\.md$/, "") });
     const inboxAfterGet = await fs.readFile(
       path.join(tmp, inboxPath),
       "utf-8"
@@ -344,7 +344,7 @@ test("AC-4 E2E: write experience → get page → promote → get page keeps fro
     assertFormatInvariants(activeContent, "E2E stage 3 (promote → active)");
 
     // Stage 4: get page (use_count writeback on active file)
-    await kbGetPage({ path: activePath.replace(/\.md$/, "") });
+    await kbGetPage({ page_path: activePath.replace(/\.md$/, "") });
     const activeAfterGet = await fs.readFile(
       path.join(tmp, activePath),
       "utf-8"

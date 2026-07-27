@@ -1,12 +1,14 @@
 ---
-title: "快速排序跨语言实现模式对比"
+title: 快速排序跨语言实现模式对比
 domain: [coding]
 type: concept
 status: active
 date: 2026-07-24
 tags: [algorithm, sorting, quicksort, python, java, cpp, cross-language, partition]
 related: [wiki/coding/thealgorithms-python, wiki/coding/thealgorithms-java, wiki/coding/thealgorithms-c-plus-plus, wiki/coding/binary-search-impl-patterns]
+use_count: 3
 ---
+
 
 ## 概念
 

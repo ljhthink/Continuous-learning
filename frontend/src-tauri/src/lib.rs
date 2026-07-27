@@ -702,6 +702,10 @@ async fn call_mcp_tool(
     // During dev, kb_root is the project root, so cli.ts is at
     // <kb_root>/server/src/cli.ts.
     let cli_path = format!("{}/server/src/cli.ts", config.kb_root);
+    // tsx is installed in server/node_modules, so cwd must be server/ for
+    // Node's module resolver to find it. Without this, Node looks in
+    // src-tauri/node_modules and fails with ERR_MODULE_NOT_FOUND.
+    let server_dir = format!("{}/server", config.kb_root);
 
     // Spawn: node --import tsx <cli_path> <tool_name> <args_json>
     // Args are passed as an array — no shell interpolation.
@@ -715,6 +719,7 @@ async fn call_mcp_tool(
             &tool_name,
             &args_json,
         ])
+        .current_dir(&server_dir)
         .output()
         .await
         .map_err(|e| format!("failed to spawn node: {}", e))?;

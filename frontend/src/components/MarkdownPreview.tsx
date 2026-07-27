@@ -55,7 +55,36 @@ export function MarkdownPreview() {
       callMcpTool("kb_get_page", { page_path: pagePath })
         .then((result) => {
           if (result.success && result.data) {
-            setPage(result.data as PageDetail);
+            // MCP 返回 { frontmatter, body, links }，需映射到 PageDetail。
+            // frontmatter 含 title/domain/type/status/date/tags 等字段。
+            const data = result.data as {
+              frontmatter: Record<string, unknown>;
+              body: string;
+              links?: string[];
+            };
+            const fm = data.frontmatter;
+            const domains = Array.isArray(fm.domain)
+              ? (fm.domain as string[])
+              : [];
+            const tags = Array.isArray(fm.tags)
+              ? (fm.tags as string[])
+              : [];
+            const pageDetail: PageDetail = {
+              path: pagePath,
+              title:
+                typeof fm.title === "string" ? fm.title : pagePath,
+              domain: (domains[0] as PageDetail["domain"]) ?? "coding",
+              type:
+                (fm.type as PageDetail["type"]) ?? "concept",
+              status:
+                (fm.status as PageDetail["status"]) ?? "active",
+              date:
+                typeof fm.date === "string" ? fm.date : "",
+              tags,
+              frontmatter: fm,
+              body: data.body,
+            };
+            setPage(pageDetail);
           } else {
             setError(result.error ?? "加载页面失败");
           }

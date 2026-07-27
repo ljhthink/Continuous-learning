@@ -207,7 +207,7 @@ describe("kb_list_recent", () => {
 describe("kb_get_page", () => {
   it("returns frontmatter, body, and extracted links", async () => {
     const result = await tools.readOnly.kbGetPage({
-      path: "wiki/coding/async-patterns",
+      page_path: "wiki/coding/async-patterns",
     });
     const data = parseResult(result);
     assert.equal(data.frontmatter.title, "Async Patterns");
@@ -223,7 +223,7 @@ describe("kb_get_page", () => {
       "# Sectioned\nIntro.\n\n## Details\nDetail content.\n\n## Other\nOther content.\n",
     );
     const result = await tools.readOnly.kbGetPage({
-      path: "wiki/coding/sectioned",
+      page_path: "wiki/coding/sectioned",
       section: "Details",
     });
     const data = parseResult(result);
@@ -233,7 +233,7 @@ describe("kb_get_page", () => {
 
   it("returns error for non-existent page", async () => {
     const result = await tools.readOnly.kbGetPage({
-      path: "wiki/coding/nonexistent",
+      page_path: "wiki/coding/nonexistent",
     });
     assert.equal(result.isError, true);
     assert.match(result.content[0].text, /not found/i);
@@ -241,7 +241,7 @@ describe("kb_get_page", () => {
 
   it("rejects path traversal", async () => {
     const result = await tools.readOnly.kbGetPage({
-      path: "../../../etc/passwd",
+      page_path: "../../../etc/passwd",
     });
     assert.equal(result.isError, true);
     assert.match(result.content[0].text, /traversal/i);
@@ -257,7 +257,7 @@ describe("kb_get_page", () => {
       "---\n\n---\n# Empty Frontmatter\nBody with no metadata.\n",
     );
     const result = await tools.readOnly.kbGetPage({
-      path: "wiki/coding/empty-frontmatter",
+      page_path: "wiki/coding/empty-frontmatter",
     });
     assert.equal(result.isError, undefined);
     const data = parseResult(result);
@@ -282,7 +282,7 @@ describe("kb_get_page", () => {
         "---\n# Malformed YAML\nBody after malformed frontmatter.\n",
     );
     const result = await tools.readOnly.kbGetPage({
-      path: "wiki/coding/malformed-yaml",
+      page_path: "wiki/coding/malformed-yaml",
     });
     assert.equal(result.isError, undefined);
     const data = parseResult(result);

@@ -42,15 +42,18 @@ export function ExperienceInbox() {
       const result = await callMcpTool("kb_list_inbox", {});
       if (result.success && result.data) {
         const data = result.data as { cards?: ExperienceCard[] };
+        // 用真实数据替换 mock 初始值；即使为空也清空（inbox 可能无待审核卡）
         setCards(data.cards ?? []);
         if (data.cards && data.cards.length > 0) {
           setSelectedIdx(0);
         }
       } else {
         setError(result.error ?? "加载 inbox 失败");
+        setCards([]); // 清空 mock 数据，避免显示已 promote 的卡
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
+      setCards([]); // 清空 mock 数据
     } finally {
       setLoading(false);
     }

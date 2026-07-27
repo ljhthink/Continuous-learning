@@ -27,7 +27,7 @@ export const kbSearchSchema = {
 
 /** kb_get_page: Retrieve a full wiki page. */
 export const kbGetPageSchema = {
-  path: z
+  page_path: z
     .string()
     .max(512)
     .describe(

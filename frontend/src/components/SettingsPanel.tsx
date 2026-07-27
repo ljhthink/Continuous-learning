@@ -5,7 +5,14 @@
  * 4c：接入 callMcpTool("kb_health") 显示 KB 健康状态 + getKbConfig() 显示路径。
  *
  * LLM 集成策略由 ADR-013 决定（cloud-first / local-first / disabled 三态）。
- * 当前仅为 UI 占位，API Key 不持久化（4c 后续迭代接入 tauri-plugin-store）。
+ * P4 阶段 LLM 未实际接入（ADR-013 D2 延迟到 P5），UI 提供：
+ *   - 三态模式切换（默认 disabled，ADR-013 V2）
+ *   - API Key 输入（仅内存，不持久化，标注"不会保存"）
+ *   - 模型选项（Cloud 模式可选 Claude/GPT/DeepSeek）
+ *   - 隐私告知（Cloud 模式显示内容上云提示，ADR-013 V4）
+ *   - 连接状态徽章（显示"P5 待实现"）
+ *   - 测试连接按钮（显示"功能开发中"反馈）
+ * P5 接入时：tauri-plugin-store 加密持久化 + lib/llm.ts 实现 LLM 调用。
  */
 
 import { useState, useEffect } from "react";
@@ -15,6 +22,9 @@ import { callMcpTool, getKbConfig, isTauri } from "@/lib/ipc";
 import type { KbConfigIPC } from "@/lib/ipc";
 
 type LlmMode = "cloud-first" | "local-first" | "disabled";
+
+/** Cloud 模式下可选的模型提供商 */
+type CloudProvider = "claude" | "gpt" | "deepseek";
 
 interface KbHealth {
   total_pages?: number;
@@ -26,8 +36,11 @@ interface KbHealth {
 
 export function SettingsPanel() {
   const { settingsOpen, setSettingsOpen, theme, setTheme } = useViewStore();
-  const [llmMode, setLlmMode] = useState<LlmMode>("cloud-first");
+  // ADR-013 V2：默认 disabled（P4 不接入 LLM）
+  const [llmMode, setLlmMode] = useState<LlmMode>("disabled");
+  const [cloudProvider, setCloudProvider] = useState<CloudProvider>("deepseek");
   const [apiKey, setApiKey] = useState("");
+  const [testStatus, setTestStatus] = useState<"idle" | "testing" | "info">("idle");
   const [kbConfig, setKbConfig] = useState<KbConfigIPC | null>(null);
   const [kbHealth, setKbHealth] = useState<KbHealth | null>(null);
   const [mcpRestarting, setMcpRestarting] = useState(false);
@@ -122,28 +135,93 @@ export function SettingsPanel() {
 
           {/* LLM 模式（ADR-013） */}
           <SettingRow label="LLM 集成" icon="psychology">
-            <select
-              value={llmMode}
-              onChange={(e) => setLlmMode(e.target.value as LlmMode)}
-              className="px-2 py-1 text-xs bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary"
-            >
-              <option value="cloud-first">Cloud 优先（Claude/GPT）</option>
-              <option value="local-first">本地优先（Ollama）</option>
-              <option value="disabled">禁用 LLM</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <select
+                value={llmMode}
+                onChange={(e) => setLlmMode(e.target.value as LlmMode)}
+                className="px-2 py-1 text-xs bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary"
+              >
+                <option value="disabled">禁用 LLM（默认）</option>
+                <option value="cloud-first">Cloud 优先</option>
+                <option value="local-first">本地优先（Ollama）</option>
+              </select>
+              {/* P5 待实现徽章 */}
+              <span
+                className="text-[9px] px-1.5 py-0.5 rounded-sm font-mono whitespace-nowrap"
+                style={{ background: "var(--accent-warning)", color: "var(--bg-canvas)" }}
+                title="LLM 实际调用功能将在 P5 阶段实现（ADR-013 D2）"
+              >
+                P5 待实现
+              </span>
+            </div>
           </SettingRow>
 
-          {/* API Key */}
-          {llmMode !== "disabled" && (
-            <SettingRow label="API Key" icon="key">
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="sk-..."
-                className="w-full px-2 py-1 text-xs font-mono bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary placeholder:text-text-muted"
-              />
+          {/* Cloud 模式：模型选择 */}
+          {llmMode === "cloud-first" && (
+            <SettingRow label="模型" icon="smart_toy">
+              <select
+                value={cloudProvider}
+                onChange={(e) => setCloudProvider(e.target.value as CloudProvider)}
+                className="px-2 py-1 text-xs bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary"
+              >
+                <option value="deepseek">DeepSeek（性价比高）</option>
+                <option value="claude">Claude Sonnet 4.5</option>
+                <option value="gpt">GPT-4o-mini</option>
+              </select>
             </SettingRow>
+          )}
+
+          {/* API Key（cloud-first 模式） */}
+          {llmMode === "cloud-first" && (
+            <SettingRow label="API Key" icon="key">
+              <div className="flex flex-col gap-1 w-full">
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder={
+                    cloudProvider === "deepseek" ? "sk-...（DeepSeek）" :
+                    cloudProvider === "claude" ? "sk-ant-...（Claude）" :
+                    "sk-...（OpenAI）"
+                  }
+                  className="w-full px-2 py-1 text-xs font-mono bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary placeholder:text-text-muted"
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-text-muted">⚠️ 不会保存，关闭即失</span>
+                  {/* 测试连接按钮 */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTestStatus("testing");
+                      setTimeout(() => setTestStatus("info"), 800);
+                    }}
+                    disabled={testStatus === "testing"}
+                    className="text-[10px] px-2 py-0.5 rounded-sm bg-elevated text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50"
+                  >
+                    {testStatus === "testing" ? "测试中..." : "测试连接"}
+                  </button>
+                </div>
+                {testStatus === "info" && (
+                  <div className="text-[10px] text-accent-warning px-1.5 py-1 bg-elevated rounded-sm">
+                    ℹ️ LLM 调用功能将在 P5 阶段实现。当前 API Key 仅用于验证输入格式，不会实际发起请求。
+                  </div>
+                )}
+              </div>
+            </SettingRow>
+          )}
+
+          {/* Cloud 模式隐私告知（ADR-013 V4/D5） */}
+          {llmMode === "cloud-first" && (
+            <div className="text-[10px] text-text-muted px-2 py-1.5 rounded-md border border-border-subtle bg-elevated">
+              ☁️ Cloud 模式：staging 页面内容将发送到 {cloudProvider === "deepseek" ? "DeepSeek" : cloudProvider === "claude" ? "Claude" : "GPT"} API 进行整理。请确保不含敏感信息。
+            </div>
+          )}
+
+          {/* Local 模式提示 */}
+          {llmMode === "local-first" && (
+            <div className="text-[10px] text-text-muted px-2 py-1.5 rounded-md border border-border-subtle bg-elevated">
+              🏠 本地模式：所有调用走 http://localhost:11434（Ollama），内容不出本机。需先 <code className="font-mono text-accent-primary">ollama pull qwen2.5:7b</code>
+            </div>
           )}
 
           {/* KB 路径 */}

@@ -1,12 +1,15 @@
 ---
-title: "TheAlgorithms/C — C11 算法教育实现合集（GPLv3）"
+title: TheAlgorithms/C — C11 算法教育实现合集（GPLv3）
 domain: [coding]
 type: entity
 status: active
 date: 2026-07-24
 tags: [c, c11, algorithm, open-source, learning, thealgorithms, gpl]
 related: [wiki/coding/thealgorithms-c-plus-plus, wiki/coding/thealgorithms-rust]
+use_count: 2
 ---
+
+
 
 ## 简介
 

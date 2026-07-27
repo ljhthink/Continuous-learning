@@ -7,8 +7,9 @@
  * 主题切换：data-theme 属性绑定到 <html>。
  */
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useViewStore } from "@/store/viewStore";
+import { useGraphStore } from "@/store/graphStore";
 import { TopBar } from "@/components/TopBar";
 import { StatusBar } from "@/components/StatusBar";
 import { CategoryTree } from "@/components/CategoryTree";
@@ -20,9 +21,8 @@ import { GraphView } from "@/components/GraphView";
 import { BacklinksPanel } from "@/components/BacklinksPanel";
 import { LogTimeline } from "@/components/LogTimeline";
 import { SettingsPanel } from "@/components/SettingsPanel";
-import { mockGraphData } from "@/data/mockData";
 import { DOMAIN_COLORS, DOMAIN_LABELS } from "@/types";
-import type { ViewName } from "@/types";
+import type { ViewName, Domain } from "@/types";
 
 export function App() {
   const { currentView, setView, theme, setSettingsOpen } = useViewStore();
@@ -96,11 +96,21 @@ export function App() {
   );
 }
 
-/** 主内容区：根据视图切换 */
+/** 主内容区：根据视图切换
+ *  GraphView 始终挂载（用 CSS display 切换显隐），避免切换视图时 Canvas 重建 +
+ *  d3-force 模拟重启导致的卡顿。其他视图按需挂载。 */
 function MainContent({ view }: { view: ViewName }) {
-  switch (view) {
-    case "upload":
-      return (
+  return (
+    <div className="h-full w-full relative">
+      {/* GraphView 保活：display:none 时不渲染但保留 DOM + Canvas + simulation 状态 */}
+      <div
+        style={{ display: view === "graph" ? "block" : "none" }}
+        className="h-full w-full"
+      >
+        <GraphView />
+      </div>
+
+      {view === "upload" && (
         <div className="h-full overflow-y-auto px-12 py-8">
           <div className="mb-6">
             <h1 className="text-[22px] font-semibold text-text-primary mb-1">上传资料</h1>
@@ -111,18 +121,17 @@ function MainContent({ view }: { view: ViewName }) {
           <DropZone />
           <FileList />
         </div>
-      );
-    case "preview":
-      return (
+      )}
+
+      {view === "preview" && (
         <div className="h-full overflow-y-auto">
           <MarkdownPreview />
         </div>
-      );
-    case "review":
-      return <ExperienceInbox />;
-    case "graph":
-      return <GraphView />;
-  }
+      )}
+
+      {view === "review" && <ExperienceInbox />}
+    </div>
+  );
 }
 
 /** 右栏：根据视图切换 */
@@ -159,37 +168,105 @@ function RightPanel({ view }: { view: ViewName }) {
   );
 }
 
-/** 图谱统计面板（右栏，graph 视图时显示） */
+/** 图谱统计面板（右栏，graph 视图时显示）
+ *  从 graphStore 读取真实图谱数据，按需计算领域分布与边类型统计。
+ *  只显示实际存在节点的领域（过滤掉 mock 中残留的 academic/life）。
+ *  dataSource='mock' 时显示警告徽章，避免 Tauri 环境下误将 mock 数据当作真实统计。 */
 function GraphStats() {
-  const { summary } = mockGraphData;
+  const { graphData, dataSource, loading, error } = useGraphStore();
+
+  // 从真实节点计算领域分布（只显示 count > 0 的领域）
+  const domainCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const node of graphData.nodes) {
+      counts[node.domain] = (counts[node.domain] ?? 0) + 1;
+    }
+    // 按计数降序排列
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1]);
+  }, [graphData.nodes]);
+
+  // 边类型统计
+  const edgeTypeCounts = useMemo(() => {
+    const counts: Record<string, number> = { wikilink: 0, related: 0, tags: 0 };
+    for (const edge of graphData.edges) {
+      counts[edge.type] = (counts[edge.type] ?? 0) + 1;
+    }
+    return counts;
+  }, [graphData.edges]);
+
+  // 孤儿页（入度=0 且出度=0）
+  const orphanCount = useMemo(() => {
+    return graphData.nodes.filter((n) => n.inDegree === 0 && n.outDegree === 0).length;
+  }, [graphData.nodes]);
+
   return (
     <div className="p-3">
-      <div className="text-[10px] font-semibold tracking-wider text-text-muted uppercase mb-2">
-        网络统计
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-[10px] font-semibold tracking-wider text-text-muted uppercase">
+          网络统计
+        </div>
+        {/* 数据来源徽章：Tauri 环境下加载完成前显示 mock 警告 */}
+        {dataSource === "mock" && (
+          <span
+            className="text-[9px] px-1.5 py-0.5 rounded-sm font-mono"
+            style={{ background: "var(--accent-warning)", color: "var(--bg-canvas)" }}
+            title="当前显示 mock 数据，正在加载真实数据或后端不可用"
+          >
+            MOCK
+          </span>
+        )}
+        {dataSource === "real" && !loading && !error && (
+          <span
+            className="text-[9px] px-1.5 py-0.5 rounded-sm font-mono"
+            style={{ background: "var(--accent-secondary)", color: "var(--bg-canvas)" }}
+            title="数据来自后端 kb_get_graph"
+          >
+            LIVE
+          </span>
+        )}
+        {loading && (
+          <span className="text-[9px] px-1.5 py-0.5 rounded-sm font-mono text-text-muted bg-elevated">
+            加载中…
+          </span>
+        )}
+        {error && (
+          <span
+            className="text-[9px] px-1.5 py-0.5 rounded-sm font-mono"
+            style={{ background: "var(--accent-danger)", color: "var(--bg-canvas)" }}
+            title={error}
+          >
+            ERROR
+          </span>
+        )}
       </div>
       <div className="space-y-1.5 text-[12px]">
-        <StatRow label="总节点数" value={summary.totalNodes} />
-        <StatRow label="总边数" value={summary.totalEdges} />
-        <StatRow label="wikilink" value={summary.byEdgeType.wikilink} color="#4a9eff" />
-        <StatRow label="related" value={summary.byEdgeType.related} color="#5ba88a" />
-        <StatRow label="tags" value={summary.byEdgeType.tags} color="#e0a458" />
-        <StatRow label="孤儿页" value={summary.orphanPages} />
-        <StatRow label="最大连通分量" value={summary.largestCcSize} />
+        <StatRow label="总节点数" value={graphData.nodes.length} />
+        <StatRow label="总边数" value={graphData.edges.length} />
+        <StatRow label="wikilink" value={edgeTypeCounts.wikilink ?? 0} color="#4a9eff" />
+        <StatRow label="related" value={edgeTypeCounts.related ?? 0} color="#5ba88a" />
+        <StatRow label="tags" value={edgeTypeCounts.tags ?? 0} color="#e0a458" />
+        <StatRow label="孤儿页" value={orphanCount} />
       </div>
       <div className="text-[10px] font-semibold tracking-wider text-text-muted uppercase mt-3 mb-2">
         领域分布
       </div>
       <div className="space-y-1">
-        {Object.entries(summary.domains).map(([domain, count]) => (
+        {domainCounts.map(([domain, count]) => (
           <div key={domain} className="flex items-center gap-2 text-[11px]">
             <span
               className="inline-block w-1.5 h-1.5 rounded-full"
-              style={{ background: DOMAIN_COLORS[domain as keyof typeof DOMAIN_COLORS] }}
+              style={{ background: DOMAIN_COLORS[domain as Domain] ?? "#888" }}
             />
-            <span className="text-text-secondary">{DOMAIN_LABELS[domain as keyof typeof DOMAIN_LABELS]}</span>
+            <span className="text-text-secondary">
+              {DOMAIN_LABELS[domain as Domain] ?? domain}
+            </span>
             <span className="ml-auto font-mono text-text-muted">{count}</span>
           </div>
         ))}
+        {domainCounts.length === 0 && (
+          <div className="text-[11px] text-text-muted italic">暂无数据</div>
+        )}
       </div>
     </div>
   );

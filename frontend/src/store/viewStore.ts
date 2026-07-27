@@ -6,7 +6,7 @@
  */
 
 import { create } from "zustand";
-import type { ViewName, Theme, Domain, GraphMode } from "@/types";
+import type { ViewName, Theme, Domain, GraphMode, PageType } from "@/types";
 
 interface ViewState {
   // 主视图
@@ -16,6 +16,10 @@ interface ViewState {
   // 当前领域（CategoryTree 选中）
   currentDomain: Domain | null;
   setDomain: (domain: Domain | null) => void;
+
+  // 当前类型筛选（CategoryTree "按类型筛选"）
+  currentType: PageType | null;
+  setType: (type: PageType | null) => void;
 
   // 主题
   theme: Theme;
@@ -41,6 +45,9 @@ export const useViewStore = create<ViewState>((set) => ({
 
   currentDomain: null,
   setDomain: (domain) => set({ currentDomain: domain }),
+
+  currentType: null,
+  setType: (type) => set({ currentType: type }),
 
   theme: "dark",
   toggleTheme: () =>

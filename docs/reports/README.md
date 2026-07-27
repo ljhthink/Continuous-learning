@@ -46,3 +46,22 @@
 | 2026-07-26 | P3 /dream 去重 + 质量评分验收测试 | acceptance | [2026-07-26-p3-dream-dedup-acceptance.md](2026-07-26-p3-dream-dedup-acceptance.md) |
 | 2026-07-26 | P4 Phase 4a Tauri 骨架 + 设计系统 + 10 静态组件安全与质量审计 | guardrail | [2026-07-26-p4a-guardrail.md](2026-07-26-p4a-guardrail.md) |
 | 2026-07-26 | P4 Phase 4a Tauri 骨架 + 设计系统 + 10 静态组件验收测试 | acceptance | [2026-07-26-p4a-acceptance.md](2026-07-26-p4a-acceptance.md) |
+| 2026-07-27 | P4 Phase 4b Python parser + staging 工作流安全与质量审计 | guardrail | [2026-07-27-p4b-guardrail.md](2026-07-27-p4b-guardrail.md) |
+| 2026-07-27 | P4 Phase 4b Python parser + staging 工作流验收测试 | acceptance | [2026-07-27-p4b-ac-verifier.md](2026-07-27-p4b-ac-verifier.md) |
+| 2026-07-27 | P4 Phase 4c 知识图谱 + MCP 桥接安全与质量审计 | guardrail | [2026-07-27-p4c-guardrail.md](2026-07-27-p4c-guardrail.md) |
+| 2026-07-27 | P4 Phase 4c 知识图谱 + MCP 桥接验收测试 | acceptance | [2026-07-27-p4c-ac-verifier.md](2026-07-27-p4c-ac-verifier.md) |
+| 2026-07-27 | P4c DEF 修复（XSS + TypeScript 类型）| bugfix | [2026-07-27-p4c-def-fixes.md](2026-07-27-p4c-def-fixes.md) |
+| 2026-07-27 | P4 图谱修复第一轮安全与质量审计 | guardrail | [2026-07-27-p4-fix-guardrail.md](2026-07-27-p4-fix-guardrail.md) |
+| 2026-07-27 | P4 图谱修复第一轮验收测试 | acceptance | [2026-07-27-p4-fix-acceptance.md](2026-07-27-p4-fix-acceptance.md) |
+| 2026-07-27 | P4 图谱修复第二轮安全与质量审计 | guardrail | [2026-07-27-p4-fix-guardrail-r2.md](2026-07-27-p4-fix-guardrail-r2.md) |
+| 2026-07-27 | P4 图谱修复第二轮验收测试 | acceptance | [2026-07-27-p4-fix-acceptance-r2.md](2026-07-27-p4-fix-acceptance-r2.md) |
+| 2026-07-27 | P4 图谱修复 R3 安全与质量审计 | guardrail | [2026-07-27-p4-fix-r3-guardrail.md](2026-07-27-p4-fix-r3-guardrail.md) |
+| 2026-07-27 | P4 图谱修复 R3 验收测试 | acceptance | [2026-07-27-p4-fix-r3-acceptance.md](2026-07-27-p4-fix-r3-acceptance.md) |
+| 2026-07-27 | P4 图谱修复 R4 安全与质量审计 | guardrail | [2026-07-27-p4-fix-r4-guardrail.md](2026-07-27-p4-fix-r4-guardrail.md) |
+| 2026-07-27 | P4 图谱修复 R4 验收测试 | acceptance | [2026-07-27-p4-fix-r4-acceptance.md](2026-07-27-p4-fix-r4-acceptance.md) |
+| 2026-07-28 | P4 图谱修复 R5 安全与质量审计 | guardrail | [2026-07-28-p4-fix-r5-guardrail.md](2026-07-28-p4-fix-r5-guardrail.md) |
+| 2026-07-28 | P4 图谱修复 R5 验收测试 | acceptance | [2026-07-28-p4-fix-r5-acceptance.md](2026-07-28-p4-fix-r5-acceptance.md) |
+| 2026-07-28 | P4 图谱修复 R6 修复方案 | plan | [2026-07-28-p4-fix-r6-plan.md](2026-07-28-p4-fix-r6-plan.md) |
+| 2026-07-28 | P4 图谱修复 R6 安全与质量审计 | guardrail | [2026-07-28-p4-fix-r6-guardrail.md](2026-07-28-p4-fix-r6-guardrail.md) |
+| 2026-07-28 | P4 图谱修复 R6 验收测试 | acceptance | [2026-07-28-p4-fix-r6-acceptance.md](2026-07-28-p4-fix-r6-acceptance.md) |
+| 2026-07-28 | P4 图谱修复 R6 运行时调试验证 | debug | [2026-07-28-p4-fix-r6-debug.md](2026-07-28-p4-fix-r6-debug.md) |

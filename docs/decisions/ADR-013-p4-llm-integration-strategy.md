@@ -139,12 +139,12 @@ SettingsPanel 在 cloud-first 模式下显示醒目提示：
 | 编号 | 标准 | 状态 |
 | --- | --- | --- |
 | ADR-013-V1 | SettingsPanel 提供三态切换 UI | ✅ P4c 已实现 |
-| ADR-013-V2 | 默认模式为 `disabled` | ✅ P4c 已实现（`useState<LlmMode>("cloud-first")` 待 P5 改为 `"disabled"`，见下方 Note） |
+| ADR-013-V2 | 默认模式为 `disabled` | ✅ R6 已实现（`useState<LlmMode>("disabled")`，见 [SettingsPanel.tsx:40](../../frontend/src/components/SettingsPanel.tsx)） |
 | ADR-013-V3 | disabled 模式下零网络调用 | ✅ P4c 已实现（无 LLM 调用代码） |
-| ADR-013-V4 | cloud-first 模式显示隐私告知 | ⏳ P5 实现 |
-| ADR-013-V5 | API Key 不落明文配置 | ⏳ P5 实现（当前仅内存） |
+| ADR-013-V4 | cloud-first 模式显示隐私告知 | ✅ R6 已实现（UX 层面，P5 接入时实现真实 LLM 调用） |
+| ADR-013-V5 | API Key 不落明文配置 | ✅ R6 已实现（仅内存 `useState`，P5 接入时改用 `tauri-plugin-store` 加密持久化） |
 
-> **Note on V2**：当前 SettingsPanel 初值是 `"cloud-first"`（[SettingsPanel.tsx:29](../../frontend/src/components/SettingsPanel.tsx)），仅为开发调试方便（避免每次切换）。P5 接入 LLM 前应改为 `"disabled"`，届时一并处理。本 ADR 记录决策为「默认 disabled」，代码初值属实现细节，P5 修正。
+> **R6 更新说明（2026-07-28）**：R6 修复将 SettingsPanel 默认值从 `"cloud-first"` 改为 `"disabled"`（V2 合规），并在 cloud-first 模式下补全了模型选择（DeepSeek/Claude/GPT）、隐私告知、API Key"不会保存"提示、"测试连接"反馈（V4 合规）。API Key 仍仅存 `useState` 内存（V5 合规：不落明文），加密持久化推迟到 P5 接入 `tauri-plugin-store` 时实现。详见 [R6 验收报告](../reports/2026-07-28-p4-fix-r6-acceptance.md)。
 
 ## 参考
 
