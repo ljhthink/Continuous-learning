@@ -1,12 +1,14 @@
 ---
-title: "二分搜索跨语言实现模式对比"
+title: 二分搜索跨语言实现模式对比
 domain: [coding]
 type: concept
 status: active
 date: 2026-07-24
 tags: [algorithm, search, binary-search, python, java, cross-language, bisect]
 related: [wiki/coding/thealgorithms-python, wiki/coding/thealgorithms-java, wiki/coding/quick-sort-impl-patterns]
+use_count: 19
 ---
+
 
 ## 概念
 

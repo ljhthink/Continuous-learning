@@ -1,12 +1,14 @@
 ---
-title: "三层架构：Raw / Wiki / Schema"
+title: 三层架构：Raw / Wiki / Schema
 domain: [kb-system]
 type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, architecture, schema]
 related: [wiki/kb-system/dual-index-mechanism, wiki/kb-system/frontmatter-schema]
+use_count: 3
 ---
+
 
 ## 概念
 

@@ -1,13 +1,14 @@
 ---
 title: markdown 相对路径深度计算：lychee CI file:/// 错误的诊断模式
-domain:
-  - coding
+domain: [coding]
 type: experience
 status: active
 confidence: 0.9
-date: '2026-07-26'
+date: 2026-07-26
 source_task: TKN-P3-DREAM-DEDUP-001
+use_count: 4
 ---
+
 ## 背景
 
 P3 PR #30（feat(p3): /dream dedup + quality scoring）首次 CI 运行失败，lychee 链接检查报告：

@@ -26,6 +26,8 @@ exclude = [
   'support\.claude\.com',
   # npmjs.com 包页面返回 403
   'npmjs\.com',
+  # tolkiengateway.net 返回 403 Forbidden（karpathy-LLM.md 引用，社区 wiki 禁止 bot 访问）
+  'tolkiengateway\.net',
 ]
 
 # 文件过滤由 docs.yml args '**/*.md' 处理

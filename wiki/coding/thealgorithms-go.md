@@ -1,12 +1,14 @@
 ---
-title: "TheAlgorithms/Go — Go 算法教育实现合集"
+title: TheAlgorithms/Go — Go 算法教育实现合集
 domain: [coding]
 type: entity
 status: active
 date: 2026-07-24
 tags: [go, golang, algorithm, open-source, learning, thealgorithms]
 related: [wiki/coding/thealgorithms-rust, wiki/coding/thealgorithms-java, wiki/coding/thealgorithms-c, wiki/coding/thealgorithms-javascript]
+use_count: 1
 ---
+
 
 ## 简介
 

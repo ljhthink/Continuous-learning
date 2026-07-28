@@ -1,0 +1,14 @@
+# P4 Phase 4b — Python 解析管道依赖
+# 用 PyInstaller 打包为 Tauri sidecar
+
+# PDF 解析（轻量，无 ML 模型依赖）
+pymupdf==1.24.10
+
+# DOCX 解析
+python-docx==1.1.2
+
+# XLSX 解析
+openpyxl==3.1.5
+
+# 打包工具
+pyinstaller==6.10.0

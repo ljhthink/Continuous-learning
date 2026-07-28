@@ -27,7 +27,7 @@ export const kbSearchSchema = {
 
 /** kb_get_page: Retrieve a full wiki page. */
 export const kbGetPageSchema = {
-  path: z
+  page_path: z
     .string()
     .max(512)
     .describe(
@@ -132,7 +132,7 @@ export const kbListRecentSchema = {
     .optional()
     .describe("Max entries (default 10)"),
   type: z
-    .enum(["ingest", "query", "lint", "experience", "promote", "reject", "dream", "init"])
+    .enum(["ingest", "query", "lint", "experience", "promote", "reject", "confirm", "dream", "init"])
     .optional()
     .describe("Filter by event type"),
 };
@@ -167,3 +167,96 @@ export const kbLintSchema = {
 
 /** kb_health: Query server and knowledge base health. */
 export const kbHealthSchema = {};
+
+// ---------------------------------------------------------------------------
+// P4 Phase 4b — staging workflow tools
+// ---------------------------------------------------------------------------
+
+/** kb_list_staging: List all staging pages (P4 Phase 4b). */
+export const kbListStagingSchema = {
+  domain: z
+    .string()
+    .regex(
+      DOMAIN_REGEX,
+      "Domain must be kebab-case (lowercase alphanumeric with hyphens)"
+    )
+    .max(64)
+    .optional()
+    .describe("Filter by domain (e.g., 'coding'). If omitted, lists all domains."),
+};
+
+/** kb_confirm_staging: Promote a staging page to active (P4 Phase 4b). */
+export const kbConfirmStagingSchema = {
+  page_path: z
+    .string()
+    .max(512)
+    .describe(
+      "Path to the staging page relative to KB root (e.g., 'wiki/coding/foo.md' or 'wiki/coding/foo')"
+    ),
+};
+
+/** kb_reject_staging: Reject a staging page (P4 Phase 4b). */
+export const kbRejectStagingSchema = {
+  page_path: z
+    .string()
+    .max(512)
+    .describe(
+      "Path to the staging page relative to KB root (e.g., 'wiki/coding/foo.md' or 'wiki/coding/foo')"
+    ),
+};
+
+// ---------------------------------------------------------------------------
+// P4 Phase 4c — knowledge graph tool
+// ---------------------------------------------------------------------------
+
+/**
+ * kb_get_graph: Build the wiki knowledge graph (P4 Phase 4c).
+ *
+ * Returns nodes + edges + summary for the GraphView component.
+ * Edge types: wikilink (from body), related (frontmatter.related), tags (shared).
+ */
+export const kbGetGraphSchema = {
+  domain: z
+    .string()
+    .max(64)
+    .optional()
+    .describe(
+      "Filter to a single domain (e.g., 'coding'). If omitted, includes all domains."
+    ),
+  include_statuses: z
+    .array(z.string())
+    .optional()
+    .describe(
+      "Page statuses to include (e.g., ['active', 'staging']). If omitted, excludes pending and archived by default."
+    ),
+};
+
+/** kb_get_backlinks: Reverse-link index for a page (P4 Phase 4c). */
+export const kbGetBacklinksSchema = {
+  page_path: z
+    .string()
+    .max(512)
+    .describe(
+      "Path to the wiki page relative to KB root (e.g., 'wiki/coding/foo' or 'wiki/coding/foo.md')"
+    ),
+};
+
+/**
+ * kb_list_inbox: List pending experience cards for GUI review (P4 Phase 4c).
+ *
+ * Scans wiki/<domain>/experiences/inbox/*.md for status=pending cards.
+ * Returns title/domain/confidence/source_task/body for ExperienceInbox.
+ */
+export const kbListInboxSchema = {
+  domain: z
+    .string()
+    .regex(
+      DOMAIN_REGEX,
+      "Domain must be kebab-case (lowercase alphanumeric with hyphens)"
+    )
+    .max(64)
+    .optional()
+    .describe(
+      "Filter by domain (e.g., 'coding'). If omitted, lists all domains."
+    ),
+};
