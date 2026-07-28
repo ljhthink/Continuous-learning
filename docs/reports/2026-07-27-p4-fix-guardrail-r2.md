@@ -14,7 +14,7 @@
 
 ## 1. 审查触发背景
 
-上一轮审查（TKN-P4-FIX-001）已通过，但 ac-verifier 发现 [read-only.test.ts](server/src/tests/read-only.test.ts) 中 6 处 `kbGetPage({ path: "..." })` 未同步为 `page_path:`，导致 6 个测试失败。本轮针对该遗漏进行聚焦审查。
+上一轮审查（TKN-P4-FIX-001）已通过，但 ac-verifier 发现 [read-only.test.ts](../../server/src/tests/read-only.test.ts) 中 6 处 `kbGetPage({ path: "..." })` 未同步为 `page_path:`，导致 6 个测试失败。本轮针对该遗漏进行聚焦审查。
 
 ---
 
@@ -103,7 +103,7 @@
 | 4 配置/密钥 | 无硬编码密钥新增 | OK |
 | 5 依赖供应链 | 无依赖文件变更 | N/A |
 
-**特别说明**：行 244 的路径穿越测试（`page_path: "../../../etc/passwd"`）是安全测试用例，参数名同步后，该测试仍能正确命中 [read-only.ts](server/src/tools/read-only.ts) 中的 `page_path` 解构与校验逻辑，验证 `isError === true` 且错误信息匹配 `/traversal/i`。安全防护测试覆盖未被削弱。
+**特别说明**：行 244 的路径穿越测试（`page_path: "../../../etc/passwd"`）是安全测试用例，参数名同步后，该测试仍能正确命中 [read-only.ts](../../server/src/tools/read-only.ts) 中的 `page_path` 解构与校验逻辑，验证 `isError === true` 且错误信息匹配 `/traversal/i`。安全防护测试覆盖未被削弱。
 
 ---
 
@@ -135,7 +135,7 @@
 | 安全测试有效性 | 路径穿越防护测试仍生效 |
 | **最终判定** | **PASS — 可进入下一阶段** |
 
-本次变更性质为测试文件参数名同步，与上一轮已审查的 [frontmatter-integration.test.ts](server/src/tests/frontmatter-integration.test.ts)（6 处）和 [p3-evolution.test.ts](server/src/tests/p3-evolution.test.ts)（4 处）完全相同的修复模式，无新增安全风险。read-only.test.ts 14/14 通过，全量 182 个测试 181 通过（1 个性能 flake 与本次无关），验证修复有效。
+本次变更性质为测试文件参数名同步，与上一轮已审查的 [frontmatter-integration.test.ts](../../server/src/tests/frontmatter-integration.test.ts)（6 处）和 [p3-evolution.test.ts](../../server/src/tests/p3-evolution.test.ts)（4 处）完全相同的修复模式，无新增安全风险。read-only.test.ts 14/14 通过，全量 182 个测试 181 通过（1 个性能 flake 与本次无关），验证修复有效。
 
 ---
 

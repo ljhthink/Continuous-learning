@@ -5,7 +5,7 @@
 | 执行 Agent | ac-verifier |
 | 任务令牌 | TKN-P4-FIX-004 |
 | 验收日期 | 2026-07-27 |
-| 上轮报告 | [2026-07-27-p4-fix-acceptance.md](docs/reports/2026-07-27-p4-fix-acceptance.md)（TKN-P4-FIX-002，FAIL） |
+| 上轮报告 | [2026-07-27-p4-fix-acceptance.md](2026-07-27-p4-fix-acceptance.md)（TKN-P4-FIX-002，FAIL） |
 | 本轮范围 | 聚焦验证 DEF-001 修复（read-only.test.ts 6 处 `path:` → `page_path:`） |
 | 整体结论 | **通过（PASS）** — DEF-001 已修复；4 项验证全部通过；仅剩 DEF-002 既有 flake（与本次变更无关） |
 
@@ -15,7 +15,7 @@
 
 **整体结论：通过（PASS）。**
 
-本轮为 DEF-001 修复后的二次验收，聚焦于上一轮失败项。上轮验收（TKN-P4-FIX-002）因 [read-only.test.ts](server/src/tests/read-only.test.ts) 中 6 处 `kbGetPage({ path: ... })` 未同步重命名为 `page_path` 而失败（DEF-001，HIGH）。本次修复将该文件行 210/226/236/244/260/285 的 `path:` 全部改为 `page_path:`，并已通过 guardrail-enforcer R2 审查。
+本轮为 DEF-001 修复后的二次验收，聚焦于上一轮失败项。上轮验收（TKN-P4-FIX-002）因 [read-only.test.ts](../../server/src/tests/read-only.test.ts) 中 6 处 `kbGetPage({ path: ... })` 未同步重命名为 `page_path` 而失败（DEF-001，HIGH）。本次修复将该文件行 210/226/236/244/260/285 的 `path:` 全部改为 `page_path:`，并已通过 guardrail-enforcer R2 审查。
 
 本轮执行的 4 项验证全部通过：
 

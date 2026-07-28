@@ -1,4 +1,4 @@
-# P4 Phase 4b/4c Bug 修复 安全与质量审计报告
+﻿# P4 Phase 4b/4c Bug 修复 安全与质量审计报告
 
 | 项目 | 内容 |
 | --- | --- |
@@ -95,12 +95,12 @@ flowchart LR
 
 | # | 机制 | 位置 | 结论 |
 | --- | --- | --- | --- |
-| P1 | `kbGetPage` 路径穿越防御 | [read-only.ts:L186-190](server/src/tools/read-only.ts#L186-L190) | PASS — `path.resolve` + `path.relative` + `startsWith("..")` / `isAbsolute` 检测，参数重命名不影响防护 |
-| P2 | `call_mcp_tool` 工具名白名单 | [lib.rs:L668-690](frontend/src-tauri/src/lib.rs#L668-L690) | PASS — 12 个工具白名单，`kb_get_page` 在列；非白名单工具直接拒绝 |
-| P3 | `call_mcp_tool` 命令注入防护 | [lib.rs:L712-725](frontend/src-tauri/src/lib.rs#L712-L725) | PASS — `.command("node").args([])` 数组形式，无 shell 插值；`args_json` 先 `serde_json::from_str` 校验 |
-| P4 | `call_mcp_tool` current_dir 安全性 | [lib.rs:L704-722](frontend/src-tauri/src/lib.rs#L704-L722) | PASS — `server_dir` 派生自 `config.kb_root`（可信配置/环境变量），非用户输入 |
-| P5 | `.gitignore` 密钥文件覆盖 | [.gitignore:L11-15](.gitignore#L11-L15) | PASS — `.env` / `.env.local` / `.env.*.local` 均在忽略列表，`!.env.example` 保留模板 |
-| P6 | `kbGetPageSchema` 输入约束 | [schemas.ts:L29-41](server/src/schemas.ts#L29-L41) | PASS — `page_path` 限 `z.string().max(512)`，`section` 限 `max(200)`（MCP server 上下文生效） |
+| P1 | `kbGetPage` 路径穿越防御 | [read-only.ts:L186-190](../../server/src/tools/read-only.ts#L186-L190) | PASS — `path.resolve` + `path.relative` + `startsWith("..")` / `isAbsolute` 检测，参数重命名不影响防护 |
+| P2 | `call_mcp_tool` 工具名白名单 | [lib.rs:L668-690](../../frontend/src-tauri/src/lib.rs#L668-L690) | PASS — 12 个工具白名单，`kb_get_page` 在列；非白名单工具直接拒绝 |
+| P3 | `call_mcp_tool` 命令注入防护 | [lib.rs:L712-725](../../frontend/src-tauri/src/lib.rs#L712-L725) | PASS — `.command("node").args([])` 数组形式，无 shell 插值；`args_json` 先 `serde_json::from_str` 校验 |
+| P4 | `call_mcp_tool` current_dir 安全性 | [lib.rs:L704-722](../../frontend/src-tauri/src/lib.rs#L704-L722) | PASS — `server_dir` 派生自 `config.kb_root`（可信配置/环境变量），非用户输入 |
+| P5 | `.gitignore` 密钥文件覆盖 | [.gitignore:L11-15](../../.gitignore#L11-L15) | PASS — `.env` / `.env.local` / `.env.*.local` 均在忽略列表，`!.env.example` 保留模板 |
+| P6 | `kbGetPageSchema` 输入约束 | [schemas.ts:L29-41](../../server/src/schemas.ts#L29-L41) | PASS — `page_path` 限 `z.string().max(512)`，`section` 限 `max(200)`（MCP server 上下文生效） |
 | P7 | 无硬编码密钥 | 全 diff 扫描 | PASS — grep `password/secret/api_key/token/Bearer/AKIA/ghp_/sk-/private_key` 零命中 |
 
 ---
@@ -148,7 +148,7 @@ flowchart LR
 | Category | type_safety |
 | Severity | LOW |
 | Confidence | 0.85 |
-| Location | [cli.ts:L58-77](server/src/cli.ts#L58-L77) |
+| Location | [cli.ts:L58-77](../../server/src/cli.ts#L58-L77) |
 
 **分析：** `kbGetPage as unknown as ToolHandler` 是纯 TypeScript 编译期构造，运行时零效果。双重断言（`as unknown as`）绕过了 TypeScript 的类型兼容性检查，使得 `(args: { page_path: string }) => Promise<ToolResult>` 能赋值给 `(args: Record<string, unknown>) => Promise<ToolResult>`。如果调用方传入错误的参数名（如 `{ path: ... }` 而非 `{ page_path: ... }`），TypeScript 不会报错，handler 将收到 `page_path: undefined`。
 
@@ -165,7 +165,7 @@ flowchart LR
 | Category | process_compliance |
 | Severity | LOW |
 | Confidence | 0.95 |
-| Location | [lib.rs:L704-722](frontend/src-tauri/src/lib.rs#L704-L722) |
+| Location | [lib.rs:L704-722](../../frontend/src-tauri/src/lib.rs#L704-L722) |
 
 **分析：** `frontend/src-tauri/src/lib.rs` 在工作树中已修改（添加 `.current_dir(&server_dir)` 修复 tsx 模块解析），但未出现在主 Agent 提供的变更文件清单中。这违反 CLAUDE.md §9"变更影响自检与跨模块通知"要求。
 
@@ -182,7 +182,7 @@ flowchart LR
 | Category | type_safety / input_validation |
 | Severity | LOW |
 | Confidence | 0.82 |
-| Location | [MarkdownPreview.tsx:L76-80](frontend/src/components/MarkdownPreview.tsx#L76-L80) |
+| Location | [MarkdownPreview.tsx:L76-80](../../frontend/src/components/MarkdownPreview.tsx#L76-L80) |
 
 **分析：** `fm.type as PageDetail["type"]` 和 `fm.status as PageDetail["status"]` 直接断言 frontmatter 字段为联合类型，但未校验值是否在合法枚举范围内。若 frontmatter 包含 `type: "garbage"`，将被原样传入 `PageDetail.type`。
 
@@ -287,9 +287,9 @@ flowchart LR
 
 | # | 问题 | 建议 | 位置 |
 | --- | --- | --- | --- |
-| C-1 | `cli.ts` 注释声称 Zod 校验在 handler 前执行，CLI 路径实际未校验（见 M-1） | 更正注释，准确描述校验模型 | [cli.ts:L53-55](server/src/cli.ts#L53-L55) |
-| C-2 | `as unknown as ToolHandler` 双重断言擦除类型安全（见 L-1） | 考虑 wrapper + schema 校验 | [cli.ts:L58-77](server/src/cli.ts#L58-L77) |
-| C-3 | `MarkdownPreview.tsx` type/status 枚举值未校验（见 L-3） | 增加枚举守卫函数 | [MarkdownPreview.tsx:L76-80](frontend/src/components/MarkdownPreview.tsx#L76-L80) |
+| C-1 | `cli.ts` 注释声称 Zod 校验在 handler 前执行，CLI 路径实际未校验（见 M-1） | 更正注释，准确描述校验模型 | [cli.ts:L53-55](../../server/src/cli.ts#L53-L55) |
+| C-2 | `as unknown as ToolHandler` 双重断言擦除类型安全（见 L-1） | 考虑 wrapper + schema 校验 | [cli.ts:L58-77](../../server/src/cli.ts#L58-L77) |
+| C-3 | `MarkdownPreview.tsx` type/status 枚举值未校验（见 L-3） | 增加枚举守卫函数 | [MarkdownPreview.tsx:L76-80](../../frontend/src/components/MarkdownPreview.tsx#L76-L80) |
 
 ### 9.4 正面发现（Good Practices）
 

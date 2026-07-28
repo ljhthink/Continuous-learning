@@ -19,7 +19,7 @@
 
 本轮验收测试覆盖 P4 Phase 4b/4c 的 6 条验收标准，执行了完整分层测试金字塔（静态分析 → 单元测试 → 集成测试 → E2E → 安全验证 → 回归测试）。**6 条验收标准中 5 条通过，1 条失败（AC-002）**。
 
-失败原因：本次变更将 `kbGetPage` 参数从 `path` 重命名为 `page_path`，但**遗漏了同步更新 [read-only.test.ts](server/src/tests/read-only.test.ts)**（6 处 `kbGetPage({ path: ... })` 调用未更新），导致 6 个单元测试回归失败。
+失败原因：本次变更将 `kbGetPage` 参数从 `path` 重命名为 `page_path`，但**遗漏了同步更新 [read-only.test.ts](../../server/src/tests/read-only.test.ts)**（6 处 `kbGetPage({ path: ... })` 调用未更新），导致 6 个单元测试回归失败。
 
 功能验证层面（集成测试 + E2E + 安全）全部通过，证明：
 
@@ -167,7 +167,7 @@
 }
 ```
 
-前端 [CategoryTree.tsx:L40-57](frontend/src/components/CategoryTree.tsx#L40-L57) 正确映射 `name → domain`、`page_count → pageCount`。
+前端 [CategoryTree.tsx:L40-57](../../frontend/src/components/CategoryTree.tsx#L40-L57) 正确映射 `name → domain`、`page_count → pageCount`。
 
 **结论：AC-005 功能层 PASS。** 所有工具使用 `page_path` 参数功能正确；旧 `path` 参数不工作。
 
@@ -196,7 +196,7 @@
 }
 ```
 
-[GraphView.tsx:L254-269](frontend/src/components/GraphView.tsx#L254-L269) d3-force 配置 useEffect 依赖改为 `[]`，仅在挂载时配置一次。筛选切换时 `filteredGraph` useMemo 返回新对象引用，但不再触发 d3-force useEffect，避免了 `d3ReheatSimulation()` 无限循环。
+[GraphView.tsx:L254-269](../../frontend/src/components/GraphView.tsx#L254-L269) d3-force 配置 useEffect 依赖改为 `[]`，仅在挂载时配置一次。筛选切换时 `filteredGraph` useMemo 返回新对象引用，但不再触发 d3-force useEffect，避免了 `d3ReheatSimulation()` 无限循环。
 
 **结论：AC-004 PASS。** 图谱物理效果不卡死，筛选切换力导向布局自适应正常。
 
@@ -211,7 +211,7 @@
 | TC-015: 相对路径穿越 | `{"page_path":"../../../etc/passwd"}` | PASS | `Path traversal detected: ../../../etc/passwd`，exit 2 |
 | TC-016: 绝对路径穿越 | `{"page_path":"/etc/passwd"}` | PASS | `Path traversal detected: /etc/passwd`，exit 2 |
 
-防御代码位于 [read-only.ts:L186-191](server/src/tools/read-only.ts#L186-L191)：
+防御代码位于 [read-only.ts:L186-191](../../server/src/tools/read-only.ts#L186-L191)：
 
 ```typescript
 const relativePath = path.relative(kbRoot, fullPath);
@@ -231,16 +231,16 @@ if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
 
 | 检查 | 位置 | 结果 | 证据 |
 | --- | --- | --- | --- |
-| TC-018: 命令构造数组形式 | [lib.rs:L711-724](frontend/src-tauri/src/lib.rs#L711-L724) | PASS | `.command("node").args(["--import","tsx",&cli_path,&tool_name,&args_json])` 数组形式，无 shell 插值 |
-| JSON 参数校验 | [lib.rs:L692-698](frontend/src-tauri/src/lib.rs#L692-L698) | PASS | `serde_json::from_str::<serde_json::Value>(&args_json)` 先校验为合法 JSON |
-| 工具名白名单 | [lib.rs:L667-689](frontend/src-tauri/src/lib.rs#L667-L689) | PASS | 11 个工具白名单，非白名单直接拒绝 |
+| TC-018: 命令构造数组形式 | [lib.rs:L711-724](../../frontend/src-tauri/src/lib.rs#L711-L724) | PASS | `.command("node").args(["--import","tsx",&cli_path,&tool_name,&args_json])` 数组形式，无 shell 插值 |
+| JSON 参数校验 | [lib.rs:L692-698](../../frontend/src-tauri/src/lib.rs#L692-L698) | PASS | `serde_json::from_str::<serde_json::Value>(&args_json)` 先校验为合法 JSON |
+| 工具名白名单 | [lib.rs:L667-689](../../frontend/src-tauri/src/lib.rs#L667-L689) | PASS | 11 个工具白名单，非白名单直接拒绝 |
 
 ### 4.4 XSS 防护
 
 | 检查 | 范围 | 结果 | 证据 |
 | --- | --- | --- | --- |
 | TC-019: dangerouslySetInnerHTML | frontend/src（*.tsx,*.ts） | PASS | 无命中（React 默认转义防 XSS） |
-| index.html meta 标签顺序 | [index.html:L4-6](frontend/index.html#L4-L6) | PASS | charset + viewport 在 link 之前（修复 HTML 警告） |
+| index.html meta 标签顺序 | [index.html:L4-6](../../frontend/index.html#L4-L6) | PASS | charset + viewport 在 link 之前（修复 HTML 警告） |
 
 **结论：AC-006 PASS。** 无安全漏洞引入。
 
@@ -278,8 +278,8 @@ if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
 | 严重度 | **HIGH（阻断级）** |
 | 关联 AC | AC-002、AC-005 |
 | 类型 | 回归缺陷 / 测试代码遗漏同步 |
-| 位置 | [read-only.test.ts:L209-286](server/src/tests/read-only.test.ts#L209-L286)（6 处 `kbGetPage({ path: ... })`） |
-| 根因 | 本次变更将 `kbGetPage` 参数从 `path` 改为 `page_path`（[read-only.ts:L177](server/src/tools/read-only.ts#L177)），但任务清单只更新了 frontmatter-integration.test.ts 和 p3-evolution.test.ts，遗漏了 read-only.test.ts |
+| 位置 | [read-only.test.ts:L209-286](../../server/src/tests/read-only.test.ts#L209-L286)（6 处 `kbGetPage({ path: ... })`） |
+| 根因 | 本次变更将 `kbGetPage` 参数从 `path` 改为 `page_path`（[read-only.ts:L177](../../server/src/tools/read-only.ts#L177)），但任务清单只更新了 frontmatter-integration.test.ts 和 p3-evolution.test.ts，遗漏了 read-only.test.ts |
 | 影响 | 6 个单元测试失败：`TypeError: Cannot read properties of undefined (reading 'endsWith')` at read-only.ts:184（`pagePath` 为 undefined） |
 | 复现步骤 | 1. `cd server`<br>2. `npm test`<br>3. 观察 read-only.test.ts 的 6 个 kb_get_page 子测试全部 FAIL |
 | 证据 | `git diff HEAD -- server/src/tools/read-only.ts` 显示 `- path: string` → `+ page_path: string`；read-only.test.ts L210/226/236/244/260/285 仍用 `path:` |
@@ -303,7 +303,7 @@ if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
 | 严重度 | LOW |
 | 关联 AC | 无（与本次变更无关） |
 | 类型 | 既有测试环境敏感 flake |
-| 位置 | [lint-perf.test.ts:L208-211](server/src/tests/lint-perf.test.ts#L208-L211) |
+| 位置 | [lint-perf.test.ts:L208-211](../../server/src/tests/lint-perf.test.ts#L208-L211) |
 | 根因 | 测试阈值过紧（1s vs PRD 硬阈值 2s）；I/O bound 测试受开发机负载影响 |
 | 影响 | 1 个测试失败：`1000-page missing_xref scan p50=1016.97ms, expected < 1000ms` |
 | 证据 | 单独重跑 p50=1016ms（首次 1070ms）；lint 代码本次未变更 |
@@ -334,13 +334,13 @@ if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
 
 6 条验收标准中 5 条通过（AC-001/003/004/005/006），1 条失败（AC-002）。
 
-失败根因：本次变更的参数重命名（`path` → `page_path`）遗漏了同步 [read-only.test.ts](server/src/tests/read-only.test.ts)，引入 1 个 HIGH 严重度回归缺陷（DEF-001），导致 6 个单元测试失败。
+失败根因：本次变更的参数重命名（`path` → `page_path`）遗漏了同步 [read-only.test.ts](../../server/src/tests/read-only.test.ts)，引入 1 个 HIGH 严重度回归缺陷（DEF-001），导致 6 个单元测试失败。
 
 **功能层面验证通过**：CLI 集成测试、Playwright E2E、安全验证、Python 解析均确认修复有效。问题仅存在于测试代码本身未同步。
 
 ### 8.2 后续行动（按 CLAUDE.md §11 要求）
 
-1. **修复 DEF-001**：将 [read-only.test.ts](server/src/tests/read-only.test.ts) 中 6 处 `{ path: ... }` 改为 `{ page_path: ... }`
+1. **修复 DEF-001**：将 [read-only.test.ts](../../server/src/tests/read-only.test.ts) 中 6 处 `{ path: ... }` 改为 `{ page_path: ... }`
 2. **重新运行全量测试套件**：确认 182/182 全部通过（DEF-002 lint-perf flake 可单独重试或标注）
 3. **从 guardrail-enforcer 阶段重新开始闭环**（CLAUDE.md §11："若不通过，主 Agent 必须修复...然后必须从 guardrail-enforcer 阶段重新开始整个闭环，严禁绕过审查直接重新测试"）
 

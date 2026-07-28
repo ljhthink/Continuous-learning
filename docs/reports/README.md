@@ -48,7 +48,7 @@
 | 2026-07-26 | P4 Phase 4a Tauri 骨架 + 设计系统 + 10 静态组件验收测试 | acceptance | [2026-07-26-p4a-acceptance.md](2026-07-26-p4a-acceptance.md) |
 | 2026-07-27 | P4 Phase 4b Python parser + staging 工作流安全与质量审计 | guardrail | [2026-07-27-p4b-guardrail.md](2026-07-27-p4b-guardrail.md) |
 | 2026-07-27 | P4 Phase 4b Python parser + staging 工作流验收测试 | acceptance | [2026-07-27-p4b-ac-verifier.md](2026-07-27-p4b-ac-verifier.md) |
-| 2026-07-27 | P4 Phase 4c 知识图谱 + MCP 桥接安全与质量审计 | guardrail | [2026-07-27-p4c-guardrail.md](2026-07-27-p4c-guardrail.md) |
+| 2026-07-27 | P4 Phase 4c 知识图谱 + MCP 桥接安全与质量审计 | guardrail | [2026-07-27-p4-fix-guardrail.md](2026-07-27-p4-fix-guardrail.md) |
 | 2026-07-27 | P4 Phase 4c 知识图谱 + MCP 桥接验收测试 | acceptance | [2026-07-27-p4c-ac-verifier.md](2026-07-27-p4c-ac-verifier.md) |
 | 2026-07-27 | P4c DEF 修复（XSS + TypeScript 类型）| bugfix | [2026-07-27-p4c-def-fixes.md](2026-07-27-p4c-def-fixes.md) |
 | 2026-07-27 | P4 图谱修复第一轮安全与质量审计 | guardrail | [2026-07-27-p4-fix-guardrail.md](2026-07-27-p4-fix-guardrail.md) |

@@ -6,7 +6,7 @@
 | 任务令牌 | TKN-P4-FIX-R3-002 |
 | 验证日期 | 2026-07-27 |
 | 测试方法论 | test-architect skill 分层测试金字塔 |
-| 测试环境 | Vite dev server http://localhost:1420（浏览器 dev 模式，mock 数据，isTauri()=false） |
+| 测试环境 | Vite dev server `http://localhost:1420`（浏览器 dev 模式，mock 数据，isTauri()=false） |
 | 浏览器 | Chromium 1440×900 |
 | 前置审查 | guardrail-enforcer 第二轮审查通过（docs/reports/2026-07-27-p4-fix-r3-guardrail.md） |
 
@@ -209,9 +209,9 @@ forceSimulation()
 | --- | --- | --- |
 | 前端无硬编码密钥 | 通过 | 6 个变更文件无 API key/token/password |
 | SQL 注入防护 | N/A | 本次变更无数据库交互 |
-| XSS 防护 — nodeLabel | **失败（既有）** | [GraphView.tsx:365-375](frontend/src/components/GraphView.tsx#L365-L375) `${node.title}` 未转义 → [float-tooltip.mjs:218](frontend/node_modules/.pnpm/node_modules/float-tooltip/dist/float-tooltip.mjs#L218) `.html()` innerHTML |
-| XSS 防护 — error 消息 | 通过 | [GraphView.tsx:759](frontend/src/components/GraphView.tsx#L759) `{error}` 使用 React JSX 自动转义 |
-| XSS 防护 — GraphStats | 通过 | [App.tsx:255-263](frontend/src/App.tsx#L255-L263) React JSX 渲染，自动转义 |
+| XSS 防护 — nodeLabel | **失败（既有）** | [GraphView.tsx:365-375](../../frontend/src/components/GraphView.tsx#L365-L375) `${node.title}` 未转义 → `float-tooltip.mjs:218` `.html()` innerHTML |
+| XSS 防护 — error 消息 | 通过 | [GraphView.tsx:759](../../frontend/src/components/GraphView.tsx#L759) `{error}` 使用 React JSX 自动转义 |
+| XSS 防护 — GraphStats | 通过 | [App.tsx:255-263](../../frontend/src/App.tsx#L255-L263) React JSX 渲染，自动转义 |
 | 权限验证 | 通过 | Tauri IPC TOOL_WHITELIST 仅允许只读工具（guardrail 报告确认） |
 | CSP 配置 | 未验证 | Tauri CSP 配置不在本次变更范围 |
 
@@ -274,9 +274,9 @@ const nodeLabel = useCallback(
 
 | ID | 严重度 | 关联 AC | 描述 | 复现步骤 | 代码位置 | 状态 |
 | --- | --- | --- | --- | --- | --- | --- |
-| DEFECT-1 | 低 | AC-1 | 暗色主题缺失 `color-scheme: dark` | 1. 切换到暗色主题 2. 检查 `getComputedStyle(document.documentElement).colorScheme` → "normal" | [globals.css:17-34](frontend/src/styles/globals.css#L17-L34) | 新发现 |
-| DEFECT-2 | 低 | AC-2 | collide force 死代码：`d3Force("collide")` 返回 null，配置被 `if (collide)` 跳过 | 1. 图谱视图 2. `fgInstance.d3Force('collide')` → null | [GraphView.tsx:279-285](frontend/src/components/GraphView.tsx#L279-L285) | 新发现 |
-| DEFECT-3 | 中 | 安全 | nodeLabel 存储型 XSS：`node.title` 未 HTML 转义，经 innerHTML 渲染 | 1. 创建 title 含 `<img onerror>` 的 wiki 页 2. 图谱中 hover 该节点 | [GraphView.tsx:365-375](frontend/src/components/GraphView.tsx#L365-L375) | 既有（非本次引入） |
+| DEFECT-1 | 低 | AC-1 | 暗色主题缺失 `color-scheme: dark` | 1. 切换到暗色主题 2. 检查 `getComputedStyle(document.documentElement).colorScheme` → "normal" | [globals.css:17-34](../../frontend/src/styles/globals.css#L17-L34) | 新发现 |
+| DEFECT-2 | 低 | AC-2 | collide force 死代码：`d3Force("collide")` 返回 null，配置被 `if (collide)` 跳过 | 1. 图谱视图 2. `fgInstance.d3Force('collide')` → null | [GraphView.tsx:279-285](../../frontend/src/components/GraphView.tsx#L279-L285) | 新发现 |
+| DEFECT-3 | 中 | 安全 | nodeLabel 存储型 XSS：`node.title` 未 HTML 转义，经 innerHTML 渲染 | 1. 创建 title 含 `<img onerror>` 的 wiki 页 2. 图谱中 hover 该节点 | [GraphView.tsx:365-375](../../frontend/src/components/GraphView.tsx#L365-L375) | 既有（非本次引入） |
 
 ### DEFECT-2 修复建议
 

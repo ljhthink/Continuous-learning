@@ -1,4 +1,4 @@
-# P4 GUI R6 修复 — 安全与质量审计报告
+﻿# P4 GUI R6 修复 — 安全与质量审计报告
 
 > 本报告由 `guardrail-enforcer` 子 Agent 依据 CLAUDE.md §10 强制执行，融合
 > TRAE-code-review skill（代码质量）与 TRAE-security-review skill（安全扫描）
@@ -26,10 +26,10 @@
 | 依据 | 路径 |
 | --- | --- |
 | 本次代码变更 | `git diff HEAD`（5 个核心文件） |
-| R6 修复方案 | [docs/reports/2026-07-28-p4-fix-r6-plan.md](../2026-07-28-p4-fix-r6-plan.md) |
+| R6 修复方案 | [docs/reports/2026-07-28-p4-fix-r6-plan.md](2026-07-28-p4-fix-r6-plan.md) |
 | 影响/脆弱点自检 | 主 Agent 第九节影响自检结果（见任务令牌上下文） |
-| 相关 ADR | [ADR-013](../../decisions/ADR-013-p4-llm-integration-strategy.md)（LLM 集成策略，三态切换 + 延迟接入）、[ADR-012](../../decisions/ADR-012-p4-gui-tech-stack.md)（GUI 技术栈） |
-| 历史漏洞基线 | [R4 guardrail](../2026-07-27-p4-fix-r4-guardrail.md)（XSS 修复：escapeHtml 引入，nodeLabel 5 字段转义）、[R5 guardrail](../2026-07-28-p4-fix-r5-guardrail.md)（forceCollide + 依赖修复 + d3VelocityDecay prop） |
+| 相关 ADR | [ADR-013](../decisions/ADR-013-p4-llm-integration-strategy.md)（LLM 集成策略，三态切换 + 延迟接入）、[ADR-012](../decisions/ADR-012-p4-gui-tech-stack.md)（GUI 技术栈） |
+| 历史漏洞基线 | [R4 guardrail](2026-07-27-p4-fix-r4-guardrail.md)（XSS 修复：escapeHtml 引入，nodeLabel 5 字段转义）、[R5 guardrail](2026-07-28-p4-fix-r5-guardrail.md)（forceCollide + 依赖修复 + d3VelocityDecay prop） |
 | 测试框架 | `frontend/src/lib/__tests__/html-utils.test.ts`（48 个 XSS 转义测试，R4 引入，未变更）、`frontend/vitest.config.ts` |
 | 安全策略来源 | 项目无独立 `SECURITY.md`；安全策略散见于 ADR-013（密钥存储 D3 / 隐私边界 D5）、CLAUDE.md（质量闭环 §7.2 / 强制审查 §10）、R4/R5 guardrail 报告（XSS 防御基线） |
 

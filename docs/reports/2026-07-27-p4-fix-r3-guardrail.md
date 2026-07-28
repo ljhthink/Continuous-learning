@@ -1,4 +1,4 @@
-# P4 GUI R3 修复 — 安全与质量审计报告
+﻿# P4 GUI R3 修复 — 安全与质量审计报告
 
 | 项目 | 内容 |
 | --- | --- |
@@ -50,10 +50,10 @@ flowchart LR
 
 | 编号 | 问题标题 | 严重度 | 建议修复 | 代码位置 |
 | --- | --- | --- | --- | --- |
-| Q1 | graphStore 初始值为 mockGraphData，Tauri 环境下短暂显示幽灵数据 | 中 | graphStore 添加 `dataSource: 'mock' \| 'real'` 标志；Tauri 环境下初始 loading 设为 true；GraphStats 在 loading 时显示占位符 | [graphStore.ts:29](frontend/src/store/graphStore.ts#L29) |
-| Q2 | nodeCanvasObject 中 nodeRadius(n.inDegree) 缺少 `?? 0` 防御，与 collide force 不一致 | 低 | 改为 `nodeRadius(n.inDegree ?? 0)`，与第 283 行 collide force 保持一致 | [GraphView.tsx:379](frontend/src/components/GraphView.tsx#L379) |
-| Q3 | currentDomain 变化时无条件 reheat，GraphView display:none 时浪费 CPU | 低 | useEffect 中增加 `if (currentView !== 'graph') return;` 守卫；或不可见时调用 `fg.pause()` | [GraphView.tsx:293-302](frontend/src/components/GraphView.tsx#L293-L302) |
-| Q4 | d3-force 配置 useEffect 空依赖 + eslint-disable，graphRef.current 可能在首次执行时为 null | 低 | 可接受（ForceGraph2D 同步渲染，ref 在 useEffect 前设置）；但建议增加 null 检查日志或延迟重试 | [GraphView.tsx:265-289](frontend/src/components/GraphView.tsx#L265-L289) |
+| Q1 | graphStore 初始值为 mockGraphData，Tauri 环境下短暂显示幽灵数据 | 中 | graphStore 添加 `dataSource: 'mock' \| 'real'` 标志；Tauri 环境下初始 loading 设为 true；GraphStats 在 loading 时显示占位符 | [graphStore.ts:29](../../frontend/src/store/graphStore.ts#L29) |
+| Q2 | nodeCanvasObject 中 nodeRadius(n.inDegree) 缺少 `?? 0` 防御，与 collide force 不一致 | 低 | 改为 `nodeRadius(n.inDegree ?? 0)`，与第 283 行 collide force 保持一致 | [GraphView.tsx:379](../../frontend/src/components/GraphView.tsx#L379) |
+| Q3 | currentDomain 变化时无条件 reheat，GraphView display:none 时浪费 CPU | 低 | useEffect 中增加 `if (currentView !== 'graph') return;` 守卫；或不可见时调用 `fg.pause()` | [GraphView.tsx:293-302](../../frontend/src/components/GraphView.tsx#L293-L302) |
+| Q4 | d3-force 配置 useEffect 空依赖 + eslint-disable，graphRef.current 可能在首次执行时为 null | 低 | 可接受（ForceGraph2D 同步渲染，ref 在 useEffect 前设置）；但建议增加 null 检查日志或延迟重试 | [GraphView.tsx:265-289](../../frontend/src/components/GraphView.tsx#L265-L289) |
 
 ### 2.3 重点问题详析
 
