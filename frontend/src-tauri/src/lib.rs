@@ -900,12 +900,10 @@ async fn call_llm_api(
     let status = resp.status();
     if !status.is_success() {
         let text = resp.text().await.unwrap_or_default();
-        // 不记录 api_key，只记录状态码和响应片段（最多 500 字符）
-        let truncated = if text.len() > 500 {
-            &text[..500]
-        } else {
-            &text
-        };
+        // 不记录 api_key，只记录状态码和响应片段（最多 500 字符）。
+        // L6 fix: 使用 chars().take() 按字符边界截断，避免 &text[..500]
+        // 在多字节 UTF-8（如中文错误消息）上 panic。
+        let truncated: String = text.chars().take(500).collect();
         return Err(format!("LLM API error {}: {}", status, truncated));
     }
 
