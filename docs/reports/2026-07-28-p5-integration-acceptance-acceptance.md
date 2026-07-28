@@ -226,7 +226,7 @@
 | API Key 加密存储 | Pass | [lib.rs:929-961](../../frontend/src-tauri/src/lib.rs#L929-L961) 使用 keyring crate（Windows Credential Manager / macOS Keychain / Linux Secret Service） |
 | API Key 不暴露到 webview | Pass | [lib.rs:857-858](../../frontend/src-tauri/src/lib.rs#L857-L858) LLM 请求经 Rust reqwest 发出，API Key 不经过 webview |
 | 路径穿越防护（Rust） | Pass | [lib.rs:234-244](../../frontend/src-tauri/src/lib.rs#L234-L244) validate_inside + [lib.rs:251-257](../../frontend/src-tauri/src/lib.rs#L251-L257) is_valid_domain (kebab-case) |
-| 路径穿越防护（Server） | Pass | [schemas.ts:47](../../server/src/schemas.ts#L47) DOMAIN_REGEX = /^[a-z0-9][a-z0-9-]*$/ 校验 domain 参数 |
+| 路径穿越防护（Server） | Pass | [schemas.ts:47](../../server/src/schemas.ts#L47) `DOMAIN_REGEX = /^[a-z0-9][a-z0-9-]*$/` 校验 domain 参数 |
 | 命令注入防护 | Pass | [lib.rs:333](../../frontend/src-tauri/src/lib.rs#L333) Python parser 参数数组 + [lib.rs:757-763](../../frontend/src-tauri/src/lib.rs#L757-L763) node 子进程参数数组 |
 | CSP 隔离 | Pass | [tauri.conf.json:25](../../frontend/src-tauri/tauri.conf.json#L25) `script-src 'self'` + `connect-src 'self' ipc: http://ipc.localhost` 阻止 webview 直接发 HTTP |
 | Semgrep XSS 扫描 | Pass（配置完善） | [security.yml](../../.github/workflows/security.yml) 配置 p/owasp-top-ten + p/xss + 自定义 dangerouslySetInnerHTML/innerHTML 规则 |
