@@ -126,6 +126,7 @@ SettingsPanel 在 cloud-first 模式下显示醒目提示：
 **模型选择策略**：用户在 SettingsPanel 中手动选择厂商（非自动路由），API Key 经 keyring 持久化。三家厂商全部 OpenAI 兼容 + Bearer Token 认证，Rust 端 `call_llm_api` 统一调用接口，仅 `provider/model/baseUrl` 不同。
 
 **禁止使用的老版本模型名**（`DEPRECATED_MODELS` 黑名单，单元测试强制校验）：
+
 - `gpt-4o`、`gpt-4o-mini`、`gpt4o`
 - `deepseek-chat`、`deepseek-reasoner`（2026-07-24 停用）
 - `moonshot-v1-128k`、`moonshot-v1-32k`、`moonshot-v1-8k`
@@ -164,8 +165,9 @@ SettingsPanel 在 cloud-first 模式下显示醒目提示：
 | ADR-013-V8 | staging "LLM 整理" 按钮全链路（拖拽 → staging → LLM 整理 → 采用 → confirm） | ✅ P5 已实现（[FileList.tsx](../../frontend/src/components/FileList.tsx) `handleOrganize` + `LlmOrganizeModal`，[lib.rs](../../frontend/src-tauri/src/lib.rs) `update_staging_content` IPC 命令，状态机守卫确保 status 保持 staging） |
 
 > **R6 更新说明（2026-07-28）**：R6 修复将 SettingsPanel 默认值从 `"cloud-first"` 改为 `"disabled"`（V2 合规），并在 cloud-first 模式下补全了模型选择（DeepSeek/Claude/GPT）、隐私告知、API Key"不会保存"提示、"测试连接"反馈（V4 合规）。API Key 仍仅存 `useState` 内存（V5 合规：不落明文），加密持久化推迟到 P5 接入 `tauri-plugin-store` 时实现。详见 [R6 验收报告](../reports/2026-07-28-p4-fix-r6-acceptance.md)。
-
+>
 > **P5 接入说明（2026-07-28）**：P5 集成验收完成 LLM 实际接入，ADR-013 状态从 `Proposed` 升级为 `Accepted`。关键变更：
+>
 > - **V6**：`lib/llm.ts` 的 `PROVIDERS` 配置中国三厂商（DeepSeek V4 / GLM-5.2 / Kimi K3），`callLlm` 经 Tauri IPC 调用 Rust 端 `call_llm_api`，由 Rust `reqwest` 发送 OpenAI 兼容 HTTP 请求。严禁使用老版本模型名（`DEPRECATED_MODELS` 黑名单 + 单元测试强制校验）。
 > - **V7**：API Key 经 Rust `keyring` crate 加密持久化到操作系统密钥环（Windows Credential Manager / macOS Keychain / Linux Secret Service），永不落明文配置文件。`llmStore`（Zustand + localStorage）仅持久化 `llmMode` 和 `cloudProvider`（非敏感用户偏好），API Key 不进 store。
 > - **V8**：FileList 的 `FileCard` 添加 "LLM 整理" 按钮（`auto_fix_high` 图标），点击后调用 `organizeStagingPage` → LLM 返回结构化 markdown → `LlmOrganizeModal` 展示结果 → "采用" 调用 `update_staging_content` IPC 替换 staging 文件内容（状态机守卫确保 status 保持 staging）→ 用户手动 confirm 入库。
