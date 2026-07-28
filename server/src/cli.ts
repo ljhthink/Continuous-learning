@@ -25,6 +25,7 @@
  * but avoids protocol complexity.
  */
 
+import { z } from "zod";
 import { kbSearch } from "./tools/search.js";
 import { kbGetPage } from "./tools/read-only.js";
 import { kbListCategories, kbListRecent, kbHealth } from "./tools/read-only.js";
@@ -43,6 +44,23 @@ import {
   kbPromoteExperience,
 } from "./tools/write.js";
 import type { ToolResult } from "./tools/helpers.js";
+import {
+  kbSearchSchema,
+  kbGetPageSchema,
+  kbIngestSourceSchema,
+  kbWriteExperienceSchema,
+  kbPromoteExperienceSchema,
+  kbListCategoriesSchema,
+  kbListRecentSchema,
+  kbLintSchema,
+  kbHealthSchema,
+  kbListStagingSchema,
+  kbConfirmStagingSchema,
+  kbRejectStagingSchema,
+  kbGetGraphSchema,
+  kbGetBacklinksSchema,
+  kbListInboxSchema,
+} from "./schemas.js";
 
 // ---------------------------------------------------------------------------
 // Tool registry — maps tool name → handler function
@@ -78,6 +96,33 @@ const TOOL_REGISTRY: Record<string, ToolHandler> = {
 };
 
 // ---------------------------------------------------------------------------
+// Schema registry — maps tool name → Zod schema (P3.2, M-1 fix)
+// ---------------------------------------------------------------------------
+
+// Schemas in schemas.ts are ZodRawShape objects (plain objects of Zod types),
+// not ZodObject instances. We wrap each in z.object() to get a usable schema
+// with safeParse(). This ensures the CLI subprocess path validates inputs
+// identically to the MCP server path (which uses server.tool(name, desc,
+// schema, handler) — the MCP SDK internally wraps ZodRawShape the same way).
+const SCHEMA_REGISTRY: Record<string, z.ZodType> = {
+  kb_search: z.object(kbSearchSchema),
+  kb_get_page: z.object(kbGetPageSchema),
+  kb_list_categories: z.object(kbListCategoriesSchema),
+  kb_list_recent: z.object(kbListRecentSchema),
+  kb_health: z.object(kbHealthSchema),
+  kb_lint: z.object(kbLintSchema),
+  kb_get_graph: z.object(kbGetGraphSchema),
+  kb_get_backlinks: z.object(kbGetBacklinksSchema),
+  kb_list_inbox: z.object(kbListInboxSchema),
+  kb_list_staging: z.object(kbListStagingSchema),
+  kb_confirm_staging: z.object(kbConfirmStagingSchema),
+  kb_reject_staging: z.object(kbRejectStagingSchema),
+  kb_ingest_source: z.object(kbIngestSourceSchema),
+  kb_write_experience: z.object(kbWriteExperienceSchema),
+  kb_promote_experience: z.object(kbPromoteExperienceSchema),
+};
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -106,6 +151,25 @@ async function main(): Promise<void> {
       `Invalid JSON args: ${err instanceof Error ? err.message : String(err)}`,
     );
     process.exit(1);
+  }
+
+  // P3.2 (M-1 fix): Validate args via Zod safeParse before calling handler.
+  // This ensures the CLI subprocess path validates inputs identically to the
+  // MCP server path (which uses server.tool() with the same schemas).
+  // Without this, the CLI path relied solely on handler-internal defensive
+  // checks, allowing malformed args (e.g., wrong types, missing required
+  // fields) to reach the handler and produce cryptic runtime errors.
+  const schema = SCHEMA_REGISTRY[toolName];
+  if (schema) {
+    const parsed = schema.safeParse(args);
+    if (!parsed.success) {
+      const issues = parsed.error.issues
+        .map((i) => `  - ${i.path.join(".")}: ${i.message}`)
+        .join("\n");
+      console.error(`Invalid args for ${toolName}:\n${issues}`);
+      process.exit(1);
+    }
+    args = parsed.data as Record<string, unknown>;
   }
 
   // Call the tool handler.

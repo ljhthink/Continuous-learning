@@ -2,9 +2,9 @@
 
 | 项目 | 内容 |
 | --- | --- |
-| 状态 | Proposed |
-| 日期 | 2026-07-27 |
-| 决策者 | 主 Agent（P4 Phase 4c 阶段） |
+| 状态 | Accepted |
+| 日期 | 2026-07-27（创建）/ 2026-07-28（P5 接入，状态升级为 Accepted） |
+| 决策者 | 主 Agent（P4 Phase 4c → P5 集成验收） |
 | 关联文档 | P4 实施计划 `.trae/documents/p4-gui-implementation-plan.md` §4.4.8 设置面板 / [ADR-012](ADR-012-p4-gui-tech-stack.md)（GUI 技术栈） / [ADR-001](ADR-001-knowledge-base-tech-stack.md)（核心依赖 ≤5 原则） |
 | 风险等级 | P3（涉及密钥存储、网络调用、隐私边界） |
 | 前序 ADR | [ADR-012](ADR-012-p4-gui-tech-stack.md)（已选 Tauri v2 + React），本文决定 LLM 接入方式 |
@@ -105,15 +105,32 @@ SettingsPanel 在 cloud-first 模式下显示醒目提示：
 
 **disabled 模式**：零网络调用，纯本地工具。
 
-### D6. 模型选择与降级
+### D6. 模型选择与降级（P5 更新：适配中国三厂商最新旗舰）
+
+> **P5 更新（2026-07-28）**：原 D6 使用 Claude/GPT，P5 接入时改为中国三厂商最新旗舰模型。严禁使用老版本模型名（如 `gpt-4o`、`deepseek-chat`、`glm-4`）。
 
 | 模式 | 首选模型 | 降级方案 |
 | --- | --- | --- |
-| cloud-first | Claude Sonnet 4.5（若 API Key 以 `sk-ant-` 开头）/ GPT-4o-mini（若以 `sk-` 开头） | API 错误时提示用户切换 local 模式 |
-| local-first | Ollama `qwen2.5:7b`（中文友好，4GB 显存可跑） | 模型未拉取时提示 `ollama pull qwen2.5:7b` |
+| cloud-first | DeepSeek V4（`deepseek-v4-pro`，1M 上下文，性价比高）/ GLM-5.2（`glm-5.2`，智谱，思考模式）/ Kimi K3（`kimi-k3`，月之暗面，2.8T 参数） | API 错误时提示用户切换其他厂商或 local 模式 |
+| local-first | Ollama `qwen3:7b`（中文友好，4GB 显存可跑） | 模型未拉取时提示 `ollama pull qwen3:7b` |
 | disabled | N/A | N/A |
 
-**模型选择策略**：P5 实现时在 `lib/llm.ts` 中根据 API Key 前缀自动路由，用户无需手动选模型。
+**三厂商技术对比**（2026-07-28 网络搜索确认）：
+
+| 厂商 | 模型 ID | API 端点 | 认证方式 | 特点 |
+| --- | --- | --- | --- | --- |
+| DeepSeek | `deepseek-v4-pro` | `https://api.deepseek.com/v1` | Bearer Token | OpenAI 兼容，1M 上下文，性价比最高 |
+| 智谱 AI | `glm-5.2` | `https://open.bigmodel.cn/api/paas/v4` | Bearer Token | OpenAI 兼容，思考模式，中文优化 |
+| 月之暗面 | `kimi-k3` | `https://api.moonshot.cn/v1` | Bearer Token | OpenAI 兼容，2.8T 参数，1M 上下文 |
+
+**模型选择策略**：用户在 SettingsPanel 中手动选择厂商（非自动路由），API Key 经 keyring 持久化。三家厂商全部 OpenAI 兼容 + Bearer Token 认证，Rust 端 `call_llm_api` 统一调用接口，仅 `provider/model/baseUrl` 不同。
+
+**禁止使用的老版本模型名**（`DEPRECATED_MODELS` 黑名单，单元测试强制校验）：
+
+- `gpt-4o`、`gpt-4o-mini`、`gpt4o`
+- `deepseek-chat`、`deepseek-reasoner`（2026-07-24 停用）
+- `moonshot-v1-128k`、`moonshot-v1-32k`、`moonshot-v1-8k`
+- `glm-4`、`glm-4.5`
 
 ## 影响与后果（Consequences）
 
@@ -143,8 +160,19 @@ SettingsPanel 在 cloud-first 模式下显示醒目提示：
 | ADR-013-V3 | disabled 模式下零网络调用 | ✅ P4c 已实现（无 LLM 调用代码） |
 | ADR-013-V4 | cloud-first 模式显示隐私告知 | ✅ R6 已实现（UX 层面，P5 接入时实现真实 LLM 调用） |
 | ADR-013-V5 | API Key 不落明文配置 | ✅ R6 已实现（仅内存 `useState`，P5 接入时改用 `tauri-plugin-store` 加密持久化） |
+| ADR-013-V6 | cloud-first 模式实际调用中国三厂商 LLM API（DeepSeek V4 / GLM-5.2 / Kimi K3） | ✅ P5 已实现（[llm.ts](../../frontend/src/lib/llm.ts) `PROVIDERS` + `callLlm`，[lib.rs](../../frontend/src-tauri/src/lib.rs) `call_llm_api` Rust reqwest HTTP 调用） |
+| ADR-013-V7 | API Key 经操作系统密钥环加密持久化（keyring crate） | ✅ P5 已实现（Rust `keyring` crate，`save_api_key`/`load_api_key`/`delete_api_key` IPC 命令，跨平台支持 Windows Credential Manager / macOS Keychain / Linux Secret Service） |
+| ADR-013-V8 | staging "LLM 整理" 按钮全链路（拖拽 → staging → LLM 整理 → 采用 → confirm） | ✅ P5 已实现（[FileList.tsx](../../frontend/src/components/FileList.tsx) `handleOrganize` + `LlmOrganizeModal`，[lib.rs](../../frontend/src-tauri/src/lib.rs) `update_staging_content` IPC 命令，状态机守卫确保 status 保持 staging） |
 
 > **R6 更新说明（2026-07-28）**：R6 修复将 SettingsPanel 默认值从 `"cloud-first"` 改为 `"disabled"`（V2 合规），并在 cloud-first 模式下补全了模型选择（DeepSeek/Claude/GPT）、隐私告知、API Key"不会保存"提示、"测试连接"反馈（V4 合规）。API Key 仍仅存 `useState` 内存（V5 合规：不落明文），加密持久化推迟到 P5 接入 `tauri-plugin-store` 时实现。详见 [R6 验收报告](../reports/2026-07-28-p4-fix-r6-acceptance.md)。
+>
+> **P5 接入说明（2026-07-28）**：P5 集成验收完成 LLM 实际接入，ADR-013 状态从 `Proposed` 升级为 `Accepted`。关键变更：
+>
+> - **V6**：`lib/llm.ts` 的 `PROVIDERS` 配置中国三厂商（DeepSeek V4 / GLM-5.2 / Kimi K3），`callLlm` 经 Tauri IPC 调用 Rust 端 `call_llm_api`，由 Rust `reqwest` 发送 OpenAI 兼容 HTTP 请求。严禁使用老版本模型名（`DEPRECATED_MODELS` 黑名单 + 单元测试强制校验）。
+> - **V7**：API Key 经 Rust `keyring` crate 加密持久化到操作系统密钥环（Windows Credential Manager / macOS Keychain / Linux Secret Service），永不落明文配置文件。`llmStore`（Zustand + localStorage）仅持久化 `llmMode` 和 `cloudProvider`（非敏感用户偏好），API Key 不进 store。
+> - **V8**：FileList 的 `FileCard` 添加 "LLM 整理" 按钮（`auto_fix_high` 图标），点击后调用 `organizeStagingPage` → LLM 返回结构化 markdown → `LlmOrganizeModal` 展示结果 → "采用" 调用 `update_staging_content` IPC 替换 staging 文件内容（状态机守卫确保 status 保持 staging）→ 用户手动 confirm 入库。
+> - **CSP 安全设计**：LLM API 调用经 Rust `reqwest`（不经 webview），CSP 的 `connect-src` 不允许 LLM API 域名，防止 XSS 攻击泄露 API Key。
+> - **D6 更新**：模型选择从 Claude/GPT 改为中国三厂商最新旗舰，local-first 模型从 `qwen2.5:7b` 更新为 `qwen3:7b`。
 
 ## 参考
 

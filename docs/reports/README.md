@@ -65,3 +65,6 @@
 | 2026-07-28 | P4 图谱修复 R6 安全与质量审计 | guardrail | [2026-07-28-p4-fix-r6-guardrail.md](2026-07-28-p4-fix-r6-guardrail.md) |
 | 2026-07-28 | P4 图谱修复 R6 验收测试 | acceptance | [2026-07-28-p4-fix-r6-acceptance.md](2026-07-28-p4-fix-r6-acceptance.md) |
 | 2026-07-28 | P4 图谱修复 R6 运行时调试验证 | debug | [2026-07-28-p4-fix-r6-debug.md](2026-07-28-p4-fix-r6-debug.md) |
+| 2026-07-28 | P5 集成验收测试计划 | plan | [2026-07-28-p5-integration-acceptance-plan.md](2026-07-28-p5-integration-acceptance-plan.md) |
+| 2026-07-28 | P5 lint-perf 阈值修复安全与质量审计 | guardrail | [2026-07-28-p5-lint-perf-fix-guardrail.md](2026-07-28-p5-lint-perf-fix-guardrail.md) |
+| 2026-07-28 | P5 集成验收分层测试 | acceptance | [2026-07-28-p5-integration-acceptance-acceptance.md](2026-07-28-p5-integration-acceptance-acceptance.md) |
