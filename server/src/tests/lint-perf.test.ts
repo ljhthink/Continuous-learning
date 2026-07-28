@@ -213,7 +213,7 @@ describe("kb_lint missing_xref (L-2 optimized)", () => {
     //   - > 50% 下降（2532ms）→ 失败；> 20% 下降（2026ms）→ 警告
     //
     // 环境感知阈值（防止本地开发负载导致 flake）：
-    //   - CI（process.env.CI === 'true'）：2500ms — 对齐 50% 下降失败线，GitHub Actions 环境隔离度高
+    //   - CI（process.env.GITHUB_ACTIONS === 'true'）：2500ms — 对齐 50% 下降失败线，GitHub Actions 环境隔离度高
     //   - 本地：5000ms — 容忍 IDE/dev server/其他后台进程的 I/O 竞争
     //
     // O(N²) 回归在 N=1000 时 push median > 10s，即使 5000ms 阈值也有 2x 安全余量。
