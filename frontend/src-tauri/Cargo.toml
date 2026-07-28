@@ -20,3 +20,7 @@ tauri-plugin-dialog = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 chrono = { version = "0.4", features = ["serde"] }
+# P5 LLM 集成（ADR-013）：HTTP 客户端 + 操作系统密钥环
+# reqwest 使用 rustls-tls 避免 Linux CI 需要 OpenSSL dev 包
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+keyring = "3"

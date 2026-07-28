@@ -1,0 +1,81 @@
+name: security
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/src/**'
+      - 'server/src/**'
+      - '.github/workflows/security.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/src/**'
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep-xss:
+    name: Semgrep XSS Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Semgrep XSS scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/owasp-top-ten,
+            p/xss,
+            p/typescript
+          # Only scan frontend source (skip node_modules, dist, tests)
+          # Focus on XSS patterns: dangerouslySetInnerHTML, innerHTML, 
+          # unescaped template literals in JSX, etc.
+          generate: >-
+            backend: github
+          # Fail on high+ severity findings
+          auditOn: "push"
+
+      - name: Semgrep custom XSS rules
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: |
+            rules:
+              # Detect dangerouslySetInnerHTML (React XSS vector)
+              - id: react-dangerouslysetinnerhtml
+                patterns:
+                  - pattern: dangerouslySetInnerHTML={{ __html: ... }}
+                message: "Avoid dangerouslySetInnerHTML — use escapeHtml or DOMPurify first (R4 guardrail)"
+                languages: [typescript, tsx]
+                severity: ERROR
+                paths:
+                  include:
+                    - "frontend/src/**/*.{ts,tsx}"
+
+              # Detect innerHTML assignment
+              - id: dom-innerhtml-assignment
+                patterns:
+                  - pattern: $EL.innerHTML = $VAL
+                message: "Avoid .innerHTML assignment — use textContent or escapeHtml (R4 guardrail)"
+                languages: [typescript, tsx]
+                severity: ERROR
+                paths:
+                  include:
+                    - "frontend/src/**/*.{ts,tsx}"
+
+              # Detect unescaped template literal in JSX context
+              # (catches `{`raw ${userInput}`}` patterns that bypass JSX escaping)
+              - id: jsx-unescaped-template-literal
+                patterns:
+                  - pattern-inside: |
+                      function $COMP(...) {
+                        ...
+                      }
+                  - pattern: |
+                      {$(`...${$INPUT}...`)}
+                message: "Template literal in JSX may not be auto-escaped — verify $INPUT is sanitized (R4 guardrail)"
+                languages: [tsx]
+                severity: WARNING
+                paths:
+                  include:
+                    - "frontend/src/**/*.{tsx}"

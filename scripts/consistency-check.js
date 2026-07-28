@@ -9,6 +9,7 @@
  *  3. docs/templates/README.md 包含所有 *-template.md
  *  4. docs/reports/ 中除 README.md 外的文件命名符合 YYYY-MM-DD-<task>-<type>.md
  *  5. 所有 .md 文件中不出现 file:/// 绝对路径（ADR-010，子 Agent 报告必须用相对路径）
+ *  6. 所有 .md 文件中的相对链接 ../ 深度不超过 3 层（P3.4，ADR-010 延伸）
  *
  * 退出码: 0=通过, 1=失败
  */
@@ -148,11 +149,54 @@ function checkFileAbsolutePath() {
   }
 }
 
+// 6. 相对路径深度检测（P3.4，ADR-010 延伸）
+// 子 Agent 生成报告时易写出过多的 ../ 前缀（如 wiki/coding/page.md 引用
+// docs/decisions/ADR-001.md 时写成 ../../../../docs/decisions/ADR-001.md），
+// 导致 Linux CI lychee 报错。本检查扫描所有 .md 文件中的 markdown 相对链接，
+// 如果 ../ 数量超过 3 层则报错（wiki/<domain>/page.md 回到根目录最多 2 层）。
+function checkRelativePathDepth() {
+  const MAX_DEPTH = 3; // 允许最多 3 层 ../（wiki/<domain>/<subdir>/page.md → 根目录需 ../../..）
+  const linkRe = /\]\(([^)]+)\)/g;
+  const files = listMarkdownFiles(ROOT);
+  for (const f of files) {
+    const text = fs.readFileSync(f, 'utf8');
+    const lines = text.split(/\r?\n/);
+    let inCodeBlock = false;
+    for (let i = 0; i < lines.length; i++) {
+      const rawLine = lines[i];
+      // 代码块围栏切换（``` 或 ~~~）
+      if (/^\s*(```|~~~)/.test(rawLine)) {
+        inCodeBlock = !inCodeBlock;
+        continue;
+      }
+      if (inCodeBlock) continue; // 代码块内跳过
+      // inline code 去除
+      const line = rawLine.replace(/`[^`\n]*`/g, '');
+      let m;
+      while ((m = linkRe.exec(line)) !== null) {
+        const link = m[1].split('#')[0].split('?')[0];
+        // 跳过外链、锚点、纯锚点、mailto
+        if (/^(https?:|mailto:|#|\/)/.test(link)) continue;
+        // 计算 ../ 数量
+        const depthMatches = link.match(/\.\.\//g);
+        const depth = depthMatches ? depthMatches.length : 0;
+        if (depth > MAX_DEPTH) {
+          errors.push(
+            `${rel(f)}:${i + 1} 相对路径 ../ 深度=${depth} 超过 ${MAX_DEPTH} 层: ${link}`
+          );
+        }
+      }
+      linkRe.lastIndex = 0;
+    }
+  }
+}
+
 checkReadmeLinks();
 checkDecisionsIndex();
 checkTemplatesIndex();
 checkReportsNaming();
 checkFileAbsolutePath();
+checkRelativePathDepth();
 
 if (errors.length) {
   console.error('一致性检查失败:');

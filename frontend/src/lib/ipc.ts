@@ -124,6 +124,20 @@ export async function rejectStaging(pagePath: string): Promise<void> {
   await invoke("reject_staging", { pagePath });
 }
 
+/** Update a staging page's content with LLM-organized markdown (P5, ADR-013). */
+export async function updateStagingContent(
+  pagePath: string,
+  newContent: string,
+): Promise<void> {
+  if (!isTauriEnvironment()) {
+    throw new Error(
+      "Tauri 环境不可用 — 请在 Tauri 应用中调用 update_staging_content。",
+    );
+  }
+  const invoke = await getInvoke();
+  await invoke("update_staging_content", { pagePath, newContent });
+}
+
 /** Get the current KB config (kb_root + parser paths). */
 export async function getKbConfig(): Promise<KbConfigIPC> {
   if (!isTauriEnvironment()) {
