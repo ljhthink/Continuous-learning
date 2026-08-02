@@ -1,4 +1,4 @@
-﻿# P5-R4 验收测试报告
+# P5-R4 验收测试报告
 
 ## 1. 元信息
 
@@ -18,9 +18,9 @@
 
 | AC ID | 验收标准 | 测试用例 ID | 结果 | 证据 |
 |---|---|---|---|---|
-| AC-1 | LLM 整理大文件内容完整保留 | TC-R4-001 ~ TC-R4-008（TS）, 代码审查（Rust） | **通过** | [lib.rs:L1046-1053](frontend/src-tauri/src/lib.rs#L1046-1053) 确认 max_tokens 和 reasoning_effort 已移除；[lib.rs:L1055-1057](frontend/src-tauri/src/lib.rs#L1055-1057) 超时 180s；[llm.ts:L124-136](frontend/src/lib/llm.ts#L124-136) STAGING_SYSTEM_PROMPT 含完整度指令；8 个 TS 单元测试验证 prompt 内容 |
-| AC-2 | 知识图谱显示所有入库页面 | TC-R4-009 ~ TC-R4-019（TS）, TC-RUST-001 ~ TC-RUST-007（Rust）, E2E-1 | **通过** | [lib.rs:L235-238](frontend/src-tauri/src/lib.rs#L235-238) 换行符修复；[GraphView.tsx:L224-235](frontend/src/components/GraphView.tsx#L224-235) 防御性归一化；7 个 Rust 测试 + 11 个 TS 测试 + Playwright E2E 截图验证图谱 37 节点加载 |
-| AC-3 | 上传领域选择 UX | TC-R4-020 ~ TC-R4-025（TS）, E2E-2 | **通过** | [DropZone.tsx:L222-234](frontend/src/components/DropZone.tsx#L222-234) 领域选择 UX；6 个 TS 测试 + Playwright E2E 验证警告/标签可见 |
+| AC-1 | LLM 整理大文件内容完整保留 | TC-R4-001 ~ TC-R4-008（TS）, 代码审查（Rust） | **通过** | [lib.rs:L1046-1053](../../frontend/src-tauri/src/lib.rs#L1046-1053) 确认 max_tokens 和 reasoning_effort 已移除；[lib.rs:L1055-1057](../../frontend/src-tauri/src/lib.rs#L1055-1057) 超时 180s；[llm.ts:L124-136](../../frontend/src/lib/llm.ts#L124-136) STAGING_SYSTEM_PROMPT 含完整度指令；8 个 TS 单元测试验证 prompt 内容 |
+| AC-2 | 知识图谱显示所有入库页面 | TC-R4-009 ~ TC-R4-019（TS）, TC-RUST-001 ~ TC-RUST-007（Rust）, E2E-1 | **通过** | [lib.rs:L235-238](../../frontend/src-tauri/src/lib.rs#L235-238) 换行符修复；[GraphView.tsx:L224-235](../../frontend/src/components/GraphView.tsx#L224-235) 防御性归一化；7 个 Rust 测试 + 11 个 TS 测试 + Playwright E2E 截图验证图谱 37 节点加载 |
+| AC-3 | 上传领域选择 UX | TC-R4-020 ~ TC-R4-025（TS）, E2E-2 | **通过** | [DropZone.tsx:L222-234](../../frontend/src/components/DropZone.tsx#L222-234) 领域选择 UX；6 个 TS 测试 + Playwright E2E 验证警告/标签可见 |
 | AC-4 | 无回归 | 全量测试套件 | **通过** | TypeScript 206/206 通过，Rust 20/20 通过，无回归 |
 
 ---
@@ -38,8 +38,8 @@
 **证据**：
 
 - tsc --noEmit 无输出（无类型错误）
-- cargo check 输出：`warning: field metadata is never read`（[lib.rs:L78](frontend/src-tauri/src/lib.rs#L78)，预存，非 P5-R4 引入）
-- 注释一致性已修复（[lib.rs:L1007](frontend/src-tauri/src/lib.rs#L1007)："超时 180s"，CR-3 已修复）
+- cargo check 输出：`warning: field metadata is never read`（[lib.rs:L78](../../frontend/src-tauri/src/lib.rs#L78)，预存，非 P5-R4 引入）
+- 注释一致性已修复（[lib.rs:L1007](../../frontend/src-tauri/src/lib.rs#L1007)："超时 180s"，CR-3 已修复）
 
 ### 3.2 单元测试
 
@@ -62,7 +62,7 @@
 
 **P5-R4 新增测试用例明细**：
 
-TypeScript（[p5-r4-acceptance.test.ts](frontend/src/lib/__tests__/p5-r4-acceptance.test.ts)）：
+TypeScript（[p5-r4-acceptance.test.ts](../../frontend/src/lib/__tests__/p5-r4-acceptance.test.ts)）：
 
 | 测试用例 ID | AC | 测试名称 | 技术 | 结果 |
 |---|---|---|---|---|
@@ -92,7 +92,7 @@ TypeScript（[p5-r4-acceptance.test.ts](frontend/src/lib/__tests__/p5-r4-accepta
 | TC-R4-024 | AC-3 | 不同领域均正确显示 | 等价类（多值） | 通过 |
 | TC-R4-025 | AC-3 | 空字符串领域视为未选择（显示警告） | 边界值（空字符串） | 通过 |
 
-Rust（[lib.rs:L1414-1485](frontend/src-tauri/src/lib.rs#L1414-1485)）：
+Rust（[lib.rs:L1414-1485](../../frontend/src-tauri/src/lib.rs#L1414-1485)）：
 
 | 测试用例 ID | AC | 测试名称 | 技术 | 结果 |
 |---|---|---|---|---|
@@ -163,11 +163,11 @@ Rust（[lib.rs:L1414-1485](frontend/src-tauri/src/lib.rs#L1414-1485)）：
 
 | 检查项 | 结果 | 证据 |
 |---|---|---|
-| XSS：LLM 输出含 `<script>` 标签被转义 | 通过 | [html-utils.ts:L26-45](frontend/src/lib/html-utils.ts#L26-45) escapeHtml 转义 6 个 OWASP 字符（`& < > " ' /`）；[GraphView.tsx:L432-438](frontend/src/components/GraphView.tsx#L432-438) nodeLabel 回调对所有用户可控字段调用 escapeHtml；48 个单元测试覆盖 |
-| 敏感信息泄露：API Key 不入日志 | 通过 | [lib.rs:L1073](frontend/src-tauri/src/lib.rs#L1073) 注释"不记录 api_key"；[lib.rs:L1063](frontend/src-tauri/src/lib.rs#L1063) API Key 仅用于 Authorization header；[llm.ts:L263,293,356](frontend/src/lib/llm.ts#L263) console.warn 仅记录 provider 名和错误消息，不记录 key |
-| 路径遍历防御 | 通过 | [lib.rs:L255-276](frontend/src-tauri/src/lib.rs#L255-276) validate_inside 校验路径在 base 内；4 个 Rust 测试覆盖（含中文文件名、不存在文件、穿越攻击、绝对路径） |
-| Provider 白名单校验 | 通过 | [lib.rs:L1019](frontend/src-tauri/src/lib.rs#L1019) get_provider_config 校验 provider 名；3 个 Rust 测试覆盖 |
-| 错误消息 UTF-8 安全截断 | 通过 | [lib.rs:L1075](frontend/src-tauri/src/lib.rs#L1075) 使用 `chars().take(500)` 按字符边界截断，避免多字节 panic |
+| XSS：LLM 输出含 `<script>` 标签被转义 | 通过 | [html-utils.ts:L26-45](../../frontend/src/lib/html-utils.ts#L26-45) escapeHtml 转义 6 个 OWASP 字符（`& < > " ' /`）；[GraphView.tsx:L432-438](../../frontend/src/components/GraphView.tsx#L432-438) nodeLabel 回调对所有用户可控字段调用 escapeHtml；48 个单元测试覆盖 |
+| 敏感信息泄露：API Key 不入日志 | 通过 | [lib.rs:L1073](../../frontend/src-tauri/src/lib.rs#L1073) 注释"不记录 api_key"；[lib.rs:L1063](../../frontend/src-tauri/src/lib.rs#L1063) API Key 仅用于 Authorization header；[llm.ts:L263,293,356](../../frontend/src/lib/llm.ts#L263) console.warn 仅记录 provider 名和错误消息，不记录 key |
+| 路径遍历防御 | 通过 | [lib.rs:L255-276](../../frontend/src-tauri/src/lib.rs#L255-276) validate_inside 校验路径在 base 内；4 个 Rust 测试覆盖（含中文文件名、不存在文件、穿越攻击、绝对路径） |
+| Provider 白名单校验 | 通过 | [lib.rs:L1019](../../frontend/src-tauri/src/lib.rs#L1019) get_provider_config 校验 provider 名；3 个 Rust 测试覆盖 |
+| 错误消息 UTF-8 安全截断 | 通过 | [lib.rs:L1075](../../frontend/src-tauri/src/lib.rs#L1075) 使用 `chars().take(500)` 按字符边界截断，避免多字节 panic |
 
 ---
 
@@ -227,7 +227,7 @@ P5-R4 轮次的 4 项验收标准全部通过：
 | 建议 ID | 当前状态 | 建议修正 | 原因 |
 |---|---|---|---|
 | D-1 | AC-1 验收条件中"端到端：上传大文件→LLM 整理→staging 内容完整"标记为需手动验收 | 补充说明：本轮已验证代码层面限制移除（max_tokens/reasoning_effort/超时/prompt），端到端验证依赖真实 LLM API | 明确区分代码验证与端到端验证的边界 |
-| D-2 | guardrail 报告 CR-3（注释 60s 与实际 180s 不一致）标记为已修复 | 确认已修复：[lib.rs:L1007](frontend/src-tauri/src/lib.rs#L1007) 注释已更新为"超时 180s" | 验证 CR-3 修复状态 |
+| D-2 | guardrail 报告 CR-3（注释 60s 与实际 180s 不一致）标记为已修复 | 确认已修复：[lib.rs:L1007](../../frontend/src-tauri/src/lib.rs#L1007) 注释已更新为"超时 180s" | 验证 CR-3 修复状态 |
 | D-3 | wiki/coding/2025国赛.md frontmatter 已修复 | 确认已修复：第 9 行 `use_count: 2` 后有换行符再接 `---` | 验证 AC-2 数据修复 |
 
 ---
@@ -236,14 +236,14 @@ P5-R4 轮次的 4 项验收标准全部通过：
 
 | # | 文件 | 变更 | 验证方法 | 结果 |
 |---|---|---|---|---|
-| 1 | [lib.rs:L1046-1053](frontend/src-tauri/src/lib.rs#L1046-1053) | 移除 max_tokens=4096 和 reasoning_effort="max" | 代码审查：body 仅含 model + messages | 通过 |
-| 2 | [lib.rs:L1055-1057](frontend/src-tauri/src/lib.rs#L1055-1057) | HTTP 超时 60s→180s | 代码审查：`from_secs(180)` | 通过 |
-| 3 | [lib.rs:L235-238](frontend/src-tauri/src/lib.rs#L235-238) | update_frontmatter_status 添加换行符 | 7 个 Rust 单元测试（TC-RUST-001~007） | 通过 |
-| 4 | [lib.rs:L1007](frontend/src-tauri/src/lib.rs#L1007) | 注释 60s→180s（CR-3） | 代码审查 | 通过 |
-| 5 | [GraphView.tsx:L224-235](frontend/src/components/GraphView.tsx#L224-235) | 防御性归一化 null→默认值 | 11 个 TS 单元测试（TC-R4-009~019） | 通过 |
-| 6 | [DropZone.tsx:L222-234](frontend/src/components/DropZone.tsx#L222-234) | 领域选择 UX 反馈 | 6 个 TS 单元测试（TC-R4-020~025）+ Playwright E2E | 通过 |
-| 7 | [llm.ts:L124-136](frontend/src/lib/llm.ts#L124-136) | STAGING_SYSTEM_PROMPT 增强完整度指令 | 8 个 TS 单元测试（TC-R4-001~008） | 通过 |
-| 8 | [wiki/coding/2025国赛.md](wiki/coding/2025国赛.md) | frontmatter 换行符修复 | 文件读取确认 + 全库扫描无粘连 | 通过 |
+| 1 | [lib.rs:L1046-1053](../../frontend/src-tauri/src/lib.rs#L1046-1053) | 移除 max_tokens=4096 和 reasoning_effort="max" | 代码审查：body 仅含 model + messages | 通过 |
+| 2 | [lib.rs:L1055-1057](../../frontend/src-tauri/src/lib.rs#L1055-1057) | HTTP 超时 60s→180s | 代码审查：`from_secs(180)` | 通过 |
+| 3 | [lib.rs:L235-238](../../frontend/src-tauri/src/lib.rs#L235-238) | update_frontmatter_status 添加换行符 | 7 个 Rust 单元测试（TC-RUST-001~007） | 通过 |
+| 4 | [lib.rs:L1007](../../frontend/src-tauri/src/lib.rs#L1007) | 注释 60s→180s（CR-3） | 代码审查 | 通过 |
+| 5 | [GraphView.tsx:L224-235](../../frontend/src/components/GraphView.tsx#L224-235) | 防御性归一化 null→默认值 | 11 个 TS 单元测试（TC-R4-009~019） | 通过 |
+| 6 | [DropZone.tsx:L222-234](../../frontend/src/components/DropZone.tsx#L222-234) | 领域选择 UX 反馈 | 6 个 TS 单元测试（TC-R4-020~025）+ Playwright E2E | 通过 |
+| 7 | [llm.ts:L124-136](../../frontend/src/lib/llm.ts#L124-136) | STAGING_SYSTEM_PROMPT 增强完整度指令 | 8 个 TS 单元测试（TC-R4-001~008） | 通过 |
+| 8 | [wiki/coding/2025国赛.md](../../wiki/coding/2025国赛.md) | frontmatter 换行符修复 | 文件读取确认 + 全库扫描无粘连 | 通过 |
 
 ---
 

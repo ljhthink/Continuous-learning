@@ -101,7 +101,7 @@
 
 关键测试用例证据：
 
-**AC-2 customModelName 透传**（[p5-r2-runtime-verify.test.ts](frontend/src/lib/__tests__/p5-r2-runtime-verify.test.ts#L48-L76)）：
+**AC-2 customModelName 透传**（[p5-r2-runtime-verify.test.ts](../../frontend/src/lib/__tests__/p5-r2-runtime-verify.test.ts#L48-L76)）：
 
 ```typescript
 it("organizeStagingPage 传入 customModelName 时，invoke 收到非空 model 参数", async () => {
@@ -113,7 +113,7 @@ it("organizeStagingPage 传入 customModelName 时，invoke 收到非空 model �
 });
 ```
 
-**AC-3 完整内容发送**（[p5-r2-runtime-verify.test.ts](frontend/src/lib/__tests__/p5-r2-runtime-verify.test.ts#L83-L121)）：
+**AC-3 完整内容发送**（[p5-r2-runtime-verify.test.ts](../../frontend/src/lib/__tests__/p5-r2-runtime-verify.test.ts#L83-L121)）：
 
 ```typescript
 it("kb_get_page 返回完整 body 时，organizeStagingPage 收到完整内容（非 200 字符 preview）", async () => {
@@ -125,7 +125,7 @@ it("kb_get_page 返回完整 body 时，organizeStagingPage 收到完整内容�
 });
 ```
 
-**AC-4 测试失败保存 Key**（[p5-r2-runtime-verify.test.ts](frontend/src/lib/__tests__/p5-r2-runtime-verify.test.ts#L188-L220)）：
+**AC-4 测试失败保存 Key**（[p5-r2-runtime-verify.test.ts](../../frontend/src/lib/__tests__/p5-r2-runtime-verify.test.ts#L188-L220)）：
 
 ```typescript
 it("testConnection 失败后 saveApiKey 仍被调用", async () => {
@@ -141,7 +141,7 @@ it("testConnection 失败后 saveApiKey 仍被调用", async () => {
 });
 ```
 
-**AC-6 缓存比较逻辑**（[p5-r2-runtime-verify.test.ts](frontend/src/lib/__tests__/p5-r2-runtime-verify.test.ts#L270-L355)）：
+**AC-6 缓存比较逻辑**（[p5-r2-runtime-verify.test.ts](../../frontend/src/lib/__tests__/p5-r2-runtime-verify.test.ts#L270-L355)）：
 
 ```typescript
 it("body 不同时返回 false（应调用 setPage）", () => {
@@ -210,9 +210,9 @@ it("不同路径形式统一到同一 key（解决缓存未命中）", () => {
 | 前端无硬编码密钥 | 通过 | `rg "sk-[a-zA-Z0-9]{20,}\|api[_-]?key\s*=\s*['\"][^'\"]+['\"]\|secret\s*=\s*['\"][^'\"]+['\"]"` → 0 匹配 |
 | .env 文件未提交 | 通过 | `git ls-files --cached "*.env"` → 无结果 |
 | .gitignore 排除 .env | 通过 | `.env`、`.env.local`、`.env.*.local` 在 .gitignore L12-L14 |
-| API Key 存储在 OS 密钥环 | 通过 | [lib.rs:1057-1063](frontend/src-tauri/src/lib.rs#L1057-L1063) 使用 `keyring::Entry` 存储 |
-| API Key 不出现在日志中 | 通过 | [lib.rs:1030](frontend/src-tauri/src/lib.rs#L1030) 注释明确「不记录 api_key」 |
-| API Key 不暴露到 webview | 通过 | [lib.rs:935](frontend/src-tauri/src/lib.rs#L935) 请求经 Rust 端 reqwest 发出 |
+| API Key 存储在 OS 密钥环 | 通过 | [lib.rs:1057-1063](../../frontend/src-tauri/src/lib.rs#L1057-L1063) 使用 `keyring::Entry` 存储 |
+| API Key 不出现在日志中 | 通过 | [lib.rs:1030](../../frontend/src-tauri/src/lib.rs#L1030) 注释明确「不记录 api_key」 |
+| API Key 不暴露到 webview | 通过 | [lib.rs:935](../../frontend/src-tauri/src/lib.rs#L935) 请求经 Rust 端 reqwest 发出 |
 
 ### 4.2 XSS 防护检查
 
@@ -220,25 +220,25 @@ it("不同路径形式统一到同一 key（解决缓存未命中）", () => {
 | --- | --- | --- |
 | 无 dangerouslySetInnerHTML | 通过 | `rg "dangerouslySetInnerHTML" frontend/src` → 0 匹配 |
 | 无 innerHTML 赋值 | 通过 | `rg "\.innerHTML\s*=" frontend/src` → 0 匹配 |
-| escapeHtml 覆盖所有用户可控字段 | 通过 | [GraphView.tsx:423-427](frontend/src/components/GraphView.tsx#L423-L427) title/domain/type/inDegree/outDegree 均经 escapeHtml |
-| escapeHtml 单元测试覆盖 | 通过 | [html-utils.test.ts](frontend/src/lib/__tests__/html-utils.test.ts) 48 个测试覆盖所有 OWASP 载荷 |
+| escapeHtml 覆盖所有用户可控字段 | 通过 | [GraphView.tsx:423-427](../../frontend/src/components/GraphView.tsx#L423-L427) title/domain/type/inDegree/outDegree 均经 escapeHtml |
+| escapeHtml 单元测试覆盖 | 通过 | [html-utils.test.ts](../../frontend/src/lib/__tests__/html-utils.test.ts) 48 个测试覆盖所有 OWASP 载荷 |
 
 ### 4.3 路径遍历防护检查
 
 | 检查项 | 结果 | 证据 |
 | --- | --- | --- |
-| delete_page 路径校验 | 通过 | [lib.rs:676-683](frontend/src-tauri/src/lib.rs#L676-L683) `canonicalize()` + `starts_with(&wiki_root)` |
-| upload_file 路径校验 | 通过 | [lib.rs:399-420](frontend/src-tauri/src/lib.rs#L399-L420) 先创建父目录再 `canonicalize()` + `starts_with(&kb_root_resolved)` |
-| raw 文件删除路径校验 | 通过 | [lib.rs:701-711](frontend/src-tauri/src/lib.rs#L701-L711) `canonicalize()` + `starts_with(&raw_root)` |
-| 仅允许删除 .md 文件 | 通过 | [lib.rs:673-675](frontend/src-tauri/src/lib.rs#L673-L675) `full_path.extension() == "md"` 检查 |
+| delete_page 路径校验 | 通过 | [lib.rs:676-683](../../frontend/src-tauri/src/lib.rs#L676-L683) `canonicalize()` + `starts_with(&wiki_root)` |
+| upload_file 路径校验 | 通过 | [lib.rs:399-420](../../frontend/src-tauri/src/lib.rs#L399-L420) 先创建父目录再 `canonicalize()` + `starts_with(&kb_root_resolved)` |
+| raw 文件删除路径校验 | 通过 | [lib.rs:701-711](../../frontend/src-tauri/src/lib.rs#L701-L711) `canonicalize()` + `starts_with(&raw_root)` |
+| 仅允许删除 .md 文件 | 通过 | [lib.rs:673-675](../../frontend/src-tauri/src/lib.rs#L673-L675) `full_path.extension() == "md"` 检查 |
 
 ### 4.4 权限与输入验证
 
 | 检查项 | 结果 | 证据 |
 | --- | --- | --- |
-| Provider 白名单校验 | 通过 | [lib.rs:946-964](frontend/src-tauri/src/lib.rs#L946-L964) `get_provider_config` 仅允许 deepseek/glm/kimi |
-| 错误信息不泄露内部实现 | 通过 | [lib.rs:1030-1034](frontend/src-tauri/src/lib.rs#L1030-L1034) 错误信息截断至 500 字符，不含 api_key |
-| 删除操作二次确认 | 通过 | [MarkdownPreview.tsx](frontend/src/components/MarkdownPreview.tsx) `window.confirm()` 二次确认 |
+| Provider 白名单校验 | 通过 | [lib.rs:946-964](../../frontend/src-tauri/src/lib.rs#L946-L964) `get_provider_config` 仅允许 deepseek/glm/kimi |
+| 错误信息不泄露内部实现 | 通过 | [lib.rs:1030-1034](../../frontend/src-tauri/src/lib.rs#L1030-L1034) 错误信息截断至 500 字符，不含 api_key |
+| 删除操作二次确认 | 通过 | [MarkdownPreview.tsx](../../frontend/src/components/MarkdownPreview.tsx) `window.confirm()` 二次确认 |
 | HTML 按钮包含 type 属性 | 通过 | 前端代码审查确认 button 元素包含 `type="button"` |
 
 ---
@@ -255,7 +255,7 @@ it("不同路径形式统一到同一 key（解决缓存未命中）", () => {
 | normalizeCacheKey 延迟 | < 0.1ms | < 0.1ms | 通过 |
 | 50K body 大型页面缓存命中 | < 10ms（10000 次） | < 10ms | 通过 |
 
-测试文件：[p5-r2-cache-perf.test.ts](frontend/src/lib/__tests__/p5-r2-cache-perf.test.ts)
+测试文件：[p5-r2-cache-perf.test.ts](../../frontend/src/lib/__tests__/p5-r2-cache-perf.test.ts)
 
 ### 5.2 kb_lint 性能基线对比
 
@@ -306,7 +306,7 @@ it("不同路径形式统一到同一 key（解决缓存未命中）", () => {
 | Tauri 桌面模式 E2E | 因端口 1420 已被占用无法启动独立 Tauri 实例 | 低 | 通过 vitest mock IPC 验证运行时逻辑（20/20 通过），Playwright 验证 UI 元素存在性 |
 | LLM API 实际调用 | 依赖外部 API（DeepSeek/GLM/Kimi），无法在测试中调用真实 API | 低 | 通过 mock 验证 IPC 参数透传链路，Rust 端 reqwest 逻辑通过代码审查确认 |
 | 删除功能 E2E 完整流程 | 需要真实文件系统操作 | 低 | Rust 代码审查确认路径校验 + 前端 Playwright 验证 UI 元素 + 单元测试验证逻辑 |
-| pageContentEqual 不比较 frontmatter | 已知限制 L-2：status/tags/date 变化时不触发 setPage | 极低 | 测试中显式标注为已知限制（[p5-r2-runtime-verify.test.ts:303-308](frontend/src/lib/__tests__/p5-r2-runtime-verify.test.ts#L303-L308)），实际使用场景中 frontmatter 变化通常伴随 body 变化 |
+| pageContentEqual 不比较 frontmatter | 已知限制 L-2：status/tags/date 变化时不触发 setPage | 极低 | 测试中显式标注为已知限制（[p5-r2-runtime-verify.test.ts:303-308](../../frontend/src/lib/__tests__/p5-r2-runtime-verify.test.ts#L303-L308)），实际使用场景中 frontmatter 变化通常伴随 body 变化 |
 
 ---
 
@@ -328,7 +328,7 @@ it("不同路径形式统一到同一 key（解决缓存未命中）", () => {
   - TC-AC2-002: customModelName 为空时，invoke 收到空字符串（Rust 端降级到默认）
   - TC-AC2-003: llm.test.ts 验证 customModelName 透传到 call_llm_api
   - TC-AC2-004: Playwright 验证 Settings 面板存在模型名输入框
-  - TC-AC2-005: Rust 端 `call_llm_api` 优先使用自定义 model（[lib.rs:990-993](frontend/src-tauri/src/lib.rs#L990-L993)）
+  - TC-AC2-005: Rust 端 `call_llm_api` 优先使用自定义 model（[lib.rs:990-993](../../frontend/src-tauri/src/lib.rs#L990-L993)）
 - **结论**: **通过**
 
 ### AC-3: PDF 完整内容发送到 LLM
@@ -346,7 +346,7 @@ it("不同路径形式统一到同一 key（解决缓存未命中）", () => {
 - **测试用例**:
   - TC-AC4-001: testConnection 失败后 saveApiKey 仍被调用
   - TC-AC4-002: testConnection 成功后 saveApiKey 也被调用
-- **代码证据**: [SettingsPanel.tsx](frontend/src/components/SettingsPanel.tsx) handleTestConnection 中 try 块包含 saveApiKey
+- **代码证据**: [SettingsPanel.tsx](../../frontend/src/components/SettingsPanel.tsx) handleTestConnection 中 try 块包含 saveApiKey
 - **结论**: **通过**
 
 ### AC-5: 手动删除功能
@@ -356,7 +356,7 @@ it("不同路径形式统一到同一 key（解决缓存未命中）", () => {
   - TC-AC5-001: Playwright 验证 MarkdownPreview 存在删除按钮
   - TC-AC5-002: Rust 代码审查 delete_page 支持 delete_raw=true
   - TC-AC5-003: 前端代码审查 window.confirm 二次确认
-- **代码证据**: [lib.rs:665-716](frontend/src-tauri/src/lib.rs#L665-L716) delete_page 函数
+- **代码证据**: [lib.rs:665-716](../../frontend/src-tauri/src/lib.rs#L665-L716) delete_page 函数
 - **结论**: **通过**
 
 ### AC-6: 缓存优化
@@ -367,7 +367,7 @@ it("不同路径形式统一到同一 key（解决缓存未命中）", () => {
   - TC-AC6-006~008: normalizeCacheKey 缓存 key 统一
   - TC-AC6-009~010: cardsEqual 列表比较逻辑
   - TC-AC6-PERF-001~005: 性能回退检查（见 §5.1）
-- **代码证据**: [MarkdownPreview.tsx](frontend/src/components/MarkdownPreview.tsx) pageContentEqual + normalizeCacheKey
+- **代码证据**: [MarkdownPreview.tsx](../../frontend/src/components/MarkdownPreview.tsx) pageContentEqual + normalizeCacheKey
 - **结论**: **通过**
 
 ### AC-7: 类型筛选说明文本

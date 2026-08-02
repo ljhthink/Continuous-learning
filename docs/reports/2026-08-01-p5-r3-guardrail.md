@@ -94,7 +94,7 @@ flowchart LR
 | 类别 | `insecure_key_persistence` |
 | 严重度 | MEDIUM |
 | 置信度 | 0.82 |
-| 位置 | [llm.ts:251](frontend/src/lib/llm.ts#L251)、[llm.ts:296-299](frontend/src/lib/llm.ts#L296-L299) |
+| 位置 | [llm.ts:251](../../frontend/src/lib/llm.ts#L251)、[llm.ts:296-299](../../frontend/src/lib/llm.ts#L296-L299) |
 
 **证据（Source → Sink）**：
 
@@ -134,7 +134,7 @@ try {
 | 类别 | `sensitive_data_exposure`（误导性安全状态反馈） |
 | 严重度 | LOW |
 | 置信度 | 0.85 |
-| 位置 | [llm.ts:255-261](frontend/src/lib/llm.ts#L255-L261)、[SettingsPanel.tsx handleTestConnection](frontend/src/components/SettingsPanel.tsx#L82-L103) |
+| 位置 | [llm.ts:255-261](../../frontend/src/lib/llm.ts#L255-L261)、[SettingsPanel.tsx handleTestConnection](../../frontend/src/components/SettingsPanel.tsx#L82-L103) |
 
 **证据**：
 
@@ -176,7 +176,7 @@ try {
 | 类别 | 逻辑健壮性（非安全漏洞） |
 | 严重度 | LOW |
 | 置信度 | 0.80 |
-| 位置 | [llm.ts:306-337](frontend/src/lib/llm.ts#L306-L337) |
+| 位置 | [llm.ts:306-337](../../frontend/src/lib/llm.ts#L306-L337) |
 
 **证据**：
 
@@ -210,7 +210,7 @@ if (provider === "custom") {
 | 类别 | 资源管理（非安全漏洞） |
 | 严重度 | LOW |
 | 置信度 | 0.80 |
-| 位置 | [MarkdownPreview.tsx:46](frontend/src/components/MarkdownPreview.tsx#L46) |
+| 位置 | [MarkdownPreview.tsx:46](../../frontend/src/components/MarkdownPreview.tsx#L46) |
 
 **证据**：
 
@@ -237,7 +237,7 @@ const pageCache = new Map<string, PageDetail>();
 | `\\?\` 前缀注入 | 攻击者构造 `\\?\..\..\etc\passwd` 作为 path，join 后 canonicalize 解析 `..`，strip_verbatim 去前缀，starts_with 检查 `etc\passwd` 不在 kb_root 下 → 拒绝 |
 | UNC 路径 | `\\server\share` 不被 strip_verbatim 去除（仅匹配 `\\?\`），starts_with 正确比较 |
 
-**结论**：[lib.rs:264-272](frontend/src-tauri/src/lib.rs#L264-L272) 的修复正确，不引入路径穿越绕过。
+**结论**：[lib.rs:264-272](../../frontend/src-tauri/src/lib.rs#L264-L272) 的修复正确，不引入路径穿越绕过。
 
 #### 5.1.2 delete_page 自动补 .md — 安全（三层防护）
 
@@ -279,7 +279,7 @@ const pageCache = new Map<string, PageDetail>();
 | `data` 字段是否泄露 | `data` 返回 MCP 工具的 JSON 输出（含 frontmatter/body），但这是工具的正常返回值，前端需要此数据。且为本地单用户应用，不存在跨用户泄露 |
 | 错误消息是否含内部路径 | 是（如 "Page not found: wiki/coding/xxx"），但用户已知这些路径（来自前端导航），非敏感信息 |
 
-**结论**：[lib.rs:934-942](frontend/src-tauri/src/lib.rs#L934-L942) 的错误透传是正确的可诊断性改进，不泄露密钥或敏感信息。
+**结论**：[lib.rs:934-942](../../frontend/src-tauri/src/lib.rs#L934-L942) 的错误透传是正确的可诊断性改进，不泄露密钥或敏感信息。
 
 #### 5.2.3 最小权限
 

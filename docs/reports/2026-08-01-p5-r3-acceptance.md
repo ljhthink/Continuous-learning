@@ -96,7 +96,7 @@
 
 关键测试用例证据：
 
-**AC-1 loadApiKey 旧 provider 迁移**（[p5-r3-integration.test.ts:50-125](frontend/src/lib/__tests__/p5-r3-integration.test.ts#L50-L125)）：
+**AC-1 loadApiKey 旧 provider 迁移**（[p5-r3-integration.test.ts:50-125](../../frontend/src/lib/__tests__/p5-r3-integration.test.ts#L50-L125)）：
 
 ```typescript
 it("custom 无 Key 时从 deepseek 迁移（keyring）", async () => {
@@ -116,7 +116,7 @@ it("custom 无 Key 时从 deepseek 迁移（keyring）", async () => {
 });
 ```
 
-**AC-1 双层存储往返一致性**（[p5-r3-integration.test.ts:131-168](frontend/src/lib/__tests__/p5-r3-integration.test.ts#L131-L168)）：
+**AC-1 双层存储往返一致性**（[p5-r3-integration.test.ts:131-168](../../frontend/src/lib/__tests__/p5-r3-integration.test.ts#L131-L168)）：
 
 ```typescript
 it("keyring 失败时 localStorage 降级往返一致", async () => {
@@ -203,29 +203,29 @@ it("包含 Unicode 字符的 Key 往返一致（base64 编码正确性）", asyn
 | 检查项 | 结果 | 证据 |
 | --- | --- | --- |
 | 无 dangerouslySetInnerHTML | 通过 | `Select-String -Pattern 'dangerouslySetInnerHTML\|innerHTML'` → 仅 GraphView.tsx:417 注释提及（非实际使用） |
-| escapeHtml 覆盖所有用户可控字段 | 通过 | [GraphView.tsx:423-427](frontend/src/components/GraphView.tsx#L423-L427) title/domain/type/inDegree/outDegree 均经 escapeHtml |
-| escapeHtml 实现正确 | 通过 | [html-utils.ts:26-45](frontend/src/lib/html-utils.ts#L26-L45) 转义 OWASP 推荐 6 字符（& < > " ' /） |
+| escapeHtml 覆盖所有用户可控字段 | 通过 | [GraphView.tsx:423-427](../../frontend/src/components/GraphView.tsx#L423-L427) title/domain/type/inDegree/outDegree 均经 escapeHtml |
+| escapeHtml 实现正确 | 通过 | [html-utils.ts:26-45](../../frontend/src/lib/html-utils.ts#L26-L45) 转义 OWASP 推荐 6 字符（& < > " ' /） |
 | escapeHtml 单元测试覆盖 | 通过 | html-utils.test.ts 48 个测试覆盖所有 OWASP 载荷 |
 
 ### 4.3 路径遍历防护检查
 
 | 检查项 | 结果 | 证据 |
 | --- | --- | --- |
-| validate_inside verbatim 前缀剥离 | 通过 | [lib.rs:252-272](frontend/src-tauri/src/lib.rs#L252-L272) 双侧去除 `\\?\` 后比较；2 个 Rust 测试验证 |
-| delete_page .md 自动补全 | 通过 | [lib.rs:683-687](frontend/src-tauri/src/lib.rs#L683-L687) 无 .md 时自动追加；1 个 Rust 测试验证 |
+| validate_inside verbatim 前缀剥离 | 通过 | [lib.rs:252-272](../../frontend/src-tauri/src/lib.rs#L252-L272) 双侧去除 `\\?\` 后比较；2 个 Rust 测试验证 |
+| delete_page .md 自动补全 | 通过 | [lib.rs:683-687](../../frontend/src-tauri/src/lib.rs#L683-L687) 无 .md 时自动追加；1 个 Rust 测试验证 |
 | delete_page 三层防护 | 通过 | 第 1 层 validate_inside + 第 2 层 .md 扩展名校验 + 第 3 层 wiki_root starts_with 检查 |
-| 路径穿越拒绝 | 通过 | [lib.rs:1213-1234](frontend/src-tauri/src/lib.rs#L1213-L1234) `test_validate_inside_rejects_path_traversal` 验证 `..` 组件被拦截 |
-| 绝对路径拒绝 | 通过 | [lib.rs:1242-1254](frontend/src-tauri/src/lib.rs#L1242-L1254) `test_validate_inside_rejects_absolute_path_outside_base` 验证 |
-| 中文文件名处理 | 通过 | [lib.rs:1289-1308](frontend/src-tauri/src/lib.rs#L1289-L1308) `test_validate_inside_with_chinese_filename_no_md` 验证 |
+| 路径穿越拒绝 | 通过 | [lib.rs:1213-1234](../../frontend/src-tauri/src/lib.rs#L1213-L1234) `test_validate_inside_rejects_path_traversal` 验证 `..` 组件被拦截 |
+| 绝对路径拒绝 | 通过 | [lib.rs:1242-1254](../../frontend/src-tauri/src/lib.rs#L1242-L1254) `test_validate_inside_rejects_absolute_path_outside_base` 验证 |
+| 中文文件名处理 | 通过 | [lib.rs:1289-1308](../../frontend/src-tauri/src/lib.rs#L1289-L1308) `test_validate_inside_with_chinese_filename_no_md` 验证 |
 
 ### 4.4 权限与输入验证
 
 | 检查项 | 结果 | 证据 |
 | --- | --- | --- |
-| Provider 白名单校验 | 通过 | [lib.rs](frontend/src-tauri/src/lib.rs) `get_provider_config` 仅允许 custom + 旧 provider 向后兼容；3 个 Rust 测试验证 |
+| Provider 白名单校验 | 通过 | [lib.rs](../../frontend/src-tauri/src/lib.rs) `get_provider_config` 仅允许 custom + 旧 provider 向后兼容；3 个 Rust 测试验证 |
 | MCP 工具错误不泄露密钥 | 通过 | MCP 工具错误来自 kb_get_page（"Page not found"），不含密钥；4 个 Rust 测试验证 |
-| 删除操作二次确认 | 通过 | [MarkdownPreview.tsx](frontend/src/components/MarkdownPreview.tsx) handleDelete 含 `window.confirm()` 二次确认 |
-| HTML 按钮包含 type 属性 | 通过 | [MarkdownPreview.tsx:254](frontend/src/components/MarkdownPreview.tsx#L254) `<button type="button">` |
+| 删除操作二次确认 | 通过 | [MarkdownPreview.tsx](../../frontend/src/components/MarkdownPreview.tsx) handleDelete 含 `window.confirm()` 二次确认 |
+| HTML 按钮包含 type 属性 | 通过 | [MarkdownPreview.tsx:254](../../frontend/src/components/MarkdownPreview.tsx#L254) `<button type="button">` |
 
 ### 4.5 guardrail 审计结论对齐
 
@@ -299,7 +299,7 @@ it("包含 Unicode 字符的 Key 往返一致（base64 编码正确性）", asyn
   - TC-AC1-008: Unicode 字符 Key 往返一致 — vitest 通过
   - TC-AC1-009: Playwright 运行时 localStorage 存储 + 持久化验证 — 通过
   - TC-AC1-010: 非 Tauri 环境边缘场景 — vitest 通过
-- **代码证据**: [llm.ts:243-262](frontend/src/lib/llm.ts#L243-L262) saveApiKey 双层存储 + [llm.ts:278-337](frontend/src/lib/llm.ts#L278-L337) loadApiKey 降级 + 迁移
+- **代码证据**: [llm.ts:243-262](../../frontend/src/lib/llm.ts#L243-L262) saveApiKey 双层存储 + [llm.ts:278-337](../../frontend/src/lib/llm.ts#L278-L337) loadApiKey 降级 + 迁移
 - **结论**: **通过**
 
 ### AC-2: 路径穿越防护修复
@@ -313,7 +313,7 @@ it("包含 Unicode 字符的 Key 往返一致（base64 编码正确性）", asyn
   - TC-AC2-004: 绝对路径外部拒绝 — 通过
   - TC-AC2-005: .md 自动补全逻辑 — 通过
   - TC-AC2-006: 中文文件名无 .md 后缀处理 — 通过
-- **代码证据**: [lib.rs:252-272](frontend/src-tauri/src/lib.rs#L252-L272) validate_inside + [lib.rs:676-701](frontend/src-tauri/src/lib.rs#L676-L701) delete_page 三层防护
+- **代码证据**: [lib.rs:252-272](../../frontend/src-tauri/src/lib.rs#L252-L272) validate_inside + [lib.rs:676-701](../../frontend/src-tauri/src/lib.rs#L676-L701) delete_page 三层防护
 - **结论**: **通过**
 
 ### AC-3: 设置面板移除预设 provider
@@ -324,7 +324,7 @@ it("包含 Unicode 字符的 Key 往返一致（base64 编码正确性）", asyn
   - TC-AC3-001: Settings 面板 Cloud 模式下存在 API 地址输入框（placeholder = `https://api.deepseek.com/v1（OpenAI 兼容端点）`）— 通过
   - TC-AC3-002: Settings 面板 Cloud 模式下存在模型名输入框（placeholder = `如 deepseek-chat / glm-5.2 / kimi-k3`）— 通过
   - TC-AC3-003: Settings 面板无 provider select 下拉（仅有 LLM 模式 select）— 通过
-- **代码证据**: [SettingsPanel.tsx](frontend/src/components/SettingsPanel.tsx) 移除 provider select，添加 customBaseUrl + customModelName 输入
+- **代码证据**: [SettingsPanel.tsx](../../frontend/src/components/SettingsPanel.tsx) 移除 provider select，添加 customBaseUrl + customModelName 输入
 - **结论**: **通过**
 
 ### AC-4: 出链点击错误透传与友好提示
@@ -336,7 +336,7 @@ it("包含 Unicode 字符的 Key 往返一致（base64 编码正确性）", asyn
   - TC-AC4-002: MCP error 字段提取（null error）— 通过
   - TC-AC4-003: MCP error 字段提取（无 error 字段）— 通过
   - TC-AC4-004: MCP error 字段提取（null JSON）— 通过
-- **代码证据**: [lib.rs](frontend/src-tauri/src/lib.rs) call_mcp_tool exit_code=2 时提取 error 字段 + [MarkdownPreview.tsx:172-178](frontend/src/components/MarkdownPreview.tsx#L172-L178) "Page not found" 友好提示
+- **代码证据**: [lib.rs](../../frontend/src-tauri/src/lib.rs) call_mcp_tool exit_code=2 时提取 error 字段 + [MarkdownPreview.tsx:172-178](../../frontend/src/components/MarkdownPreview.tsx#L172-L178) "Page not found" 友好提示
 - **结论**: **通过**
 
 ### AC-5: 知识图谱缓存刷新机制
@@ -345,10 +345,10 @@ it("包含 Unicode 字符的 Key 往返一致（base64 编码正确性）", asyn
 - **验证方式**: Playwright 运行时验证 + 代码审查
 - **测试用例**:
   - TC-AC5-001: graphStore.invalidate() 调用后 reloadTrigger 递增（0→1）— Playwright 通过
-  - TC-AC5-002: DropZone 上传成功后调用 invalidateGraph() — 代码审查通过（[DropZone.tsx:90](frontend/src/components/DropZone.tsx#L90)）
-  - TC-AC5-003: FileList confirm/reject/delete 后调用 invalidateGraph() — 代码审查通过（[FileList.tsx:103,120,152](frontend/src/components/FileList.tsx#L103)）
+  - TC-AC5-002: DropZone 上传成功后调用 invalidateGraph() — 代码审查通过（[DropZone.tsx:90](../../frontend/src/components/DropZone.tsx#L90)）
+  - TC-AC5-003: FileList confirm/reject/delete 后调用 invalidateGraph() — 代码审查通过（[FileList.tsx:103,120,152](../../frontend/src/components/FileList.tsx#L103)）
   - TC-AC5-004: MarkdownPreview delete 后调用 invalidateGraph() — 代码审查通过
-- **代码证据**: [graphStore.ts:30-48](frontend/src/store/graphStore.ts#L30-L48) reloadTrigger + invalidate
+- **代码证据**: [graphStore.ts:30-48](../../frontend/src/store/graphStore.ts#L30-L48) reloadTrigger + invalidate
 - **结论**: **通过**
 
 ### AC-6: Tauri 运行时验证（禁止降级）

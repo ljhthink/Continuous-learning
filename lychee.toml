@@ -28,6 +28,12 @@ exclude = [
   'npmjs\.com',
   # tolkiengateway.net 返回 403 Forbidden（karpathy-LLM.md 引用，社区 wiki 禁止 bot 访问）
   'tolkiengateway\.net',
+  # dotzlaw.com 文章 404（missing-features-solution.md 引用，Obsidian 笔记网络文章已下线）
+  'dotzlaw\.com',
+  # datacamp.com 返回 403 Forbidden（missing-features-solution.md 引用，教育平台禁止 bot 访问）
+  'datacamp\.com',
+  # lib.rs 返回 403 Forbidden（review-domain-archaeology.md 引用，Rust crate 索引站禁止 bot）
+  'lib\.rs',
 ]
 
 # 文件过滤由 docs.yml args '**/*.md' 处理

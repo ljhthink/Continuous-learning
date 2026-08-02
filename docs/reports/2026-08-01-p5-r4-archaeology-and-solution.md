@@ -23,13 +23,13 @@
 
 **前端无截断**：
 
-- `handleOrganize`（[FileList.tsx:166-223](frontend/src/components/FileList.tsx#L166-L223)）：通过 `kb_get_page` 读取完整 body，传给 `organizeStagingPage`
-- `organizeStagingPage`（[llm.ts:376-391](frontend/src/lib/llm.ts#L376-L391)）：直接将 `rawContent` 作为 `prompt` 传给 `callLlm`，无截断
-- `callLlm`（[llm.ts:169-187](frontend/src/lib/llm.ts#L169-L187)）：直接传给 `invoke("call_llm_api")`，无截断
+- `handleOrganize`（[FileList.tsx:166-223](../../frontend/src/components/FileList.tsx#L166-L223)）：通过 `kb_get_page` 读取完整 body，传给 `organizeStagingPage`
+- `organizeStagingPage`（[llm.ts:376-391](../../frontend/src/lib/llm.ts#L376-L391)）：直接将 `rawContent` 作为 `prompt` 传给 `callLlm`，无截断
+- `callLlm`（[llm.ts:169-187](../../frontend/src/lib/llm.ts#L169-L187)）：直接传给 `invoke("call_llm_api")`，无截断
 
 **根因：Rust 后端 `max_tokens: 4096` 硬截断**
 
-[lib.rs:1044-1050](frontend/src-tauri/src/lib.rs#L1044-L1050)：
+[lib.rs:1044-1050](../../frontend/src-tauri/src/lib.rs#L1044-L1050)：
 
 ```rust
 let body = serde_json::json!({
@@ -80,7 +80,7 @@ node --import tsx src/cli.ts kb_get_graph '{"include_statuses":["active","stagin
 
 **根因：`update_frontmatter_status` 丢失尾部换行符导致 frontmatter 损坏**
 
-读取实际文件 [wiki/coding/2025国赛.md](wiki/coding/2025国赛.md)：
+读取实际文件 [wiki/coding/2025国赛.md](../../wiki/coding/2025国赛.md)：
 
 ```yaml
 ---
@@ -101,7 +101,7 @@ use_count: 1---                # ← 换行符丢失！
 2. `kb_get_page` 读取页面时通过 `serializeFrontmatter` 回写 `use_count: 1`，frontmatter 正确（js-yaml `dump` 添加尾部换行符）
 3. `confirm_staging` 调用 `update_frontmatter_status` 更新 `status: staging → active`
 
-[lib.rs:212-236](frontend/src-tauri/src/lib.rs#L212-L236) `update_frontmatter_status`：
+[lib.rs:212-236](../../frontend/src-tauri/src/lib.rs#L212-L236) `update_frontmatter_status`：
 
 ```rust
 let new_yaml = yaml
@@ -119,7 +119,7 @@ format!("---{}---{}", new_yaml, &content[yaml_end + 3..])
 
 ### 2.3 问题 2b：文件被划分至编程领域
 
-[DropZone.tsx:76](frontend/src/components/DropZone.tsx#L76)：
+[DropZone.tsx:76](../../frontend/src/components/DropZone.tsx#L76)：
 
 ```typescript
 const domain: Domain = currentDomain ?? "coding";  // 默认 "coding"

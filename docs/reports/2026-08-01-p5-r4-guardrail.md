@@ -1,4 +1,4 @@
-﻿# P5-R4 综合安全与质量审计报告
+# P5-R4 综合安全与质量审计报告
 
 ## 元信息
 
@@ -10,7 +10,7 @@
 | 审查范围 | P5-R4 轮次全部代码变更（4 文件 + 1 wiki 修复） |
 | 技术栈 | Rust（Tauri 后端）+ TypeScript/React（前端）+ Markdown 知识库 |
 | 审查技能 | TRAE-code-review + TRAE-security-review |
-| 考古报告 | [2026-08-01-p5-r4-archaeology-and-solution.md](docs/reports/2026-08-01-p5-r4-archaeology-and-solution.md) |
+| 考古报告 | [2026-08-01-p5-r4-archaeology-and-solution.md](../../docs/reports/2026-08-01-p5-r4-archaeology-and-solution.md) |
 
 ---
 
@@ -20,11 +20,11 @@
 
 | # | 文件 | P5-R4 变更 | 审查结论 |
 |---|---|---|---|
-| 1 | [lib.rs](frontend/src-tauri/src/lib.rs) | 换行符修复（L235-238）+ 移除 max_tokens/reasoning_effort（L1047-1054）+ HTTP 超时 60s→180s（L1057） | 有条件通过 |
-| 2 | [GraphView.tsx](frontend/src/components/GraphView.tsx) | 防御性归一化 null→默认值（L224-235） | 通过 |
-| 3 | [DropZone.tsx](frontend/src/components/DropZone.tsx) | 领域选择 UX 反馈（L222-234） | 通过 |
-| 4 | [llm.ts](frontend/src/lib/llm.ts) | STAGING_SYSTEM_PROMPT 增强完整度指令（L124-136） | 通过 |
-| 5 | [2025国赛.md](wiki/coding/2025%E5%9B%BD%E8%B5%9B.md) | frontmatter 换行符修复 | 通过 |
+| 1 | [lib.rs](../../frontend/src-tauri/src/lib.rs) | 换行符修复（L235-238）+ 移除 max_tokens/reasoning_effort（L1047-1054）+ HTTP 超时 60s→180s（L1057） | 有条件通过 |
+| 2 | [GraphView.tsx](../../frontend/src/components/GraphView.tsx) | 防御性归一化 null→默认值（L224-235） | 通过 |
+| 3 | [DropZone.tsx](../../frontend/src/components/DropZone.tsx) | 领域选择 UX 反馈（L222-234） | 通过 |
+| 4 | [llm.ts](../../frontend/src/lib/llm.ts) | STAGING_SYSTEM_PROMPT 增强完整度指令（L124-136） | 通过 |
+| 5 | [2025国赛.md](../../wiki/coding/2025%E5%9B%BD%E8%B5%9B.md) | frontmatter 换行符修复 | 通过 |
 
 ### 1.2 数据收集探针
 
@@ -88,13 +88,13 @@ flowchart TD
 
 **结论：修复正确，无残留粘连风险。**
 
-修复前（[lib.rs:234](frontend/src-tauri/src/lib.rs#L234)）：
+修复前（[lib.rs:234](../../frontend/src-tauri/src/lib.rs#L234)）：
 
 ```rust
 format!("---{}---{}", new_yaml, &content[yaml_end + 3..])
 ```
 
-修复后（[lib.rs:238](frontend/src-tauri/src/lib.rs#L238)）：
+修复后（[lib.rs:238](../../frontend/src-tauri/src/lib.rs#L238)）：
 
 ```rust
 format!("---{}\n---{}", new_yaml, &content[yaml_end + 3..])
@@ -109,13 +109,13 @@ format!("---{}\n---{}", new_yaml, &content[yaml_end + 3..])
 5. `&content[yaml_end + 3..]` 是原文件结束 `---` 之后的 body 部分，保持原样不变
 6. 输出格式 `---\n<yaml>\n---\n<body>` 符合 AGENTS.md §3.1.1 格式约定（frontmatter 与 body 间有空行取决于原文件，本次修复不改变 body 部分）
 
-是否有其他字段可能粘连：不会。`join("\n")` 保证所有字段行之间有换行，唯一的粘连点就是最后一行与结束 `---` 之间，已被 `\n` 修复。所有调用方（[L588](frontend/src-tauri/src/lib.rs#L588)、[L618](frontend/src-tauri/src/lib.rs#L618)、[L661](frontend/src-tauri/src/lib.rs#L661)）均受益于此修复。
+是否有其他字段可能粘连：不会。`join("\n")` 保证所有字段行之间有换行，唯一的粘连点就是最后一行与结束 `---` 之间，已被 `\n` 修复。所有调用方（[L588](../../frontend/src-tauri/src/lib.rs#L588)、[L618](../../frontend/src-tauri/src/lib.rs#L618)、[L661](../../frontend/src-tauri/src/lib.rs#L661)）均受益于此修复。
 
 #### 审查项 2：移除 max_tokens 后是否有静默截断风险
 
 **结论：存在中风险质量缺陷——finish_reason 未检测。**
 
-[lib.rs:1085-1089](frontend/src-tauri/src/lib.rs#L1085-L1089) 当前实现：
+[lib.rs:1085-1089](../../frontend/src-tauri/src/lib.rs#L1085-L1089) 当前实现：
 
 ```rust
 let content = json["choices"][0]["message"]["content"]
@@ -132,7 +132,7 @@ Ok(content.to_string())
 
 **结论：作为防御性措施合理，但存在语义误导风险，需记录限制。**
 
-[GraphView.tsx:226-235](frontend/src/components/GraphView.tsx#L226-L235)：
+[GraphView.tsx:226-235](../../frontend/src/components/GraphView.tsx#L226-L235)：
 
 ```typescript
 const normalizedData: GraphData = {
@@ -150,7 +150,7 @@ const normalizedData: GraphData = {
 
 - **合理性**：防止节点因 null domain 被过滤器静默排除，"始终显示"优于"静默消失"——这是正确的防御策略
 - **语义误导**：若用户上传数学建模文件（应为 `academic` 领域）但 frontmatter 损坏导致 domain=null，归一化后显示为 `coding`，可能误导用户
-- **安全性**：归一化后的值（"coding"/"source"/"active"）均为安全字符串，传入 escapeHtml 后无 XSS 风险（[GraphView.tsx:434-438](frontend/src/components/GraphView.tsx#L434-L438) 已有 escapeHtml 防护）
+- **安全性**：归一化后的值（"coding"/"source"/"active"）均为安全字符串，传入 escapeHtml 后无 XSS 风险（[GraphView.tsx:434-438](../../frontend/src/components/GraphView.tsx#L434-L438) 已有 escapeHtml 防护）
 
 建议作为低风险改进项 CR-2：可考虑在归一化时为异常节点添加标记（如 `frontmatterDamaged`），在 UI 上以不同样式提示，而非完全伪装为正常节点。
 
@@ -158,7 +158,7 @@ const normalizedData: GraphData = {
 
 **结论：提示性方案可接受，是合理的折衷。**
 
-[DropZone.tsx:222-234](frontend/src/components/DropZone.tsx#L222-L234) 在未选择领域时显示警告，已选择时显示当前领域。这是提示性而非强制性的方案。
+[DropZone.tsx:222-234](../../frontend/src/components/DropZone.tsx#L222-L234) 在未选择领域时显示警告，已选择时显示当前领域。这是提示性而非强制性的方案。
 
 评估：
 
@@ -170,21 +170,21 @@ const normalizedData: GraphData = {
 
 **结论：合理，无安全风险。**
 
-[lib.rs:1057](frontend/src-tauri/src/lib.rs#L1057)：60s → 180s。
+[lib.rs:1057](../../frontend/src-tauri/src/lib.rs#L1057)：60s → 180s。
 
 - 移除 max_tokens 后大文件整理输出更长，60s 可能超时，180s 合理
 - 这是本地桌面应用（Tauri），用户自行触发操作，不存在外部攻击者利用超时进行 DoS 的攻击面
 - 安全审查 skill §8.1 将 DoS/资源耗尽列为 Hard Exclusion，不在安全审计范围
 
-**但存在文档不一致**：[lib.rs:1008](frontend/src-tauri/src/lib.rs#L1008) 注释仍写"超时 60s（思考模式可能较慢）"，实际已改为 180s。详见发现表 CR-3。
+**但存在文档不一致**：[lib.rs:1008](../../frontend/src-tauri/src/lib.rs#L1008) 注释仍写"超时 60s（思考模式可能较慢）"，实际已改为 180s。详见发现表 CR-3。
 
 ### 2.4 代码质量问题表
 
 | # | 问题标题 | 严重度 | 建议 | 代码链接 |
 |---|---|---|---|---|
-| CR-1 | 移除 max_tokens 后未检测 finish_reason，截断内容静默返回成功 | 中风险 | 在解析 content 前检查 `json["choices"][0]["finish_reason"]`，若为 `"length"` 则向前端返回警告（如 "内容可能被截断，请检查或分段整理"），而非静默返回截断内容 | [lib.rs:1085-1089](frontend/src-tauri/src/lib.rs#L1085-L1089) |
-| CR-2 | GraphView 归一化默认 domain="coding" 可能误导用户分类 | 低风险 | 可考虑为异常节点添加 `frontmatterDamaged` 标记，UI 以不同样式提示，而非完全伪装为正常 coding 节点；或至少在控制台 console.warn 记录异常节点路径便于排查 | [GraphView.tsx:226-235](frontend/src/components/GraphView.tsx#L226-L235) |
-| CR-3 | 函数文档注释 "超时 60s" 与实际 180s 不一致 | 低风险 | 更新注释为 "超时 180s（大文件整理输出较长）" | [lib.rs:1008](frontend/src-tauri/src/lib.rs#L1008) |
+| CR-1 | 移除 max_tokens 后未检测 finish_reason，截断内容静默返回成功 | 中风险 | 在解析 content 前检查 `json["choices"][0]["finish_reason"]`，若为 `"length"` 则向前端返回警告（如 "内容可能被截断，请检查或分段整理"），而非静默返回截断内容 | [lib.rs:1085-1089](../../frontend/src-tauri/src/lib.rs#L1085-L1089) |
+| CR-2 | GraphView 归一化默认 domain="coding" 可能误导用户分类 | 低风险 | 可考虑为异常节点添加 `frontmatterDamaged` 标记，UI 以不同样式提示，而非完全伪装为正常 coding 节点；或至少在控制台 console.warn 记录异常节点路径便于排查 | [GraphView.tsx:226-235](../../frontend/src/components/GraphView.tsx#L226-L235) |
+| CR-3 | 函数文档注释 "超时 60s" 与实际 180s 不一致 | 低风险 | 更新注释为 "超时 180s（大文件整理输出较长）" | [lib.rs:1008](../../frontend/src-tauri/src/lib.rs#L1008) |
 
 ### 2.5 代码质量审查结论
 
@@ -227,17 +227,17 @@ const normalizedData: GraphData = {
 
 **代码/表达式注入**：本次变更不涉及 eval/Function/exec。N/A。
 
-**模板引擎注入**：前端使用 ReactMarkdown（[MarkdownPreview.tsx:287](frontend/src/components/MarkdownPreview.tsx#L287)），未引入 rehype-raw 插件，默认不渲染原始 HTML。LLM 输出的 markdown 内容经 ReactMarkdown 安全解析后渲染。安全。
+**模板引擎注入**：前端使用 ReactMarkdown（[MarkdownPreview.tsx:287](../../frontend/src/components/MarkdownPreview.tsx#L287)），未引入 rehype-raw 插件，默认不渲染原始 HTML。LLM 输出的 markdown 内容经 ReactMarkdown 安全解析后渲染。安全。
 
 **YAML 注入审计（重点审查项 2）**：
 
-[lib.rs:212-238](frontend/src-tauri/src/lib.rs#L212-L238) 的 `update_frontmatter_status(content: &str, new_status: &str)` 函数将 `new_status` 直接插入 YAML 字符串 `format!("{}status: {}", indent, new_status)`。
+[lib.rs:212-238](../../frontend/src-tauri/src/lib.rs#L212-L238) 的 `update_frontmatter_status(content: &str, new_status: &str)` 函数将 `new_status` 直接插入 YAML 字符串 `format!("{}status: {}", indent, new_status)`。
 
 源侧追踪：`new_status` 的全部 3 个调用方均使用硬编码字符串字面量：
 
-- [L588](frontend/src-tauri/src/lib.rs#L588)：`update_frontmatter_status(&content, "active")`
-- [L618](frontend/src-tauri/src/lib.rs#L618)：`update_frontmatter_status(&content, "rejected")`
-- [L661](frontend/src-tauri/src/lib.rs#L661)：`update_frontmatter_status(&new_content, "staging")`
+- [L588](../../frontend/src-tauri/src/lib.rs#L588)：`update_frontmatter_status(&content, "active")`
+- [L618](../../frontend/src-tauri/src/lib.rs#L618)：`update_frontmatter_status(&content, "rejected")`
+- [L661](../../frontend/src-tauri/src/lib.rs#L661)：`update_frontmatter_status(&new_content, "staging")`
 
 **结论**：`new_status` 不接收任何外部输入，全部为编译期常量。即使函数本身未对 `new_status` 做 YAML 特殊字符转义，由于输入不可控，不存在 YAML 注入风险。安全。
 
@@ -254,9 +254,9 @@ LLM API 响应 → lib.rs call_llm_api（返回 content: String）
         → MarkdownPreview ReactMarkdown（默认不渲染原始 HTML）
 ```
 
-- **渲染路径 A**（[FileList.tsx:520-522](frontend/src/components/FileList.tsx#L520-L522)）：`<pre>{content}</pre>` 是 React JSX 文本插值，React 自动对 `{content}` 做 HTML 实体转义。即使 LLM 输出含 `<script>alert(1)</script>`，也会被转义为文本显示。安全。
-- **渲染路径 B**（[MarkdownPreview.tsx:287-396](frontend/src/components/MarkdownPreview.tsx#L287-L396)）：ReactMarkdown 渲染 `page.body`。项目未引入 `rehype-raw` 插件（已确认全项目无 `rehype-raw` import），ReactMarkdown 默认将原始 HTML 作为纯文本处理，不执行。安全。
-- **GraphView tooltip**（[GraphView.tsx:432-447](frontend/src/components/GraphView.tsx#L432-L447)）：react-force-graph-2d 内部用 innerHTML 渲染 tooltip，但所有用户可控字段（title/domain/type）均经 `escapeHtml` 转义后才拼入 HTML 字符串。归一化后的默认值（"coding"/"source"/"active"）也是安全字符串。安全。
+- **渲染路径 A**（[FileList.tsx:520-522](../../frontend/src/components/FileList.tsx#L520-L522)）：`<pre>{content}</pre>` 是 React JSX 文本插值，React 自动对 `{content}` 做 HTML 实体转义。即使 LLM 输出含 `<script>alert(1)</script>`，也会被转义为文本显示。安全。
+- **渲染路径 B**（[MarkdownPreview.tsx:287-396](../../frontend/src/components/MarkdownPreview.tsx#L287-L396)）：ReactMarkdown 渲染 `page.body`。项目未引入 `rehype-raw` 插件（已确认全项目无 `rehype-raw` import），ReactMarkdown 默认将原始 HTML 作为纯文本处理，不执行。安全。
+- **GraphView tooltip**（[GraphView.tsx:432-447](../../frontend/src/components/GraphView.tsx#L432-L447)）：react-force-graph-2d 内部用 innerHTML 渲染 tooltip，但所有用户可控字段（title/domain/type）均经 `escapeHtml` 转义后才拼入 HTML 字符串。归一化后的默认值（"coding"/"source"/"active"）也是安全字符串。安全。
 
 全项目 XSS 逃逸通道扫描：未发现 `dangerouslySetInnerHTML`、`innerHTML` 直接赋值（除 GraphView tooltip 已有 escapeHtml 防护）、`rehype-raw`、`eval`、`new Function`。
 
@@ -271,7 +271,7 @@ LLM API 响应 → lib.rs call_llm_api（返回 content: String）
 #### 2.4 输出编码与特殊字符处理
 
 - HTML 上下文：React JSX 自动转义 + ReactMarkdown 安全解析 + escapeHtml（GraphView tooltip）。覆盖完整。
-- JSON 序列化：lib.rs 使用 `serde_json::json!` 宏构造请求体（[L1047-1054](frontend/src-tauri/src/lib.rs#L1047-L1054)），非字符串拼接。安全。
+- JSON 序列化：lib.rs 使用 `serde_json::json!` 宏构造请求体（[L1047-1054](../../frontend/src-tauri/src/lib.rs#L1047-L1054)），非字符串拼接。安全。
 
 ### 3.4 阶段三：内存安全与运行时保护
 
@@ -329,9 +329,9 @@ N/A。
 
 | 优先级 | 编号 | 问题 | 建议 | 影响范围 |
 |---|---|---|---|---|
-| P1（建议下轮修复） | CR-1 | finish_reason 未检测，移除 max_tokens 后截断内容静默返回成功 | 在 [lib.rs:1085](frontend/src-tauri/src/lib.rs#L1085) 解析 content 前，检查 `json["choices"][0]["finish_reason"]`，若为 `"length"` 则返回带警告标识的结果（如 `Ok(format!("⚠️ 内容可能被截断（finish_reason=length）\n\n{}", content))` 或改返回结构体含 `truncated: bool` 字段），让前端显式提示用户 | lib.rs + llm.ts + FileList.tsx |
+| P1（建议下轮修复） | CR-1 | finish_reason 未检测，移除 max_tokens 后截断内容静默返回成功 | 在 [lib.rs:1085](../../frontend/src-tauri/src/lib.rs#L1085) 解析 content 前，检查 `json["choices"][0]["finish_reason"]`，若为 `"length"` 则返回带警告标识的结果（如 `Ok(format!("⚠️ 内容可能被截断（finish_reason=length）\n\n{}", content))` 或改返回结构体含 `truncated: bool` 字段），让前端显式提示用户 | lib.rs + llm.ts + FileList.tsx |
 | P2（可择机修复） | CR-2 | GraphView 归一化默认 domain="coding" 可能误导分类 | 为异常节点添加 `frontmatterDamaged` 标记，UI 以警告样式提示；或在控制台 console.warn 记录异常路径 | GraphView.tsx |
-| P3（随手修复） | CR-3 | 函数注释 "超时 60s" 与实际 180s 不一致 | 更新 [lib.rs:1008](frontend/src-tauri/src/lib.rs#L1008) 注释为 "超时 180s（大文件整理输出较长）" | lib.rs |
+| P3（随手修复） | CR-3 | 函数注释 "超时 60s" 与实际 180s 不一致 | 更新 [lib.rs:1008](../../frontend/src-tauri/src/lib.rs#L1008) 注释为 "超时 180s（大文件整理输出较长）" | lib.rs |
 
 ### 4.4 保护机制验证
 
@@ -429,4 +429,4 @@ jobs:
 | 审计状态 | 完成 |
 | 综合结论 | **通过（附带 3 项非阻断改进建议）** |
 | 阻断项数 | 0 |
-| 报告归档 | [docs/reports/2026-08-01-p5-r4-guardrail.md](docs/reports/2026-08-01-p5-r4-guardrail.md) |
+| 报告归档 | [docs/reports/2026-08-01-p5-r4-guardrail.md](../../docs/reports/2026-08-01-p5-r4-guardrail.md) |
