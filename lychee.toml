@@ -34,6 +34,8 @@ exclude = [
   'datacamp\.com',
   # lib.rs 返回 403 Forbidden（review-domain-archaeology.md 引用，Rust crate 索引站禁止 bot）
   'lib\.rs',
+  # help.openai.com 返回 403 Forbidden（p5-r4-archaeology 引用，OpenAI 帮助文档禁止 bot）
+  'help\.openai\.com',
 ]
 
 # 文件过滤由 docs.yml args '**/*.md' 处理

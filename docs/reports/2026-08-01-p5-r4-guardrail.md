@@ -24,7 +24,7 @@
 | 2 | [GraphView.tsx](../../frontend/src/components/GraphView.tsx) | 防御性归一化 null→默认值（L224-235） | 通过 |
 | 3 | [DropZone.tsx](../../frontend/src/components/DropZone.tsx) | 领域选择 UX 反馈（L222-234） | 通过 |
 | 4 | [llm.ts](../../frontend/src/lib/llm.ts) | STAGING_SYSTEM_PROMPT 增强完整度指令（L124-136） | 通过 |
-| 5 | [2025国赛.md](../../wiki/coding/2025%E5%9B%BD%E8%B5%9B.md) | frontmatter 换行符修复 | 通过 |
+| 5 | [2025国赛.md](../../wiki/reading/2025国赛.md) | frontmatter 换行符修复 | 通过 |
 
 ### 1.2 数据收集探针
 
@@ -288,7 +288,7 @@ N/A。
 
 - **硬编码密钥扫描**：P5-R4 变更的 4 个源文件中未发现硬coded API Key、密码、token、内部 IP/域名。lib.rs 中的 provider 配置（deepseek/glm/kimi）为公开 API 端点 URL，非敏感信息。
 - **密钥存储**：API Key 双层存储（keyring 主 + localStorage 降级）。localStorage 使用 `btoa(encodeURIComponent(apiKey))` 编码——这是 P5-R3 引入的降级方案，非 P5-R4 变更。base64 编码非加密，但在 keyring 不可用时保证 Key 不丢失，注释已明确说明风险权衡。
-- **.gitignore 检查**（[.gitignore](.gitignore)）：包含 `.env`、`.env.local`、`.env.*.local`，排除规则正确。
+- **.gitignore 检查**（[.gitignore](../../.gitignore)）：包含 `.env`、`.env.local`、`.env.*.local`，排除规则正确。
 - **前端代码无服务端密钥**：前端仅存用户自己的 API Key（经 keyring/localStorage），不含服务端密钥。安全。
 
 ### 3.6 阶段五：依赖与供应链风险

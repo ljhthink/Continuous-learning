@@ -265,7 +265,7 @@ it("不同路径形式统一到同一 key（解决缓存未命中）", () => {
 | kb_search P95 | 50ms（BM25） | 2000ms | 测试通过 | 无回退 |
 | graph_render 100 节点 | ~500ms 首次 / <100ms 后续 | 手动 | 缓存优化后后续更优 | 无回退 |
 
-基线文件：[perf/baselines/p5-baseline.json](perf/baselines/p5-baseline.json)
+基线文件：[perf/baselines/p5-baseline.json](../../perf/baselines/p5-baseline.json)
 
 ---
 

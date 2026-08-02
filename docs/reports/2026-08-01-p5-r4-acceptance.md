@@ -243,7 +243,7 @@ P5-R4 轮次的 4 项验收标准全部通过：
 | 5 | [GraphView.tsx:L224-235](../../frontend/src/components/GraphView.tsx#L224-235) | 防御性归一化 null→默认值 | 11 个 TS 单元测试（TC-R4-009~019） | 通过 |
 | 6 | [DropZone.tsx:L222-234](../../frontend/src/components/DropZone.tsx#L222-234) | 领域选择 UX 反馈 | 6 个 TS 单元测试（TC-R4-020~025）+ Playwright E2E | 通过 |
 | 7 | [llm.ts:L124-136](../../frontend/src/lib/llm.ts#L124-136) | STAGING_SYSTEM_PROMPT 增强完整度指令 | 8 个 TS 单元测试（TC-R4-001~008） | 通过 |
-| 8 | [wiki/coding/2025国赛.md](../../wiki/coding/2025国赛.md) | frontmatter 换行符修复 | 文件读取确认 + 全库扫描无粘连 | 通过 |
+| 8 | [wiki/reading/2025国赛.md](../../wiki/reading/2025国赛.md) | frontmatter 换行符修复 | 文件读取确认 + 全库扫描无粘连 | 通过 |
 
 ---
 

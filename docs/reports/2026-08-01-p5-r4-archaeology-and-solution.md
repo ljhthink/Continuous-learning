@@ -80,7 +80,7 @@ node --import tsx src/cli.ts kb_get_graph '{"include_statuses":["active","stagin
 
 **根因：`update_frontmatter_status` 丢失尾部换行符导致 frontmatter 损坏**
 
-读取实际文件 [wiki/coding/2025国赛.md](../../wiki/coding/2025国赛.md)：
+读取实际文件 [wiki/reading/2025国赛.md](../../wiki/reading/2025国赛.md)：
 
 ```yaml
 ---
