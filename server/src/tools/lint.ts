@@ -2,14 +2,17 @@
  * kb_lint tool (US-005): Run health checks on the knowledge base.
  *
  * Checks (AGENTS.md §6.2, ARCH.md §3.1):
- *   frontmatter    — missing/invalid frontmatter fields (high)
- *   contradictions — unresolved ⚠️ 矛盾 markers + duplicate titles (high)
- *   orphans        — pages with no inbound links (mid; high-confidence experiences + pending/archived exempt)
- *   stale          — linker page older than a source it references (high)
- *   missing_xref   — same-domain tag-sharing pages not cross-linked (mid)
+ *   frontmatter      — missing/invalid frontmatter fields (high)
+ *   contradictions   — unresolved ⚠️ 矛盾 markers + duplicate titles (high)
+ *   orphans          — pages with no inbound links (mid; high-confidence experiences + pending/archived exempt)
+ *   stale            — linker page older than a source it references (high)
+ *   missing_xref     — same-domain tag-sharing pages not cross-linked (mid)
+ *   missing_concept  — concepts mentioned ≥N times but lacking their own page (low)
  *
- * Note: AGENTS.md §6.2 also lists "data gaps" (low), intentionally omitted — requires
- *       heuristic judgment unsuitable for deterministic linting.
+ * Note: AGENTS.md §6.2 "data gaps" (low) is implemented as missing_concept via
+ *       a heuristic RAKE-lite extraction (H2/H3 headings + frontmatter tags as
+ *       candidate concepts, mention-count threshold). See
+ *       docs/reports/2026-08-02-missing-features-solution.md §3.5.
  */
 
 import { loadAllPages } from "../utils/pages.js";
@@ -22,9 +25,10 @@ type CheckName =
   | "contradictions"
   | "orphans"
   | "stale"
-  | "missing_xref";
+  | "missing_xref"
+  | "missing_concept";
 
-type Severity = "high" | "mid";
+type Severity = "high" | "mid" | "low";
 
 interface LintIssue {
   type: CheckName;
@@ -34,12 +38,19 @@ interface LintIssue {
   suggestion?: string;
 }
 
+const SEVERITY_ORDER: Record<Severity, number> = {
+  high: 0,
+  mid: 1,
+  low: 2,
+};
+
 const ALL_CHECKS: CheckName[] = [
   "frontmatter",
   "contradictions",
   "orphans",
   "stale",
   "missing_xref",
+  "missing_concept",
 ];
 
 const REQUIRED_FIELDS: Record<string, string[]> = {
@@ -135,12 +146,15 @@ export async function kbLint(args: {
   if (enabled.has("missing_xref")) {
     issues.push(...checkMissingXref(pages, linkTargets));
   }
+  if (enabled.has("missing_concept")) {
+    issues.push(...checkMissingConcept(pages));
+  }
 
-  // Sort: high severity first, then by type, then by page
+  // Sort: high severity first, then mid, then low; then by type, then by page
   issues.sort((a, b) => {
-    if (a.severity !== b.severity) {
-      return a.severity === "high" ? -1 : 1;
-    }
+    const sa = SEVERITY_ORDER[a.severity];
+    const sb = SEVERITY_ORDER[b.severity];
+    if (sa !== sb) return sa - sb;
     if (a.type !== b.type) return a.type < b.type ? -1 : 1;
     return a.page < b.page ? -1 : 1;
   });
@@ -438,5 +452,188 @@ function checkMissingXref(
       }
     }
   }
+  return issues;
+}
+
+// ---------------------------------------------------------------------------
+// Check: missing_concept (low) — Karpathy "important concepts mentioned but
+// lacking their own page" (AGENTS.md §6.2 data gaps, implemented heuristically
+// per docs/reports/2026-08-02-missing-features-solution.md §3.5).
+// ---------------------------------------------------------------------------
+
+/**
+ * Minimum mention count for a candidate concept to be reported.
+ * Below this threshold the concept is too sparse to warrant a dedicated page.
+ * Calibrated to ~5 (longtermwiki Gap Analysis production case study).
+ */
+const MISSING_CONCEPT_MENTION_THRESHOLD = 5;
+
+/** Maximum number of missing_concept issues reported per lint run (top-N). */
+const MISSING_CONCEPT_TOP_N = 20;
+
+/** Minimum/maximum candidate concept length (chars) to filter noise. */
+const MIN_CONCEPT_LEN = 2;
+const MAX_CONCEPT_LEN = 30;
+
+/**
+ * Common stopwords (en + zh) used to filter candidate concepts. A candidate
+ * that is entirely stopwords, or a single stopword, is dropped. Short CJK
+ * particles like 的/了/是 are not strong enough signals on their own.
+ */
+const STOPWORDS = new Set([
+  // English
+  "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
+  "and", "or", "but", "if", "then", "of", "to", "in", "on", "at", "for",
+  "with", "by", "from", "as", "into", "this", "that", "these", "those",
+  "it", "its", "we", "you", "they", "i", "me", "my", "your", "our",
+  // Chinese (single-char particles — too generic to be concepts)
+  "的", "了", "是", "在", "和", "与", "或", "但", "如", "把", "被", "让",
+  "它", "他", "她", "我", "你", "们", "这", "那", "之", "其", "也",
+]);
+
+/**
+ * Extract candidate concept phrases from a page body.
+ *
+ * Candidate sources (RAKE-lite, no LLM, deterministic):
+ *   - H2/H3 heading text (## XXX / ### XXX) — author-marked concepts
+ *   - frontmatter tags — author-declared cross-cutting concepts
+ *
+ * These are pre-filtered by the author (they wrote the heading / tag), so they
+ * are higher-signal than raw body n-grams. Mention counting then asks: "is
+ * this concept referenced widely enough to deserve its own page?"
+ *
+ * CJK safety: headings are kept as whole phrases (no whitespace tokenization);
+ * a Chinese heading "异步模式" is one candidate, not split.
+ */
+function extractCandidateConcepts(pages: PageInfo[]): Map<string, Set<string>> {
+  // candidate → set of pages mentioning it (for "found in" detail)
+  const candidates = new Map<string, Set<string>>();
+
+  for (const p of pages) {
+    if (LINK_GRAPH_SKIP_STATUSES.has(p.status ?? "")) continue;
+
+    // H2/H3 headings
+    const headingRe = /^#{2,3}\s+(.+?)\s*$/gm;
+    let match: RegExpExecArray | null;
+    while ((match = headingRe.exec(p.body)) !== null) {
+      const raw = match[1].trim();
+      addCandidate(candidates, raw, p.relPath);
+    }
+
+    // frontmatter tags (already extracted in PageInfo.tags)
+    for (const tag of p.tags) {
+      addCandidate(candidates, tag, p.relPath);
+    }
+  }
+
+  return candidates;
+}
+
+/** Normalize + validate a candidate concept, then add to the map. */
+function addCandidate(
+  candidates: Map<string, Set<string>>,
+  raw: string,
+  pageRelPath: string,
+): void {
+  // Strip common markdown emphasis markers and trailing punctuation.
+  const cleaned = raw
+    .replace(/[*_`~]+/g, "")
+    .replace(/[。，、；：！？.!?,;:]+$/g, "")
+    .trim();
+  if (cleaned.length < MIN_CONCEPT_LEN || cleaned.length > MAX_CONCEPT_LEN) {
+    return;
+  }
+  // Drop candidates that are purely digits, or contain only stopwords.
+  if (/^\d+$/.test(cleaned)) return;
+  if (STOPWORDS.has(cleaned.toLowerCase())) return;
+  // Drop candidates that are a single ASCII char (too generic).
+  if (cleaned.length === 1) return;
+
+  const set = candidates.get(cleaned) ?? new Set<string>();
+  set.add(pageRelPath);
+  candidates.set(cleaned, set);
+}
+
+/**
+ * Build the "already has its own page" concept dictionary.
+ *
+ * A concept is considered to "have its own page" if it matches any page's
+ * title or basename (case-insensitive). We do NOT match on H1 headings here
+ * because H1 is usually the page title itself (already covered).
+ */
+function buildExistingConceptSet(pages: PageInfo[]): Set<string> {
+  const existing = new Set<string>();
+  for (const p of pages) {
+    if (p.title) existing.add(p.title.toLowerCase());
+    existing.add(p.basename.toLowerCase());
+  }
+  return existing;
+}
+
+/**
+ * Count case-insensitive substring mentions of a concept across all page bodies.
+ *
+ * Substring (not word-boundary) match is intentional for CJK: Chinese has no
+ * word boundaries, and "异步" should match inside "异步编程". For English this
+ * may over-count (e.g., "is" inside "this"), but the STOPWORDS filter + length
+ * filter + author-curated candidate sources keep false positives low.
+ */
+function countMentions(pages: PageInfo[], conceptLower: string): {
+  count: number;
+  inPages: string[];
+} {
+  let count = 0;
+  const inPages: string[] = [];
+  for (const p of pages) {
+    if (LINK_GRAPH_SKIP_STATUSES.has(p.status ?? "")) continue;
+    const bodyLower = p.body.toLowerCase();
+    // Count all occurrences; use split-1 like search.ts countOccurrences.
+    const occurrences = bodyLower.split(conceptLower).length - 1;
+    if (occurrences > 0) {
+      count += occurrences;
+      inPages.push(p.relPath);
+    }
+  }
+  return { count, inPages };
+}
+
+function checkMissingConcept(pages: PageInfo[]): LintIssue[] {
+  const issues: LintIssue[] = [];
+  const candidates = extractCandidateConcepts(pages);
+  const existing = buildExistingConceptSet(pages);
+
+  // Score each candidate by mention count, filter by threshold + existing-set.
+  const scored: Array<{
+    concept: string;
+    count: number;
+    inPages: string[];
+  }> = [];
+
+  for (const concept of candidates.keys()) {
+    if (existing.has(concept.toLowerCase())) continue;
+    const { count, inPages } = countMentions(pages, concept.toLowerCase());
+    if (count >= MISSING_CONCEPT_MENTION_THRESHOLD) {
+      scored.push({ concept, count, inPages });
+    }
+  }
+
+  // Sort by mention count desc, then concept asc for stable output.
+  scored.sort((a, b) => {
+    if (b.count !== a.count) return b.count - a.count;
+    return a.concept < b.concept ? -1 : 1;
+  });
+
+  // Emit top-N issues.
+  for (const s of scored.slice(0, MISSING_CONCEPT_TOP_N)) {
+    const topSources = s.inPages.slice(0, 3).join(", ");
+    issues.push({
+      type: "missing_concept",
+      severity: "low",
+      page: s.concept,
+      detail: `Mentioned ${s.count} times across ${s.inPages.length} pages but has no dedicated page (e.g., in: ${topSources})`,
+      suggestion: `Consider creating a concept page for "${s.concept}" per AGENTS.md §6.2 data-gap check.`,
+    });
+  }
+
   return issues;
 }

@@ -5,10 +5,7 @@
  * 4c：接入 callMcpTool("kb_health") 显示 KB 健康状态 + getKbConfig() 显示路径。
  *
  * LLM 集成策略由 ADR-013 决定（cloud-first / local-first / disabled 三态）。
- * P5 已实际接入 LLM（ADR-013 V6-V8），适配中国三厂商最新旗舰：
- *   - DeepSeek V4（deepseek-v4-pro）
- *   - GLM-5.2（智谱 AI）
- *   - Kimi K3（月之暗面）
+ * P5-R2：模型名与 API 地址均可自定义，支持任意 OpenAI 兼容端点。
  * API Key 经操作系统密钥环加密持久化（ADR-013 V7，keyring crate）。
  */
 
@@ -18,14 +15,14 @@ import { useLlmStore } from "@/store/llmStore";
 import type { Theme } from "@/types";
 import { callMcpTool, getKbConfig, isTauri } from "@/lib/ipc";
 import type { KbConfigIPC } from "@/lib/ipc";
+import { DomainManager } from "@/components/DomainManager";
 import {
-  PROVIDERS,
   testConnection,
   saveApiKey,
   loadApiKey,
   deleteApiKey,
 } from "@/lib/llm";
-import type { CloudProvider, LlmMode, ConnectionTestResult } from "@/lib/llm";
+import type { LlmMode, ConnectionTestResult } from "@/lib/llm";
 
 interface KbHealth {
   total_pages?: number;
@@ -38,7 +35,7 @@ interface KbHealth {
 export function SettingsPanel() {
   const { settingsOpen, setSettingsOpen, theme, setTheme } = useViewStore();
   // LLM 模式和厂商选择从全局 llmStore 读取（与 FileList 共享，P2.1.8）
-  const { llmMode, cloudProvider, setLlmMode, setCloudProvider } = useLlmStore();
+  const { llmMode, cloudProvider, setLlmMode, customBaseUrl, setCustomBaseUrl, customModelName, setCustomModelName, maxTokens, setMaxTokens, dailyTokenLimit, setDailyTokenLimit } = useLlmStore();
   const [apiKey, setApiKey] = useState("");
   const [testStatus, setTestStatus] = useState<
     "idle" | "testing" | "success" | "error"
@@ -83,15 +80,32 @@ export function SettingsPanel() {
   }, [cloudProvider, llmMode, tauriEnv]);
 
   // 真实测试连接（P5：调用 LLM API 发送简短 prompt 验证 Key 有效性）
+  // P5-R2 fix: 无论测试成功或失败都保存 key（用户主动输入即应保存），
+  // 避免"测试失败 → key 未保存 → LLM 整理时找不到 key"的连锁问题（考古报告问题 4 根因）。
   const handleTestConnection = async () => {
     setTestStatus("testing");
     setTestMessage("");
     const result: ConnectionTestResult = await testConnection(
       cloudProvider,
       apiKey,
+      customBaseUrl,
+      customModelName,
     );
     setTestStatus(result.ok ? "success" : "error");
-    setTestMessage(result.message);
+    // 无论测试结果如何，都保存用户输入的 key（尊重用户意图，测试只验证不阻断保存）
+    try {
+      await saveApiKey(cloudProvider, apiKey);
+      setKeySaved(true);
+      setTestMessage(
+        result.ok
+          ? `${result.message}（已自动保存到系统密钥环）`
+          : `${result.message}（Key 已保存，可稍后重试连接或检查模型名/网络）`,
+      );
+    } catch (err) {
+      setTestMessage(
+        `${result.message}（保存到密钥环失败：${err instanceof Error ? err.message : "未知错误"}）`,
+      );
+    }
   };
 
   // 保存 API Key 到操作系统密钥环（ADR-013 V7）
@@ -194,29 +208,48 @@ export function SettingsPanel() {
 
           {/* LLM 模式（ADR-013） */}
           <SettingRow label="LLM 集成" icon="psychology">
-            <select
-              value={llmMode}
-              onChange={(e) => setLlmMode(e.target.value as LlmMode)}
-              className="px-2 py-1 text-xs bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary"
-            >
-              <option value="disabled">禁用 LLM（默认）</option>
-              <option value="cloud-first">Cloud 优先（中国三厂商）</option>
-              <option value="local-first">本地优先（Ollama）</option>
-            </select>
-          </SettingRow>
-
-          {/* Cloud 模式：模型选择（中国三厂商，ADR-013 D6 P5 更新） */}
-          {llmMode === "cloud-first" && (
-            <SettingRow label="模型" icon="smart_toy">
+            <div className="flex flex-col gap-1 w-full">
               <select
-                value={cloudProvider}
-                onChange={(e) => setCloudProvider(e.target.value as CloudProvider)}
+                value={llmMode}
+                onChange={(e) => setLlmMode(e.target.value as LlmMode)}
                 className="px-2 py-1 text-xs bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary"
               >
-                <option value="deepseek">DeepSeek V4（性价比高，1M 上下文）</option>
-                <option value="glm">GLM-5.2（智谱，思考模式）</option>
-                <option value="kimi">Kimi K3（月之暗面，2.8T 参数）</option>
+                <option value="disabled">禁用 LLM（默认）</option>
+                <option value="cloud-first">Cloud 优先（OpenAI 兼容）</option>
+                <option value="local-first">本地优先（Ollama）</option>
               </select>
+              <div className="text-[10px] text-text-muted leading-relaxed">
+                {llmMode === "disabled" && "LLM 已禁用。staging 页面需手工整理标题、标签和摘要。"}
+                {llmMode === "cloud-first" && "启用后，staging 页面可一键调用大模型自动整理：生成标题、frontmatter、标签和摘要。需配置 API Key。"}
+                {llmMode === "local-first" && "通过本地 Ollama 运行大模型整理 staging 页面，内容不出本机。需先安装 Ollama 并拉取模型。"}
+              </div>
+            </div>
+          </SettingRow>
+
+          {/* P5-R3 问题 3: 移除预设 provider 下拉，仅保留自定义配置 */}
+          {/* Custom API URL（必填，OpenAI 兼容端点） */}
+          {llmMode === "cloud-first" && (
+            <SettingRow label="API 地址 *" icon="link">
+              <input
+                type="text"
+                value={customBaseUrl}
+                onChange={(e) => setCustomBaseUrl(e.target.value)}
+                placeholder="https://api.deepseek.com/v1（OpenAI 兼容端点）"
+                className="w-full px-2 py-1 text-xs font-mono bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary placeholder:text-text-muted"
+              />
+            </SettingRow>
+          )}
+
+          {/* Custom Model Name（必填，支持任意 OpenAI 兼容模型） */}
+          {llmMode === "cloud-first" && (
+            <SettingRow label="模型名 *" icon="memory">
+              <input
+                type="text"
+                value={customModelName}
+                onChange={(e) => setCustomModelName(e.target.value)}
+                placeholder="如 deepseek-chat / glm-5.2 / kimi-k3"
+                className="w-full px-2 py-1 text-xs font-mono bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary placeholder:text-text-muted"
+              />
             </SettingRow>
           )}
 
@@ -232,7 +265,7 @@ export function SettingsPanel() {
                     setKeySaved(false);
                     setTestStatus("idle");
                   }}
-                  placeholder={PROVIDERS[cloudProvider].keyPlaceholder}
+                  placeholder="sk-...（你的 API Key）"
                   className="w-full px-2 py-1 text-xs font-mono bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary placeholder:text-text-muted"
                 />
                 <div className="flex items-center justify-between gap-1">
@@ -285,10 +318,53 @@ export function SettingsPanel() {
             </SettingRow>
           )}
 
+          {/* P6-R1 成本控制（决策计划 §4.1.4）：max_tokens 用户可选 + 日累计上限告警 */}
+          {llmMode === "cloud-first" && (
+            <SettingRow label="成本控制" icon="savings">
+              <div className="flex flex-col gap-1 w-full">
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    min={0}
+                    max={4294967295}
+                    value={maxTokens ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      // H-2: 钳制到 [0, u32::MAX]，防止超出 Rust u32 反序列化范围
+                      setMaxTokens(v === "" ? null : Math.max(0, Math.min(4294967295, Math.floor(Number(v) || 0))));
+                    }}
+                    placeholder="不限"
+                    className="w-20 px-2 py-1 text-xs font-mono bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary placeholder:text-text-muted"
+                  />
+                  <span className="text-[10px] text-text-muted">单次输出 token 上限</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    min={0}
+                    max={4294967295}
+                    value={dailyTokenLimit ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      // H-2: 钳制到 [0, u32::MAX]，防止超出 Rust u32 反序列化范围
+                      setDailyTokenLimit(v === "" ? null : Math.max(0, Math.min(4294967295, Math.floor(Number(v) || 0))));
+                    }}
+                    placeholder="不限"
+                    className="w-20 px-2 py-1 text-xs font-mono bg-elevated border border-border-subtle rounded-md text-text-primary outline-none focus:border-accent-primary placeholder:text-text-muted"
+                  />
+                  <span className="text-[10px] text-text-muted">日累计上限（超限提示）</span>
+                </div>
+                <div className="text-[10px] text-text-muted leading-relaxed">
+                  留空=不限（默认，与 P5-R4 一致）。设上限可防大文件整理 token 消耗过高；达到日累计上限仅软提示，不硬中断。
+                </div>
+              </div>
+            </SettingRow>
+          )}
+
           {/* Cloud 模式隐私告知（ADR-013 V4/D5） */}
           {llmMode === "cloud-first" && (
             <div className="text-[10px] text-text-muted px-2 py-1.5 rounded-md border border-border-subtle bg-elevated">
-              ☁️ Cloud 模式：staging 页面内容将发送到 {PROVIDERS[cloudProvider].name} API 进行整理。请确保不含敏感信息。
+              ☁️ Cloud 模式：staging 页面内容将发送到你配置的 API 进行整理。请确保不含敏感信息。
             </div>
           )}
 
@@ -298,6 +374,11 @@ export function SettingsPanel() {
               🏠 本地模式：所有调用走 http://localhost:11434（Ollama），内容不出本机。需先 <code className="font-mono text-accent-primary">ollama pull qwen3:7b</code>
             </div>
           )}
+
+          {/* P6-R5: 领域管理（新增/删除领域目录） */}
+          <div className="pt-3 border-t border-border-subtle">
+            <DomainManager />
+          </div>
 
           {/* KB 路径 */}
           {kbConfig && (

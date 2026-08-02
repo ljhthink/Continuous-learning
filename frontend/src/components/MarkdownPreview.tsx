@@ -17,10 +17,11 @@ import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
 import { useViewStore } from "@/store/viewStore";
+import { useGraphStore } from "@/store/graphStore";
 import { mockPageDetail } from "@/data/mockData";
 import { DOMAIN_COLORS, DOMAIN_LABELS } from "@/types";
 import type { PageType, PageStatus, PageDetail } from "@/types";
-import { callMcpTool, isTauri } from "@/lib/ipc";
+import { callMcpTool, deletePage, isTauri } from "@/lib/ipc";
 
 const TYPE_LABELS: Record<PageType, string> = {
   concept: "概念",
@@ -37,12 +38,86 @@ const STATUS_LABELS: Record<PageStatus, string> = {
   rejected: "rejected",
 };
 
+// UX-4: 页面内容内存缓存。
+// 切换视图再回来时，命中缓存则立即显示（无 loading），同时后台静默刷新。
+// 模块级 Map 保证组件卸载-重挂载后缓存仍然有效，避免"每次进入预览界面都加载一会"。
+// P5-R2 fix: 后台刷新内容与缓存相同时跳过 setPage，避免 ReactMarkdown 重渲染（问题 6 根因）。
+const pageCache = new Map<string, PageDetail>();
+
+/** 比较两个 PageDetail 内容是否相同（用于决定是否跳过 setPage）。 */
+function pageContentEqual(a: PageDetail, b: PageDetail): boolean {
+  return a.body === b.body && a.title === b.title && a.path === b.path;
+}
+
+/** 统一缓存 key：去除 .md 后缀，避免同一页面因路径形式不同而缓存未命中。 */
+function normalizeCacheKey(pagePath: string): string {
+  return pagePath.replace(/\.md$/, "");
+}
+
+/** 将 MCP kb_get_page 返回的 {frontmatter, body, links} 映射为 PageDetail。 */
+function parsePageDetail(
+  data: { frontmatter: Record<string, unknown>; body: string; links?: string[] },
+  pagePath: string,
+): PageDetail {
+  const fm = data.frontmatter;
+  const domains = Array.isArray(fm.domain) ? (fm.domain as string[]) : [];
+  const tags = Array.isArray(fm.tags) ? (fm.tags as string[]) : [];
+  return {
+    path: pagePath,
+    title: typeof fm.title === "string" ? fm.title : pagePath,
+    domain: (domains[0] as PageDetail["domain"]) ?? "coding",
+    type: (fm.type as PageDetail["type"]) ?? "concept",
+    status: (fm.status as PageDetail["status"]) ?? "active",
+    date: typeof fm.date === "string" ? fm.date : "",
+    tags,
+    frontmatter: fm,
+    body: data.body,
+  };
+}
+
 export function MarkdownPreview() {
-  const { currentPagePath, setCurrentPagePath } = useViewStore();
-  const [page, setPage] = useState<PageDetail>(mockPageDetail);
+  const { currentPagePath, setCurrentPagePath, setView } = useViewStore();
+  const invalidateGraph = useGraphStore((s) => s.invalidate);
+  // P5-R2 fix: 初始值从缓存读取，避免 mockPageDetail 闪烁（问题 6）
+  const [page, setPage] = useState<PageDetail>(() =>
+    pageCache.get(normalizeCacheKey(currentPagePath ?? "")) ?? mockPageDetail,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // P5-R2 问题 5: 预览界面删除按钮状态（支持 staging + active 页面）
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const tauriEnv = isTauri();
+
+  // P5-R2 问题 5: 删除当前预览页面（可选同时删除原始上传文件）。
+  // 复用 deletePage IPC（lib.rs delete_page 支持 delete_raw 参数）。
+  // 删除后：清缓存 → 切回文件列表视图 → 清空 currentPagePath。
+  const handleDelete = useCallback(async () => {
+    if (!tauriEnv || !currentPagePath) return;
+    const ok = window.confirm(
+      `确定删除「${page.title}」？\n\n` +
+      `点击"确定"将删除 wiki 页面（若为来源页，同时删除原始上传文件，不可撤销）。\n` +
+      `点击"取消"则不删除。`,
+    );
+    if (!ok) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      // deleteRaw=true：若 frontmatter 有 source_file 则一并删除 raw 文件（用户授权例外）
+      await deletePage(currentPagePath, true);
+      // 清除缓存，避免下次进入显示陈旧内容
+      pageCache.delete(normalizeCacheKey(currentPagePath));
+      // P5-R3 问题 5: 删除后使图谱缓存失效，图谱视图下次显示时自动重载
+      invalidateGraph();
+      // 导航离开：切回文件列表（upload 视图）+ 清空当前路径
+      setCurrentPagePath(null);
+      setView("upload");
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setDeleting(false);
+    }
+  }, [tauriEnv, currentPagePath, page.title, setCurrentPagePath, setView, invalidateGraph]);
 
   const loadPage = useCallback(
     (pagePath: string) => {
@@ -50,43 +125,58 @@ export function MarkdownPreview() {
         setPage(mockPageDetail);
         return;
       }
+      const cacheKey = normalizeCacheKey(pagePath);
+      // UX-4: 缓存命中 → 立即显示（无 loading），后台静默刷新保证内容最新。
+      // P5-R2 fix: 后台刷新结果与缓存相同时跳过 setPage，避免 ReactMarkdown 重渲染。
+      const cached = pageCache.get(cacheKey);
+      if (cached) {
+        setPage(cached);
+        setLoading(false);
+        setError(null);
+        callMcpTool("kb_get_page", { page_path: pagePath })
+          .then((result) => {
+            if (result.success && result.data) {
+              const data = result.data as {
+                frontmatter: Record<string, unknown>;
+                body: string;
+                links?: string[];
+              };
+              const pageDetail = parsePageDetail(data, pagePath);
+              pageCache.set(cacheKey, pageDetail);
+              // 内容相同则跳过 setPage，避免不必要的 ReactMarkdown 重渲染
+              if (!pageContentEqual(cached, pageDetail)) {
+                setPage(pageDetail);
+              }
+            }
+          })
+          .catch(() => {
+            /* 页面可能已删除或不可达，清除缓存避免显示陈旧内容 */
+            pageCache.delete(cacheKey);
+          });
+        return;
+      }
+      // 未命中缓存 → 正常加载（显示 loading）
       setLoading(true);
       setError(null);
       callMcpTool("kb_get_page", { page_path: pagePath })
         .then((result) => {
           if (result.success && result.data) {
-            // MCP 返回 { frontmatter, body, links }，需映射到 PageDetail。
-            // frontmatter 含 title/domain/type/status/date/tags 等字段。
             const data = result.data as {
               frontmatter: Record<string, unknown>;
               body: string;
               links?: string[];
             };
-            const fm = data.frontmatter;
-            const domains = Array.isArray(fm.domain)
-              ? (fm.domain as string[])
-              : [];
-            const tags = Array.isArray(fm.tags)
-              ? (fm.tags as string[])
-              : [];
-            const pageDetail: PageDetail = {
-              path: pagePath,
-              title:
-                typeof fm.title === "string" ? fm.title : pagePath,
-              domain: (domains[0] as PageDetail["domain"]) ?? "coding",
-              type:
-                (fm.type as PageDetail["type"]) ?? "concept",
-              status:
-                (fm.status as PageDetail["status"]) ?? "active",
-              date:
-                typeof fm.date === "string" ? fm.date : "",
-              tags,
-              frontmatter: fm,
-              body: data.body,
-            };
+            const pageDetail = parsePageDetail(data, pagePath);
+            pageCache.set(cacheKey, pageDetail);
             setPage(pageDetail);
           } else {
-            setError(result.error ?? "加载页面失败");
+            // P5-R3 问题 4: 对 "Page not found" 显示友好提示
+            const errMsg = result.error ?? "加载页面失败";
+            if (errMsg.includes("Page not found") || errMsg.includes("not found")) {
+              setError("目标页面不存在（可能尚未创建）");
+            } else {
+              setError(errMsg);
+            }
           }
         })
         .catch((err) => {
@@ -128,6 +218,9 @@ export function MarkdownPreview() {
       {error && !loading && (
         <div className="text-sm text-red-400 mb-4">⚠️ {error}</div>
       )}
+      {deleteError && !deleting && (
+        <div className="text-sm text-red-400 mb-4">⚠️ 删除失败：{deleteError}</div>
+      )}
 
       {/* frontmatter 信息卡片 */}
       <div className="bg-surface border border-border-subtle rounded-lg p-4 mb-6">
@@ -155,6 +248,23 @@ export function MarkdownPreview() {
           </span>
           <span className="text-text-muted">·</span>
           <span className="text-xs font-mono text-text-muted">{page.date}</span>
+          {/* P5-R2 问题 5: 删除按钮（支持 staging + active 页面，含原始文件） */}
+          {tauriEnv && currentPagePath && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="ml-auto flex items-center justify-center w-7 h-7 rounded-md text-text-muted hover:bg-hover hover:text-accent-danger transition-all disabled:opacity-50 disabled:cursor-wait"
+              title="删除此页面（若为来源页，同时删除原始上传文件）"
+            >
+              <span
+                className={`material-symbols-outlined ${deleting ? "animate-spin" : ""}`}
+                style={{ fontSize: 16 }}
+              >
+                {deleting ? "progress_activity" : "delete"}
+              </span>
+            </button>
+          )}
         </div>
         <h1 className="text-2xl font-semibold text-text-primary mb-2">{page.title}</h1>
         <div className="flex flex-wrap gap-1.5">

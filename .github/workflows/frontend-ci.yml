@@ -42,6 +42,12 @@ jobs:
       - name: TypeScript type check + Vite build
         run: pnpm build
 
+      - name: React Hooks deps guard
+        # 阻断 eslint-disable 压制 react-hooks/exhaustive-deps 的反模式
+        # （TKN-RAG-CLASSIFY-ARCHAEOLOGY-001 stale closure 根因防护）
+        working-directory: ${{ github.workspace }}
+        run: node scripts/hooks-deps-guard.js
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:

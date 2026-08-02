@@ -1,12 +1,14 @@
 ---
-title: "Lint 工作流：健康检查"
+title: Lint 工作流：健康检查
 domain: [kb-system]
 type: concept
 status: active
 date: 2026-07-24
 tags: [kb-system, workflow, lint, health-check]
 related: [wiki/kb-system/frontmatter-schema, wiki/kb-system/multi-domain-classification, wiki/kb-system/page-types-and-state-machine]
+use_count: 1
 ---
+
 
 ## 概念
 

@@ -2,19 +2,23 @@
 /**
  * MCP Server entry point for the continuous-evolution knowledge base.
  *
- * Registers all tools defined in ARCH.md §3.1:
+ * Registers all 17 tools defined in ARCH.md §3.1:
  *   Read-only:  kb_health, kb_list_categories, kb_list_recent, kb_get_page, kb_search
- *   Write:      kb_ingest_source, kb_write_experience, kb_promote_experience
- *   Staging:    kb_list_staging, kb_confirm_staging, kb_reject_staging (P4 Phase 4b)
+ *   Write:      kb_ingest_source, kb_write_experience, kb_promote_experience, kb_write_answer
+ *   Staging:    kb_list_staging, kb_confirm_staging, kb_reject_staging, kb_organize_staging
  *   Lint:       kb_lint
+ *   Graph:      kb_get_graph, kb_get_backlinks
+ *   Inbox:      kb_list_inbox
  *
  * US-001: Scaffolding with stub handlers. ✅
  * US-002: Read-only tools implemented (kb_health, kb_list_categories, kb_list_recent, kb_get_page). ✅
- * US-003: kb_search implemented (full-text scan + term-overlap scoring). ✅
+ * US-003: kb_search implemented (full-text scan + term-overlap scoring + CJK bigram). ✅
  * US-004: Write tools implemented (kb_ingest_source, kb_write_experience). ✅
- * US-005: kb_lint implemented (frontmatter, contradictions, orphans, stale, missing_xref). ✅
+ * US-005: kb_lint implemented (frontmatter, contradictions, orphans, stale, missing_xref, missing_concept). ✅
  * P3:     kb_get_page use_count increment + kb_promote_experience two-tier gate. ✅
  * P4b:    kb_list_staging / kb_confirm_staging / kb_reject_staging. ✅
+ * P4c:    kb_get_graph / kb_get_backlinks / kb_list_inbox. ✅
+ * P6+:    kb_write_answer (WRITEBACK-RAG) + kb_organize_staging (LLM整理) + auto-xref + missing_concept. ✅
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -26,6 +30,7 @@ import {
   kbIngestSourceSchema,
   kbWriteExperienceSchema,
   kbPromoteExperienceSchema,
+  kbWriteAnswerSchema,
   kbListCategoriesSchema,
   kbListRecentSchema,
   kbLintSchema,
@@ -33,6 +38,7 @@ import {
   kbListStagingSchema,
   kbConfirmStagingSchema,
   kbRejectStagingSchema,
+  kbOrganizeStagingSchema,
   kbGetGraphSchema,
   kbGetBacklinksSchema,
   kbListInboxSchema,
@@ -47,11 +53,13 @@ import {
   kbIngestSource,
   kbWriteExperience,
   kbPromoteExperience,
+  kbWriteAnswer,
 } from "./tools/write.js";
 import {
   kbListStaging,
   kbConfirmStaging,
   kbRejectStaging,
+  kbOrganizeStaging,
 } from "./tools/staging.js";
 import { kbGetGraph } from "./tools/graph.js";
 import { kbGetBacklinks } from "./tools/backlinks.js";
@@ -101,6 +109,13 @@ server.tool(
   "Promote an inbox experience card to active (two-tier review gate), or reject it.",
   kbPromoteExperienceSchema,
   async (args) => kbPromoteExperience(args)
+);
+
+server.tool(
+  "kb_write_answer",
+  "Write a valuable Query answer back as a pending experience card (Karpathy 'good answers filed back'). Goes through inbox two-tier review gate. Requires cited_pages >= 2 (WRITEBACK-RAG Utility Gate).",
+  kbWriteAnswerSchema,
+  async (args) => kbWriteAnswer(args)
 );
 
 server.tool(
@@ -154,6 +169,13 @@ server.tool(
   "Reject a staging page (mark status=rejected). The page file is kept for auditability. Appends log entry.",
   kbRejectStagingSchema,
   async (args) => kbRejectStaging(args),
+);
+
+server.tool(
+  "kb_organize_staging",
+  "Apply LLM-organized metadata (title/tags/description) to a staging page. Caller invokes the LLM and passes the result; server stays LLM-free. Body is not modified. domain_suggestion is returned but not auto-applied.",
+  kbOrganizeStagingSchema,
+  async (args) => kbOrganizeStaging(args),
 );
 
 // ---------------------------------------------------------------------------

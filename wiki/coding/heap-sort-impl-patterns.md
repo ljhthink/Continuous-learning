@@ -1,12 +1,14 @@
 ---
-title: "堆排序跨语言实现模式对比"
+title: 堆排序跨语言实现模式对比
 domain: [coding]
 type: concept
 status: active
 date: 2026-07-25
 tags: [algorithm, sorting, heapsort, python, java, cpp, c, rust, typescript, cross-language, binary-heap, heapify]
 related: [wiki/coding/thealgorithms-python, wiki/coding/thealgorithms-java, wiki/coding/thealgorithms-c-plus-plus, wiki/coding/thealgorithms-c, wiki/coding/thealgorithms-rust, wiki/coding/thealgorithms-typescript, wiki/coding/quick-sort-impl-patterns, wiki/coding/merge-sort-impl-patterns, wiki/coding/binary-search-impl-patterns]
+use_count: 3
 ---
+
 
 ## 概念
 

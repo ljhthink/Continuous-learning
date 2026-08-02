@@ -299,3 +299,43 @@ export const mockStagingFiles: StagingFile[] = [
     status: "staging",
   },
 ];
+
+/**
+ * P6-R5: StagingReview mock 数据（IPC StagingPageIPC 结构）。
+ *
+ * 浏览器 dev 模式下 listStaging() 抛错，StagingReview 回退到此 mock。
+ * Tauri 环境下从 listStaging() 真实加载。
+ */
+export const mockStagingPages: Array<{
+  path: string;
+  title: string;
+  domain: string;
+  format: string;
+  status: string;
+  date: string;
+  preview: string;
+  source_file: string;
+}> = [
+  {
+    path: "wiki/staging/async-patterns-ref.md",
+    title: "Python 异步编程参考",
+    domain: "coding",
+    format: "pdf",
+    status: "staging",
+    date: "2026-08-02",
+    preview:
+      "# Python 异步编程参考\n\n本文档详细介绍了 asyncio 的事件循环、协程、任务与future、同步原语等核心概念...\n\n## 1. 事件循环\n\nasyncio 的事件循环是异步任务的调度中心...",
+    source_file: "raw/pdf/async-patterns-ref.pdf",
+  },
+  {
+    path: "wiki/staging/design-resources.md",
+    title: "设计素材资源库",
+    domain: "design",
+    format: "docx",
+    status: "staging",
+    date: "2026-08-02",
+    preview:
+      "# 设计素材资源库\n\n图像、视频、动画、图标、字体、颜色、3D 模型、声音八大类设计素材索引...\n\n## 图像素材\n\nUnsplash、Pexels、Pixabay 等免费图库...",
+    source_file: "raw/docx/design-resources.docx",
+  },
+];

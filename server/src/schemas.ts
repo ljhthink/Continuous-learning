@@ -66,6 +66,12 @@ export const kbIngestSourceSchema = {
     .literal("source")
     .optional()
     .describe("Page type (always 'source' for ingested files)"),
+  auto_xref: z
+    .boolean()
+    .optional()
+    .describe(
+      "Auto-update cross-references in 5-15 related wiki pages (Karpathy 'touch 5-15 pages'). Default true. Set false to skip."
+    ),
 };
 
 /** kb_write_experience: Write a reusable experience card to inbox. */
@@ -114,6 +120,60 @@ export const kbPromoteExperienceSchema = {
     ),
 };
 
+/**
+ * kb_write_answer: Write a valuable Query answer back as an experience card
+ * (AGENTS.md §5.2 step 5 "回写有价值的发现"; Karpathy "good answers filed back").
+ *
+ * Goes through the inbox two-tier review gate — never writes directly to the
+ * active wiki (AGENTS.md §9.3). The caller is responsible for rewriting the
+ * answer in encyclopedic style (not query-answer style) before calling.
+ *
+ * Gating (WRITEBACK-RAG Utility Gate simplified): cited_pages must include
+ * at least 2 entries — only answers synthesizing ≥2 pages are worth filing
+ * back; simple fact lookups are not (RAG/Wiki/Memory 三层分工).
+ */
+export const kbWriteAnswerSchema = {
+  title: z.string().max(500).describe("Answer title (encyclopedic style)"),
+  domain: z
+    .string()
+    .regex(
+      DOMAIN_REGEX,
+      "Domain must be kebab-case (lowercase alphanumeric with hyphens)"
+    )
+    .max(64)
+    .describe("Target domain (e.g., 'coding')"),
+  content: z
+    .string()
+    .max(100000)
+    .describe(
+      "Answer content in markdown, encyclopedic style (background, synthesis, evidence, applicability)"
+    ),
+  confidence: z
+    .number()
+    .min(0)
+    .max(1)
+    .describe("Confidence score 0-1 (0.9=highly certain, 0.6=speculative)"),
+  source_query: z
+    .string()
+    .max(1000)
+    .describe("The original query that triggered this writeback (for provenance)"),
+  cited_pages: z
+    .array(
+      z
+        .string()
+        .max(512)
+        .regex(
+          /^(?!.*\.\.).+$/,
+          "Page path must not contain '..' (path traversal defense, ADR-010)"
+        )
+    )
+    .min(2)
+    .max(50)
+    .describe(
+      "Wiki page paths cited by this answer (≥2 required — WRITEBACK-RAG Utility Gate). Used to populate frontmatter.related."
+    ),
+};
+
 /** kb_list_categories: Browse knowledge base domain structure. */
 export const kbListCategoriesSchema = {
   include_stats: z
@@ -132,7 +192,19 @@ export const kbListRecentSchema = {
     .optional()
     .describe("Max entries (default 10)"),
   type: z
-    .enum(["ingest", "query", "lint", "experience", "promote", "reject", "confirm", "dream", "init"])
+    .enum([
+      "ingest",
+      "query",
+      "lint",
+      "experience",
+      "promote",
+      "reject",
+      "confirm",
+      "dream",
+      "init",
+      "writeback",
+      "xref",
+    ])
     .optional()
     .describe("Filter by event type"),
 };
@@ -141,14 +213,12 @@ export const kbListRecentSchema = {
  * kb_lint: Run health checks on the knowledge base.
  *
  * Checks (AGENTS.md §6.2):
- *   frontmatter    — missing or incomplete frontmatter fields (high)
- *   contradictions — conflicting statements or duplicate titles (high)
- *   orphans        — pages with no inbound links (mid; high-confidence experiences exempt)
- *   stale          — source page newer than its referrers (high)
- *   missing_xref   — same-domain pages sharing tags but not cross-linked (mid)
- *
- * Note: AGENTS.md §6.2 also lists "data gaps" (low), intentionally omitted — requires
- *       heuristic judgment unsuitable for deterministic linting.
+ *   frontmatter      — missing or incomplete frontmatter fields (high)
+ *   contradictions   — conflicting statements or duplicate titles (high)
+ *   orphans          — pages with no inbound links (mid; high-confidence experiences exempt)
+ *   stale            — source page newer than its referrers (high)
+ *   missing_xref     — same-domain pages sharing tags but not cross-linked (mid)
+ *   missing_concept  — concepts mentioned ≥N times but lacking their own page (low)
  */
 export const kbLintSchema = {
   checks: z
@@ -159,6 +229,7 @@ export const kbLintSchema = {
         "orphans",
         "stale",
         "missing_xref",
+        "missing_concept",
       ])
     )
     .optional()
@@ -202,6 +273,56 @@ export const kbRejectStagingSchema = {
     .max(512)
     .describe(
       "Path to the staging page relative to KB root (e.g., 'wiki/coding/foo.md' or 'wiki/coding/foo')"
+    ),
+};
+
+/**
+ * kb_organize_staging: Apply LLM-organized metadata to a staging page.
+ *
+ * Caller (Tauri GUI / external Agent) is responsible for invoking the LLM and
+ * passing the result here; the server stays LLM-dependency-free (ADR-001:
+ * core deps ≤5). This tool only validates + serializes + persists.
+ *
+ * Updates frontmatter.title, frontmatter.tags, and frontmatter.description
+ * (LLM-generated summary). Body is NOT modified — the user can still edit
+ * content during the staging review. domain_suggestion is returned but NOT
+ * auto-applied (domain migration is a separate kb_confirm_staging / move
+ * decision the user must make explicitly).
+ *
+ * At least one of {title, tags, description} must be provided.
+ */
+export const kbOrganizeStagingSchema = {
+  page_path: z
+    .string()
+    .max(512)
+    .describe(
+      "Path to the staging page relative to KB root (e.g., 'wiki/coding/foo.md' or 'wiki/coding/foo')"
+    ),
+  title: z
+    .string()
+    .max(500)
+    .optional()
+    .describe("LLM-refined page title (overrides filename-derived default)"),
+  tags: z
+    .array(z.string().max(64))
+    .max(20)
+    .optional()
+    .describe("LLM-extracted cross-cutting tags (e.g., ['python', 'async'])"),
+  description: z
+    .string()
+    .max(500)
+    .optional()
+    .describe("LLM-generated one-line summary (stored as frontmatter.description)"),
+  domain_suggestion: z
+    .string()
+    .regex(
+      DOMAIN_REGEX,
+      "Domain must be kebab-case (lowercase alphanumeric with hyphens)"
+    )
+    .max(64)
+    .optional()
+    .describe(
+      "LLM-suggested target domain. Returned in result for caller action; NOT auto-applied (domain migration is a separate user decision)."
     ),
 };
 

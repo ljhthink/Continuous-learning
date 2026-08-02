@@ -13,6 +13,7 @@ const VIEW_BUTTONS: Array<{ view: ViewName; icon: string; label: string; kbd: st
   { view: "preview", icon: "article", label: "预览", kbd: "⌘2" },
   { view: "review", icon: "gavel", label: "审核", kbd: "⌘3" },
   { view: "graph", icon: "hub", label: "图谱", kbd: "⌘4" },
+  { view: "chat", icon: "forum", label: "对话", kbd: "⌘5" },
 ];
 
 export function TopBar() {

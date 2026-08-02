@@ -24,3 +24,5 @@ chrono = { version = "0.4", features = ["serde"] }
 # reqwest 使用 rustls-tls 避免 Linux CI 需要 OpenSSL dev 包
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
 keyring = "3"
+# P6-R1: tokio 时间功能（重试退避的 async sleep；Tauri 内部用 tokio 但不自动暴露）
+tokio = { version = "1", features = ["time"] }

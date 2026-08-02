@@ -68,3 +68,30 @@
 | 2026-07-28 | P5 集成验收测试计划 | plan | [2026-07-28-p5-integration-acceptance-plan.md](2026-07-28-p5-integration-acceptance-plan.md) |
 | 2026-07-28 | P5 lint-perf 阈值修复安全与质量审计 | guardrail | [2026-07-28-p5-lint-perf-fix-guardrail.md](2026-07-28-p5-lint-perf-fix-guardrail.md) |
 | 2026-07-28 | P5 集成验收分层测试 | acceptance | [2026-07-28-p5-integration-acceptance-acceptance.md](2026-07-28-p5-integration-acceptance-acceptance.md) |
+| 2026-07-29 | P5 验收问题汇总（8 问题：3 bug + 5 UX） | issue | [2026-07-29-p5-acceptance-issues.md](2026-07-29-p5-acceptance-issues.md) |
+| 2026-08-01 | P5-R2 源码考古报告 | archaeology | [2026-08-01-p5-r2-archaeology.md](2026-08-01-p5-r2-archaeology.md) |
+| 2026-08-01 | P5-R2 方案设计文档 | solution | [2026-08-01-p5-r2-solution-design.md](2026-08-01-p5-r2-solution-design.md) |
+| 2026-08-01 | P5-R2 子 Agent 审核漏问题反思 | reflection | [2026-08-01-p5-r2-subagent-reflection.md](2026-08-01-p5-r2-subagent-reflection.md) |
+| 2026-08-01 | P5-R2 安全与质量审计 | guardrail | [2026-08-01-p5-r2-guardrail.md](2026-08-01-p5-r2-guardrail.md) |
+| 2026-08-01 | P5-R2 验收测试 | acceptance | [2026-08-01-p5-r2-acceptance.md](2026-08-01-p5-r2-acceptance.md) |
+| 2026-08-01 | P5-R3 考古与方案（API key 持久化、模型配置、图谱刷新） | archaeology | [2026-08-01-p5-r3-archaeology-and-solution.md](2026-08-01-p5-r3-archaeology-and-solution.md) |
+| 2026-08-01 | P5-R3 安全与质量审计 | guardrail | [2026-08-01-p5-r3-guardrail.md](2026-08-01-p5-r3-guardrail.md) |
+| 2026-08-01 | P5-R3 验收测试 | acceptance | [2026-08-01-p5-r3-acceptance.md](2026-08-01-p5-r3-acceptance.md) |
+| 2026-08-01 | P5-R4 考古与方案（LLM 大文件截断 + 知识图谱不显示） | archaeology | [2026-08-01-p5-r4-archaeology-and-solution.md](2026-08-01-p5-r4-archaeology-and-solution.md) |
+| 2026-08-01 | P5-R4 安全与质量审计 | guardrail | [2026-08-01-p5-r4-guardrail.md](2026-08-01-p5-r4-guardrail.md) |
+| 2026-08-01 | P5-R4 验收测试 | acceptance | [2026-08-01-p5-r4-acceptance.md](2026-08-01-p5-r4-acceptance.md) |
+| 2026-08-01 | P6 LLM 增强源码考古（流式/重试/分类/RAG 现状基线） | archaeology | [2026-08-01-p6-llm-enhancements-archaeology.md](2026-08-01-p6-llm-enhancements-archaeology.md) |
+| 2026-08-01 | P6 LLM 增强决策计划（7 需求可行性 + 2 异议，已审批） | plan | [2026-08-01-p6-llm-enhancements-decision-plan.md](2026-08-01-p6-llm-enhancements-decision-plan.md) |
+| 2026-08-01 | P6 安全与质量审计（10 项盲区全验证，通过） | guardrail | [2026-08-01-p6-guardrail.md](2026-08-01-p6-guardrail.md) |
+| 2026-08-01 | P6 验收测试（283 单元 + 6 E2E + 6 安全） | acceptance | [2026-08-01-p6-acceptance.md](2026-08-01-p6-acceptance.md) |
+| 2026-08-01 | P6 DEF-001 成本控制 UI 增量安全审计 | guardrail | [2026-08-01-p6-def001-guardrail.md](2026-08-01-p6-def001-guardrail.md) |
+| 2026-08-01 | P6-R4 H-1/H-2 修复安全与质量审计 | guardrail | [2026-08-01-p6-r4-h1h2-fix-guardrail.md](2026-08-01-p6-r4-h1h2-fix-guardrail.md) |
+| 2026-08-01 | P6-R4 H-1/H-2 修复验收测试 | acceptance | [2026-08-01-p6-r4-h1h2-fix-acceptance.md](2026-08-01-p6-r4-h1h2-fix-acceptance.md) |
+| 2026-08-02 | RAG 检索失效 + LLM 分类未触发源码考古 | archaeology | [2026-08-02-rag-classify-archaeology.md](2026-08-02-rag-classify-archaeology.md) |
+| 2026-08-02 | RAG 检索 + LLM 分类修复安全与质量审计 | guardrail | [2026-08-02-rag-classify-fix-guardrail.md](2026-08-02-rag-classify-fix-guardrail.md) |
+| 2026-08-02 | RAG 检索 + LLM 分类修复验收测试 | acceptance | [2026-08-02-rag-classify-fix-acceptance.md](2026-08-02-rag-classify-fix-acceptance.md) |
+| 2026-08-02 | Karpathy LLM Wiki 模式实现度分析 | analysis | [2026-08-02-karpathy-implementation-analysis.md](2026-08-02-karpathy-implementation-analysis.md) |
+| 2026-08-02 | 审核页/LLM 新领域建议/领域管理 源码考古与方案设计 | archaeology | [2026-08-02-review-domain-archaeology.md](2026-08-02-review-domain-archaeology.md) |
+| 2026-08-02 | 审核页/领域管理 R1 安全与质量审计 | guardrail | [2026-08-02-review-domain-guardrail.md](2026-08-02-review-domain-guardrail.md) |
+| 2026-08-02 | 审核页/领域管理 R2 修复 delta 复审 | guardrail | [2026-08-02-review-domain-guardrail-r2.md](2026-08-02-review-domain-guardrail-r2.md) |
+| 2026-08-02 | 审核页/领域管理验收测试 | acceptance | [2026-08-02-review-domain-acceptance.md](2026-08-02-review-domain-acceptance.md) |

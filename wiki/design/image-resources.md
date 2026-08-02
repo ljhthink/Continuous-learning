@@ -1,12 +1,14 @@
 ---
-title: "图像素材资源"
+title: 图像素材资源
 domain: [design]
 type: concept
 status: active
 date: 2026-07-25
 tags: [design, image, resources, assets, photo, texture, pixel]
 related: [wiki/design/_index]
+use_count: 2
 ---
+
 
 ## 简介
 

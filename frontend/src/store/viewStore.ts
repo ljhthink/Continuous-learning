@@ -8,6 +8,12 @@
 import { create } from "zustand";
 import type { ViewName, Theme, Domain, GraphMode, PageType } from "@/types";
 
+/** 审核视图内的子标签（P6-R5：分离经验卡 inbox 与 staging 审核） */
+export type ReviewTab = "experience" | "staging";
+
+/** 设置面板可直达的分区（P6-R5：CategoryTree 齿轮按钮跳转领域管理） */
+export type SettingsSection = "llm" | "domain-management" | "about";
+
 interface ViewState {
   // 主视图
   currentView: ViewName;
@@ -33,6 +39,15 @@ interface ViewState {
   // 设置面板
   settingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
+  /** 设置面板当前激活分区（打开时可指定，便于从其他入口直达） */
+  settingsSection: SettingsSection;
+  setSettingsSection: (section: SettingsSection) => void;
+  /** 便捷方法：打开设置面板并直达指定分区 */
+  openSettings: (section?: SettingsSection) => void;
+
+  // 审核视图子标签
+  reviewTab: ReviewTab;
+  setReviewTab: (tab: ReviewTab) => void;
 
   // 当前预览页面（preview 视图）
   currentPagePath: string | null;
@@ -59,6 +74,16 @@ export const useViewStore = create<ViewState>((set) => ({
 
   settingsOpen: false,
   setSettingsOpen: (open) => set({ settingsOpen: open }),
+  settingsSection: "llm",
+  setSettingsSection: (section) => set({ settingsSection: section }),
+  openSettings: (section) =>
+    set((state) => ({
+      settingsOpen: true,
+      settingsSection: section ?? state.settingsSection,
+    })),
+
+  reviewTab: "experience",
+  setReviewTab: (tab) => set({ reviewTab: tab }),
 
   currentPagePath: null,
   setCurrentPagePath: (path) => set({ currentPagePath: path }),

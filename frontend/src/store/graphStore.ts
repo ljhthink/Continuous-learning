@@ -26,10 +26,14 @@ interface GraphState {
   error: string | null;
   /** 数据来源标识（避免 Tauri 环境下误显示 mock 数据为真实统计） */
   dataSource: "mock" | "real";
+  /** P5-R3 问题 5: 刷新触发器，invalidate 递增，GraphView useEffect 依赖此值自动重载 */
+  reloadTrigger: number;
   /** GraphView 加载完成后调用，写入真实数据并标记 dataSource='real' */
   setGraphData: (data: GraphData) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  /** P5-R3: 使图谱缓存失效，下次 GraphView mount/更新时重新请求 kb_get_graph */
+  invalidate: () => void;
 }
 
 export const useGraphStore = create<GraphState>((set) => ({
@@ -37,7 +41,9 @@ export const useGraphStore = create<GraphState>((set) => ({
   loading: false,
   error: null,
   dataSource: "mock",
+  reloadTrigger: 0,
   setGraphData: (data) => set({ graphData: data, dataSource: "real" }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
+  invalidate: () => set((s) => ({ reloadTrigger: s.reloadTrigger + 1 })),
 }));

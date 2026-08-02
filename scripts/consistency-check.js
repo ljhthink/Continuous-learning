@@ -10,6 +10,7 @@
  *  4. docs/reports/ 中除 README.md 外的文件命名符合 YYYY-MM-DD-<task>-<type>.md
  *  5. 所有 .md 文件中不出现 file:/// 绝对路径（ADR-010，子 Agent 报告必须用相对路径）
  *  6. 所有 .md 文件中的相对链接 ../ 深度不超过 3 层（P3.4，ADR-010 延伸）
+ *  7. MCP 工具数一致性：README.md / docs/ARCH.md 宣称的工具数与 server/src/index.ts 实际注册数一致（V2 报告 §6.2）
  *
  * 退出码: 0=通过, 1=失败
  */
@@ -45,6 +46,53 @@ function rel(p) {
 
 function exists(rel) {
   return fs.existsSync(path.join(ROOT, rel));
+}
+
+// 7. MCP 工具数一致性检查（V2 报告 §6.2）
+// 防止 README.md / docs/ARCH.md 宣称的工具数与 server/src/index.ts 实际注册数脱节。
+// 实现：统计 index.ts 中 `server.tool(` 调用数（实际工具数），再用正则提取文档中
+// 宣称的工具数（如 "17 tools" / "17 个 tools" / "17 个 MCP tools"），两者必须一致。
+// 取文档中提到的最大工具数作为"当前状态"宣称值（工具数随演进递增，历史阶段如
+// "P1: 8 tools" / "P3 增至 9 tools" 不会被误判为当前宣称）。
+function checkMcpToolCount() {
+  const indexTs = path.join(ROOT, 'server', 'src', 'index.ts');
+  if (!fs.existsSync(indexTs)) {
+    errors.push('server/src/index.ts 不存在，无法核对 MCP 工具数');
+    return;
+  }
+  const indexText = fs.readFileSync(indexTs, 'utf8');
+  // 统计 `server.tool(` 调用数（实际注册的工具数）
+  const toolCalls = indexText.match(/server\.tool\(/g) || [];
+  const actualCount = toolCalls.length;
+
+  // 校验 README.md 与 ARCH.md 中宣称的工具数
+  const docsToCheck = [
+    { file: 'README.md', label: 'README.md' },
+    { file: 'docs/ARCH.md', label: 'docs/ARCH.md' },
+  ];
+  // 匹配 "<数字> tools" / "<数字> 个 tools" / "<数字> 个 MCP tools" 等中文/英文表述
+  const countRe = /(\d+)\s*(?:个\s*)?(?:MCP\s*)?tools?/gi;
+
+  for (const { file, label } of docsToCheck) {
+    const fullPath = path.join(ROOT, file);
+    if (!fs.existsSync(fullPath)) continue;
+    const text = fs.readFileSync(fullPath, 'utf8');
+    let m;
+    let maxMentioned = 0;
+    while ((m = countRe.exec(text)) !== null) {
+      const n = parseInt(m[1], 10);
+      if (n > maxMentioned) maxMentioned = n;
+    }
+    if (maxMentioned === 0) {
+      // 文档中未提及工具数，跳过（不强制要求每处都写数字）
+      continue;
+    }
+    if (maxMentioned !== actualCount) {
+      errors.push(
+        `${label} 宣称 ${maxMentioned} 个 MCP tools（最大值），但 server/src/index.ts 实际注册 ${actualCount} 个（server.tool() 调用数）`
+      );
+    }
+  }
 }
 
 // 1. README 相对链接检查
@@ -197,6 +245,7 @@ checkTemplatesIndex();
 checkReportsNaming();
 checkFileAbsolutePath();
 checkRelativePathDepth();
+checkMcpToolCount();
 
 if (errors.length) {
   console.error('一致性检查失败:');

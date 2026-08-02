@@ -1,12 +1,14 @@
 ---
-title: "TheAlgorithms/Python — Python 算法教育实现合集"
+title: TheAlgorithms/Python — Python 算法教育实现合集
 domain: [coding]
 type: entity
 status: active
 date: 2026-07-25
 tags: [python, algorithm, open-source, learning, thealgorithms]
 related: [wiki/coding/thealgorithms-java, wiki/coding/thealgorithms-c-plus-plus, wiki/coding/thealgorithms-javascript]
+use_count: 14
 ---
+
 
 > License: MIT（以仓库根 LICENSE 文件为准）
 

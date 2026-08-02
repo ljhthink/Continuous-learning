@@ -350,3 +350,191 @@
 - from_inbox: wiki/coding/experiences/inbox/markdown-相对路径深度计算lychee-ci-file-错误的诊断模式.md
 - tier: auto
 - confidence: 0.9
+
+## [2026-08-01] delete | 2025国赛
+
+- deleted_path: wiki/coding/2025国赛.md
+- reason: manual deletion via GUI
+
+## [2026-08-01] reject | wiki/coding/2026数模国赛word模版-模版-记得修改命名-2.md
+
+- page: wiki/coding/2026数模国赛word模版-模版-记得修改命名-2.md
+- from_status: staging
+- to_status: rejected
+
+## [2026-08-01] delete | 2025国赛
+
+- deleted_path: wiki/coding/2025国赛.md
+- reason: manual deletion via GUI
+- deleted_raw: raw/pdf/2025国赛.pdf
+
+## [2026-08-01] confirm | wiki/coding/预测类-创新型算法汇总.md
+
+- page: wiki/coding/预测类-创新型算法汇总.md
+- from_status: staging
+- to_status: active
+
+## [2026-08-01] delete | wiki/coding/预测类-创新型算法汇总.md
+
+- deleted_path: wiki/coding/预测类-创新型算法汇总.md
+- reason: manual deletion via GUI
+
+## [2026-08-01] delete | wiki/coding/2026数模国赛word模版-模版-记得修改命名-2.md
+
+- deleted_path: wiki/coding/2026数模国赛word模版-模版-记得修改命名-2.md
+- reason: manual deletion via GUI
+
+## [2026-08-01] confirm | wiki/coding/2025国赛.md
+
+- page: wiki/coding/2025国赛.md
+- from_status: staging
+- to_status: active
+
+## [2026-08-01] delete | wiki/coding/2025国赛.md
+
+- deleted_path: wiki/coding/2025国赛.md
+- reason: manual deletion via GUI
+
+## [2026-08-01] reject | wiki/coding/数学建模国赛-ai-工作流-融合版-路由器.md
+
+- page: wiki/coding/数学建模国赛-ai-工作流-融合版-路由器.md
+- from_status: staging
+- to_status: rejected
+
+## [2026-08-01] delete | wiki/coding/数学建模国赛-ai-工作流-融合版-路由器.md
+
+- deleted_path: wiki/coding/数学建模国赛-ai-工作流-融合版-路由器.md
+- reason: manual deletion via GUI
+
+## [2026-08-01] confirm | wiki/coding/2025国赛.md
+
+- page: wiki/coding/2025国赛.md
+- from_status: staging
+- to_status: active
+
+## [2026-08-01] delete | 2025国赛
+
+- deleted_path: wiki/coding/2025国赛.md
+- reason: manual deletion via GUI
+- deleted_raw: raw/pdf/2025国赛.pdf
+
+## [2026-08-01] confirm | wiki/reading/2025国赛.md
+
+- page: wiki/reading/2025国赛.md
+- from_status: staging
+- to_status: active
+
+## [2026-08-02] lint | wiki frontmatter domain 字段数据质量修复
+
+- pages_affected: 2
+- pages:
+  - wiki/reading/2025国赛.md（domain: mathematical-modeling → [reading, mathematical-modeling]）
+  - wiki/reading/2025年mathorcup大数据挑战赛-初赛.md（domain: 物流大数据 / 数学建模 → [reading, mathematical-modeling]）
+- reason: RAG 检索失效考古中发现 frontmatter domain 字段不符合 AGENTS.md §3.1 数组格式约定，影响 kb_list_categories 与图谱领域配色
+- report: docs/reports/2026-08-02-rag-classify-archaeology.md
+
+## [2026-08-02] experience | CJK bigram 分词：无分词库依赖的中文子串检索方案
+
+- inbox: wiki/coding/experiences/inbox/cjk-bigram-分词无分词库依赖的中文子串检索方案.md
+- confidence: 0.85
+- source_task: TKN-RAG-CLASSIFY-ARCHAEOLOGY-001
+
+## [2026-08-02] experience | React useCallback stale closure：依赖数组遗漏导致闭包过期
+
+- inbox: wiki/coding/experiences/inbox/react-usecallback-stale-closure依赖数组遗漏导致闭包过期.md
+- confidence: 0.9
+- source_task: TKN-RAG-CLASSIFY-ARCHAEOLOGY-001
+
+## [2026-08-02] promote | CJK bigram 分词：无分词库依赖的中文子串检索方案
+
+- promoted: wiki/coding/experiences/cjk-bigram-分词无分词库依赖的中文子串检索方案.md
+- from_inbox: wiki/coding/experiences/inbox/cjk-bigram-分词无分词库依赖的中文子串检索方案.md
+- tier: auto
+- confidence: 0.85
+
+## [2026-08-02] promote | React useCallback stale closure：依赖数组遗漏导致闭包过期
+
+- promoted: wiki/coding/experiences/react-usecallback-stale-closure依赖数组遗漏导致闭包过期.md
+- from_inbox: wiki/coding/experiences/inbox/react-usecallback-stale-closure依赖数组遗漏导致闭包过期.md
+- tier: auto
+- confidence: 0.9
+
+## [2026-08-02] reject | wiki/reading/2025年mathorcup大数据挑战赛-初赛.md
+
+- page: wiki/reading/2025年mathorcup大数据挑战赛-初赛.md
+- from_status: staging
+- to_status: rejected
+
+## [2026-08-02] reject | wiki/reading/2025年mathorcup大数据挑战赛-初赛.md
+
+- page: wiki/reading/2025年mathorcup大数据挑战赛-初赛.md
+- from_status: staging
+- to_status: rejected
+
+## [2026-08-02] experience | Markdown heading 精确匹配：避免子串搜索导致的前缀碰撞
+
+- inbox: wiki/coding/experiences/inbox/markdown-heading-精确匹配避免前缀碰撞.md
+- confidence: 0.9
+- source_task: TKN-REVIEW-DOMAIN-ARCH-001
+
+## [2026-08-02] experience | slugify Unicode 保留与 is_valid_domain ASCII-only 校验的契约不一致
+
+- inbox: wiki/coding/experiences/inbox/slugify-unicode与ascii校验契约不一致.md
+- confidence: 0.85
+- source_task: TKN-REVIEW-DOMAIN-ARCH-001
+
+## [2026-08-02] promote | Markdown heading 精确匹配：避免子串搜索导致的前缀碰撞
+
+- promoted: wiki/coding/experiences/markdown-heading-精确匹配避免前缀碰撞.md
+- from_inbox: wiki/coding/experiences/inbox/markdown-heading-精确匹配避免前缀碰撞.md
+- tier: auto
+- confidence: 0.9
+- duplicate_with: []
+- duplicate_max_content_sim: 0.0
+
+## [2026-08-02] promote | slugify Unicode 保留与 is_valid_domain ASCII-only 校验的契约不一致
+
+- promoted: wiki/coding/experiences/slugify-unicode与ascii校验契约不一致.md
+- from_inbox: wiki/coding/experiences/inbox/slugify-unicode与ascii校验契约不一致.md
+- tier: auto
+- confidence: 0.85
+- duplicate_with: []
+- duplicate_max_content_sim: 0.0
+
+## [2026-08-02] experience | MCP tool 三点注册陷阱：新增工具须同时注册 index.ts + cli.ts 双 registry
+
+- inbox: wiki/coding/experiences/inbox/mcp-tool-三点注册陷阱新增工具须同时注册-indexts-clits-双-registry.md
+- confidence: 0.9
+- source_task: task-missing-features-2026-08-02
+
+## [2026-08-02] experience | GitHub Actions shell 注入防护：用 env 块替代内联 ${{ }} 表达式
+
+- inbox: wiki/coding/experiences/inbox/github-actions-shell-注入防护用-env-块替代内联-表达式.md
+- confidence: 0.9
+- source_task: task-missing-features-2026-08-02
+
+## [2026-08-02] promote | MCP tool 三点注册陷阱：新增工具须同时注册 index.ts + cli.ts 双 registry
+
+- promoted: wiki/coding/experiences/mcp-tool-三点注册陷阱新增工具须同时注册-indexts-clits-双-registry.md
+- from_inbox: wiki/coding/experiences/inbox/mcp-tool-三点注册陷阱新增工具须同时注册-indexts-clits-双-registry.md
+- tier: auto
+- confidence: 0.9
+
+## [2026-08-02] promote | GitHub Actions shell 注入防护：用 env 块替代内联 ${{ }} 表达式
+
+- promoted: wiki/coding/experiences/github-actions-shell-注入防护用-env-块替代内联-表达式.md
+- from_inbox: wiki/coding/experiences/inbox/github-actions-shell-注入防护用-env-块替代内联-表达式.md
+- tier: auto
+- confidence: 0.9
+
+## [2026-08-02] reject | wiki/coding/2025--mathorcup--------ս.md
+
+- page: wiki/coding/2025--mathorcup--------ս.md
+- from_status: staging
+- to_status: rejected
+
+## [2026-08-02] reject | wiki/coding/result.md
+
+- page: wiki/coding/result.md
+- from_status: staging
+- to_status: rejected

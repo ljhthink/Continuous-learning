@@ -164,17 +164,32 @@ experience:
 - 不删除旧声明，而是追加新声明并标注来源。
 - 原始资料永远不可变（写 `raw/`，不改 `raw/`）。
 
+### 4.4 自动交叉引用（auto-xref）
+
+`kb_ingest_source` 默认开启 `auto_xref=true`，ingest 后自动 touch 同域/共享 tag/标题提及的相关页（最多 15 个），无需 Agent 手动建链。
+
+- **复合打分**：同域 +4、共享 tag +2/个（上限 +6）、双向标题提及 +3。
+- **双向链接**：候选页 body 追加 `## Related` 节 + frontmatter `related`，新页 frontmatter `related` 回写。
+- **幂等性**：三层去重（完整 relPath / basename / basename|alias；related 数组去重；无新增不写盘），重复 ingest 不会产生重复链接。
+- **错误隔离**：单页失败不中断 ingest 主流程。
+- **日志**：touched > 0 时追加 `log.md`，格式 `## [YYYY-MM-DD] xref | <标题>`（详见 §7.6）。
+- **关闭方式**：`kb_ingest_source({ auto_xref: false })`。
+
+> Agent 无需在 ingest 后手动更新交叉引用——auto-xref 已覆盖 Karpathy「一次 touch 15 文件」的复利引擎要求。手动建链仅用于 auto-xref 未覆盖的特殊场景。
+
 ---
 
 ## 5. Query 工作流
 
 ### 5.1 检索策略（按规模分档）
 
-| 规模 | 策略 | Agent 行为 |
-| --- | --- | --- |
-| 小（<200 页） | index.md 导航 | 先读 `index.md`，按领域定位，再钻取具体页面 |
-| 中（200-5000） | qmd 混合检索 | 调用 MCP `kb_search`（BM25 + 向量 + 重排） |
-| 大（>5000） | LanceDB 向量检索 | 调用 MCP `kb_search`（向量 + FTS5） |
+| 规模 | 策略 | Agent 行为 | 实现状态 |
+| --- | --- | --- | --- |
+| 小（<200 页） | term-overlap + CJK bigram | 调用 MCP `kb_search`（扫描 `wiki/` 全部 markdown，title×3 + body×1 打分 + CJK bigram 分词 + 全角标点处理） | ✅ 当前实现（47 页，P95 < 2s） |
+| 中（200-5000） | qmd 混合检索 | 调用 MCP `kb_search`（BM25 + 向量 + 重排） | ⚠️ P6+ 演进项（未接入，当前页数远未到 200 门槛） |
+| 大（>5000） | LanceDB 向量检索 | 调用 MCP `kb_search`（向量 + FTS5） | ⚠️ P6+ 演进项（未接入） |
+
+> **当前实现档位**：仅小规模档位已落地。中规模（qmd BM25+向量+重排）与大规模（LanceDB）档位留待 P6+ 演进（Karpathy 原文：<200 页 index.md 够用）。详见 [Karpathy 实现度分析报告 V2](docs/reports/2026-08-02-karpathy-implementation-analysis-v2.md) §3.4。
 
 ### 5.2 Query 步骤（Agent 必须遵循）
 
@@ -182,7 +197,7 @@ experience:
 2. **调用 `kb_search`**：传入查询语句与可选 domain 过滤。
 3. **读取 top 结果**：用 `kb_get_page` 获取完整页面。
 4. **综合答案带引用**：回答中标注来源页面路径，如「根据 [[wiki/coding/async-patterns]]」。
-5. **回写有价值的发现**（可选）：若 Query 中产生了新的综合分析或发现，可作为新 wiki 页回写（见第 7 节）。
+5. **回写有价值的发现**（可选）：若 Query 中综合了 ≥2 个页面的答案（非简单事实查询），调用 `kb_write_answer` 将答案回写为 pending 经验卡（走 inbox 两 tier 门禁，WRITEBACK-RAG Utility Gate：cited_pages ≥ 2）。简单事实查询不回写，避免污染知识库。详见 §7.6。
 
 ### 5.3 检索失败时
 
@@ -201,19 +216,23 @@ experience:
 
 ### 6.2 Lint 检查项
 
-| 检查项 | 说明 | 严重度 |
-| --- | --- | --- |
-| 矛盾 | 同一实体在不同页面有冲突声明 | 高 |
-| 孤儿页 | 无入链的页面（experience 且 confidence 高除外） | 中 |
-| 过时声明 | source 页面更新后，引用它的 wiki 页未同步 | 高 |
-| 缺失交叉引用 | 页面间应建链但未建 | 中 |
-| 数据缺口 | 重要概念被提及但无独立页面 | 低 |
-| frontmatter 缺失 | 页面无 frontmatter 或必填字段不全 | 高 |
+| 检查项 | kb_lint checks 参数 | 说明 | 严重度 | 实现状态 |
+| --- | --- | --- | --- | --- |
+| frontmatter 缺失 | `frontmatter` | 页面无 frontmatter 或必填字段不全 | 高 | ✅ |
+| 矛盾 | `contradictions` | 同一实体在不同页面有冲突声明（marker-based + 重复标题检测） | 高 | ✅ |
+| 孤儿页 | `orphans` | 无入链的页面（experience 且 confidence 高除外） | 中 | ✅ |
+| 过时声明 | `stale` | source 页面更新后，引用它的 wiki 页未同步 | 高 | ✅ |
+| 缺失交叉引用 | `missing_xref` | 页面间应建链但未建 | 中 | ✅ |
+| 数据缺口 | `missing_concept` | 重要概念被提及 ≥5 次但无独立页面（RAKE-lite 从 H2/H3 标题 + frontmatter tags 提候选，CJK 安全子串计数，top-20） | 低 | ✅ |
+
+> **missing_concept 检查**：Agent 可主动调用 `kb_lint({ checks: ["missing_concept"] })` 单独运行此检查，检测被频繁提及但缺少独立页面的概念。可通过 `checks` 参数排除任意检查项。ALL_CHECKS = `["frontmatter", "contradictions", "orphans", "stale", "missing_xref", "missing_concept"]`。
 
 ### 6.3 Lint 输出
 
 调用 `kb_lint` tool，输出结构化报告，存档至 `docs/reports/YYYY-MM-DD-kb-lint-lint.md`。
 Agent 应主动修复高严重度问题，中低严重度问题列出建议。
+
+> **定时执行**：`.github/workflows/kb-maintenance.yml` 每日 02:17 UTC 自动运行 `kb_lint`，每周一 03:23 UTC 自动运行 `/dream`，报告作为 CI artifact 上传（retention 90 天），不自动 commit 到 main。
 
 ---
 
@@ -305,7 +324,19 @@ tags: [python, async, context-manager]
 
 **摘要日志**：每次 `/dream` 执行结束追加 `## [YYYY-MM-DD] dream | /dream pass summary`，记录 scanned / demoted / duplicates_found / quality_scored / quality_updated 统计。
 
-### 7.6 经验卡片质量自检（Agent 写入前）
+### 7.6 扩展日志类型（auto-xref / writeback / organize）
+
+除 §7.3/§7.4/§7.5 记录的 `experience` / `promote` / `reject` / `dream` 四种类型外，缺失功能补全迭代（2026-08-02）新增三种 log 类型：
+
+| 类型 | 触发场景 | 日志格式 | 触发工具 |
+| --- | --- | --- | --- |
+| `xref` | auto-xref 在 ingest 后 touch 相关页（touched > 0 时才记录，避免日志噪声） | `## [YYYY-MM-DD] xref \| <新页标题>`，记录 new_page、touched（路径列表）、touched_count、candidates | `kb_ingest_source`（auto_xref 默认 true） |
+| `writeback` | Query 答案回写为 pending 经验卡（WRITEBACK-RAG Utility Gate：cited_pages ≥ 2） | `## [YYYY-MM-DD] writeback \| <答案标题>`，记录 inbox 路径、source_query、cited_pages、confidence、duplicate_with（疑似重复时） | `kb_write_answer` |
+| `organize` | LLM 整理 staging 页元数据（title/tags/description，不动 body） | `## [YYYY-MM-DD] organize \| <staging 页标题>`，记录 page_path、applied_fields（title/tags/description）、domain_suggestion | `kb_organize_staging` |
+
+> **设计说明**：三种新类型均使用独立 type 名（而非复用 `experience`），语义清晰且避免与原始 write 条目形成 MD024 重复 heading（DEF-007 约定）。`writeback` 和 `organize` 的 source_query/page_path 等字段经 `sanitizeLogField` strip CR/LF，防 CWE-117 日志注入。
+
+### 7.7 经验卡片质量自检（Agent 写入前）
 
 - [ ] 是否真的可复用（不是一次性的 hack）？
 - [ ] 是否包含可验证的证据（代码/测试/数据）？
@@ -350,23 +381,64 @@ tags: [python, async, context-manager]
 
 ### 9.1 MCP Tools 一览
 
+当前注册 **17 个 MCP tools**（`server/src/index.ts` 实测）。按类别分组：
+
+#### Read-only（5 个，只读无副作用）
+
 | Tool | 何时用 | 副作用 |
 | --- | --- | --- |
-| `kb_search` | 编码前查知识、回答问题前检索 | 无 |
-| `kb_get_page` | 需要读取完整页面 | 无 |
-| `kb_ingest_source` | 用户投放新资料 | 写 wiki/staging/、追加 log |
-| `kb_write_experience` | 任务结束发现可复用经验 | 写 inbox/、追加 log |
-| `kb_list_categories` | 浏览知识库结构 | 无 |
-| `kb_list_recent` | 了解最近动态 | 无 |
-| `kb_lint` | 健康检查 | 无（只读分析） |
-| `kb_health` | 运维状态查询 | 无 |
+| `kb_search` | 编码前查知识、回答问题前检索（term-overlap + CJK bigram） | 无 |
+| `kb_get_page` | 需要读取完整页面（含 frontmatter + body + links） | use_count+1 回写 frontmatter（body 不变；§7.5） |
+| `kb_list_categories` | 浏览知识库领域结构 | 无 |
+| `kb_list_recent` | 了解最近动态（按 log.md 时间线） | 无 |
+| `kb_health` | 运维状态查询（总页数、index 状态、最近 ingest/lint） | 无 |
+
+#### Write（4 个，写入 wiki/）
+
+| Tool | 何时用 | 副作用 |
+| --- | --- | --- |
+| `kb_ingest_source` | 用户投放新资料（默认 auto_xref=true 自动 touch 5-15 相关页，§4.4） | 写 raw/、写 wiki/staging/、追加 log（ingest + xref） |
+| `kb_write_experience` | 任务结束发现可复用经验（走 inbox 两 tier 门禁，§7.3） | 写 inbox/、追加 log（experience） |
+| `kb_promote_experience` | 审核 inbox 经验卡（promote 或 reject，§7.4） | promote: 移动 inbox→active + 重复检测 + 更新 index/log；reject: 标记 rejected + log |
+| `kb_write_answer` | Query 答案回写为 pending 经验卡（WRITEBACK-RAG Utility Gate：cited_pages ≥ 2，§7.6） | 写 inbox/、追加 log（writeback） |
+
+#### Staging（4 个，staging 审核工作流）
+
+| Tool | 何时用 | 副作用 |
+| --- | --- | --- |
+| `kb_list_staging` | 列出待审核 staging 页（可按 domain 过滤） | 无 |
+| `kb_confirm_staging` | 确认 staging 页入库（staging → active） | 更新 frontmatter status、刷新 index、追加 log（confirm） |
+| `kb_reject_staging` | 驳回 staging 页（标记 rejected，文件保留可审计） | 更新 frontmatter status、追加 log（reject） |
+| `kb_organize_staging` | 应用 LLM 整理的元数据（title/tags/description，不动 body，§7.6） | 更新 frontmatter、追加 log（organize） |
+
+#### Lint（1 个，健康检查）
+
+| Tool | 何时用 | 副作用 |
+| --- | --- | --- |
+| `kb_lint` | 健康检查（6 项：frontmatter/contradictions/orphans/stale/missing_xref/missing_concept，§6.2） | 无（只读分析） |
+
+#### Graph（2 个，知识图谱）
+
+| Tool | 何时用 | 副作用 |
+| --- | --- | --- |
+| `kb_get_graph` | 构建知识图谱（nodes + edges + summary：孤立页、最大连通分量、领域分布） | 无 |
+| `kb_get_backlinks` | 查询某页的反向链接（backlinks + outbound + related） | 无 |
+
+#### Inbox（1 个，经验卡审核队列）
+
+| Tool | 何时用 | 副作用 |
+| --- | --- | --- |
+| `kb_list_inbox` | 列出 pending 经验卡（GUI 审核用，按 confidence 降序） | 无 |
 
 ### 9.2 编码任务的标准流程
 
 1. **任务开始**：先 `kb_search` 查知识库是否有相关知识。
 2. **执行任务**：过程中如有疑问，再次 `kb_search`。
-3. **任务结束**：若发现可复用经验，`kb_write_experience`。
-4. **定期**：`kb_lint` 检查知识库健康度。
+3. **任务结束**：
+   - 若发现可复用经验，`kb_write_experience` 写 inbox 经验卡（§7.3）。
+   - 若 Query 中综合了 ≥2 页的答案，`kb_write_answer` 回写答案（§7.6，WRITEBACK-RAG Utility Gate）。
+4. **Ingest 新资料**：`kb_ingest_source`（默认 auto_xref=true，自动 touch 5-15 相关页，§4.4）。staging 页可用 `kb_organize_staging` 让 LLM 整理元数据后再 `kb_confirm_staging` 入库。
+5. **定期**：`kb_lint` 检查知识库健康度（6 项检测，§6.2）。CI 每日 02:17 UTC 自动执行 lint，每周一 03:23 UTC 自动执行 /dream。
 
 ### 9.3 禁止行为
 

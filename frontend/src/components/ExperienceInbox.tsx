@@ -22,8 +22,23 @@ interface PromoteResult {
   duplicate_max_content_sim?: number;
 }
 
+// UX-4: inbox 列表内存缓存（模块级，跨组件实例保留）。
+// 切换视图再回来时立即显示缓存，后台静默刷新，避免"每次进入都加载一会"。
+// promote/reject 后置空以强制下次 refresh 从服务器加载最新列表。
+// P5-R2 fix: 后台刷新结果与缓存相同时跳过 setCards，避免列表重渲染（问题 6）。
+let inboxCache: { cards: ExperienceCard[] } | null = null;
+
+/** 比较两组卡片路径是否相同（用于决定是否跳过 setCards）。 */
+function cardsEqual(a: ExperienceCard[], b: ExperienceCard[]): boolean {
+  if (a.length !== b.length) return false;
+  return a.every((c, i) => c.path === b[i].path && c.title === b[i].title);
+}
+
 export function ExperienceInbox() {
-  const [cards, setCards] = useState<ExperienceCard[]>(mockExperienceCards);
+  // P5-R2 fix: 初始值从缓存读取，避免 mockExperienceCards 闪烁（问题 6）
+  const [cards, setCards] = useState<ExperienceCard[]>(
+    () => inboxCache?.cards ?? mockExperienceCards,
+  );
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,24 +51,50 @@ export function ExperienceInbox() {
       setCards(mockExperienceCards);
       return;
     }
+    // UX-4: 缓存命中 → 立即显示（无 loading），后台静默刷新
+    // P5-R2 fix: 后台刷新结果与缓存相同时跳过 setCards
+    if (inboxCache) {
+      setCards(inboxCache.cards);
+      setLoading(false);
+      setError(null);
+      try {
+        const result = await callMcpTool("kb_list_inbox", {});
+        if (result.success && result.data) {
+          const data = result.data as { cards?: ExperienceCard[] };
+          const newCards = data.cards ?? [];
+          // 内容相同则跳过 setCards，避免列表重渲染
+          if (!cardsEqual(inboxCache.cards, newCards)) {
+            inboxCache = { cards: newCards };
+            setCards(newCards);
+          } else {
+            inboxCache = { cards: newCards };
+          }
+        }
+      } catch {
+        /* 静默失败，保留缓存内容 */
+      }
+      return;
+    }
+    // 未命中缓存 → 正常加载（显示 loading）
     setLoading(true);
     setError(null);
     try {
       const result = await callMcpTool("kb_list_inbox", {});
       if (result.success && result.data) {
         const data = result.data as { cards?: ExperienceCard[] };
-        // 用真实数据替换 mock 初始值；即使为空也清空（inbox 可能无待审核卡）
-        setCards(data.cards ?? []);
-        if (data.cards && data.cards.length > 0) {
+        const newCards = data.cards ?? [];
+        inboxCache = { cards: newCards };
+        setCards(newCards);
+        if (newCards.length > 0) {
           setSelectedIdx(0);
         }
       } else {
         setError(result.error ?? "加载 inbox 失败");
-        setCards([]); // 清空 mock 数据，避免显示已 promote 的卡
+        setCards([]);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
-      setCards([]); // 清空 mock 数据
+      setCards([]);
     } finally {
       setLoading(false);
     }
@@ -75,7 +116,8 @@ export function ExperienceInbox() {
         });
         if (result.success && result.data) {
           setPromoteResult(result.data as PromoteResult);
-          // Refresh list after successful promote
+          // Refresh list after successful promote（强制刷新：清除缓存）
+          inboxCache = null;
           await refresh();
         } else {
           setError(result.error ?? "promote 失败");
@@ -100,6 +142,7 @@ export function ExperienceInbox() {
           action: "reject",
         });
         if (result.success) {
+          inboxCache = null;
           await refresh();
         } else {
           setError(result.error ?? "reject 失败");
