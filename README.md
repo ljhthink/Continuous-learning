@@ -22,7 +22,7 @@
 
 ### 当前状态
 
-本项目处于 **P3 持续进化闭环完整完成 + 依赖升级完成阶段**。在 P1/P2 基础上（9 个 kb_* tools + 45 单元测试 + 37 MCP E2E + 边缘场景 + 性能基线），P3 完成了持续进化闭环（`kb_write_experience` + `kb_promote_experience` 两 tier 审核门禁 + `/dream` 三阶段维护 pass：老化降级 + 去重扫描 + 质量评分，见 [ADR-006](docs/decisions/ADR-006-continuous-evolution-loop.md) + [ADR-011](docs/decisions/ADR-011-duplicate-detection-and-quality-scoring.md)），并合并了 6 个 Dependabot MAJOR 依赖升级（zod 3→4 / js-yaml 4→5 / TypeScript 5→7 / actions v4→v7，见 [ADR-007](docs/decisions/ADR-007-dependency-major-upgrade.md)）。L-2 技术债已在 P2 解决；DEF-001（TOCTOU 竞态）、DEF-002（`@hono/node-server` 路径不可达）为低风险遗留技术债。下一阶段 P4 GUI。
+本项目处于 **P6+ 缺失功能补全完成阶段**（Karpathy LLM Wiki 模式实现度约 92%）。当前已落地 **17 个 MCP tools**（含 auto-xref 自动交叉引用、kb_write_answer 答案回写、kb_organize_staging LLM 整理、checkMissingConcept 缺失概念页检测），RAG 中文检索 + LLM 分类已修复，审核页/领域管理已落地，CI 定时维护（每日 lint + 每周 /dream）已就位。详见 [Karpathy 实现度分析报告 V2](docs/reports/2026-08-02-karpathy-implementation-analysis-v2.md)。在 P1/P2/P3 基础上（持续进化闭环 + 两 tier 审核门禁 + /dream 三阶段维护 + 6 个 Dependabot MAJOR 依赖升级），P4-P6 完成了 Tauri GUI、Python parser、staging 工作流、LLM 三态集成、RAG 修复、缺失功能补全。剩余 8% 缺口为 Karpathy 自述 optional 项（qmd/LanceDB/Web Clipper/Marp）+ Schema 层已同步。下一阶段按规模自适应策略演进。
 
 ### 阅读顺序（新人入门）
 
@@ -67,6 +67,34 @@
 | [docs/integration/mcp-clients.md](docs/integration/mcp-clients.md) | How-to | MCP 客户端集成指南 |
 | [docs/reports/README.md](docs/reports/README.md) | Reference | 运行时报告索引 |
 | [docs/reports/2026-07-22-knowledge-base-tech-selection.md](docs/reports/2026-07-22-knowledge-base-tech-selection.md) | Reference | 技术选型对比分析报告（选型依据） |
+| [docs/reports/2026-08-01-p5-r2-archaeology.md](docs/reports/2026-08-01-p5-r2-archaeology.md) | Reference | P5-R2 源码考古报告（9 问题根因分析） |
+| [docs/reports/2026-08-01-p5-r2-solution-design.md](docs/reports/2026-08-01-p5-r2-solution-design.md) | Reference | P5-R2 方案设计文档（修复方案与实施顺序） |
+| [docs/reports/2026-08-01-p5-r2-subagent-reflection.md](docs/reports/2026-08-01-p5-r2-subagent-reflection.md) | Reference | P5-R2 子 Agent 审核漏问题反思与流程改进 |
+| [docs/reports/2026-08-01-p5-r3-archaeology-and-solution.md](docs/reports/2026-08-01-p5-r3-archaeology-and-solution.md) | Reference | P5-R3 考古与方案（API key 持久化、模型配置、图谱刷新） |
+| [docs/reports/2026-08-01-p5-r3-guardrail.md](docs/reports/2026-08-01-p5-r3-guardrail.md) | Reference | P5-R3 安全与质量审计报告 |
+| [docs/reports/2026-08-01-p5-r3-acceptance.md](docs/reports/2026-08-01-p5-r3-acceptance.md) | Reference | P5-R3 验收测试报告 |
+| [docs/reports/2026-08-01-p5-r4-archaeology-and-solution.md](docs/reports/2026-08-01-p5-r4-archaeology-and-solution.md) | Reference | P5-R4 考古与方案（LLM 大文件截断 + 知识图谱不显示） |
+| [docs/reports/2026-08-01-p5-r4-guardrail.md](docs/reports/2026-08-01-p5-r4-guardrail.md) | Reference | P5-R4 安全与质量审计报告 |
+| [docs/reports/2026-08-01-p5-r4-acceptance.md](docs/reports/2026-08-01-p5-r4-acceptance.md) | Reference | P5-R4 验收测试报告 |
+| [docs/reports/2026-08-01-p6-llm-enhancements-archaeology.md](docs/reports/2026-08-01-p6-llm-enhancements-archaeology.md) | Reference | P6 LLM 增强源码考古报告（流式/重试/分类/RAG 现状基线） |
+| [docs/reports/2026-08-01-p6-llm-enhancements-decision-plan.md](docs/reports/2026-08-01-p6-llm-enhancements-decision-plan.md) | Reference | P6 LLM 增强决策计划（7 需求可行性 + 2 异议 + 实施方案，已审批） |
+| [docs/reports/2026-08-01-p6-guardrail.md](docs/reports/2026-08-01-p6-guardrail.md) | Reference | P6 安全与质量审计报告（10 项盲区全验证，通过） |
+| [docs/reports/2026-08-01-p6-acceptance.md](docs/reports/2026-08-01-p6-acceptance.md) | Reference | P6 验收测试报告（283 单元 + 5/6 E2E + 6 安全，有条件通过） |
+| [docs/reports/2026-08-01-p6-def001-guardrail.md](docs/reports/2026-08-01-p6-def001-guardrail.md) | Reference | P6 DEF-001 增量安全审计报告（成本控制 UI 补齐，识别 H-1/H-2 阻断项） |
+| [docs/reports/2026-08-01-p6-r4-h1h2-fix-guardrail.md](docs/reports/2026-08-01-p6-r4-h1h2-fix-guardrail.md) | Reference | P6-R4 H-1/H-2 修复安全审计报告（闭包陷阱 + 输入上限验证，通过） |
+| [docs/reports/2026-08-01-p6-r4-h1h2-fix-acceptance.md](docs/reports/2026-08-01-p6-r4-h1h2-fix-acceptance.md) | Reference | P6-R4 H-1/H-2 修复验收测试报告（315 测试 + 6 Playwright 运行时，全部通过） |
+| [docs/reports/2026-08-02-rag-classify-archaeology.md](docs/reports/2026-08-02-rag-classify-archaeology.md) | Reference | RAG 检索失效 + LLM 分类未触发源码考古报告（CJK 分词 + stale closure 根因 + 联网案例研究） |
+| [docs/reports/2026-08-02-rag-classify-fix-guardrail.md](docs/reports/2026-08-02-rag-classify-fix-guardrail.md) | Reference | RAG 检索 + LLM 分类修复安全与质量审计（0 阻断 + 2 中风险非阻断，通过） |
+| [docs/reports/2026-08-02-rag-classify-fix-acceptance.md](docs/reports/2026-08-02-rag-classify-fix-acceptance.md) | Reference | RAG 检索 + LLM 分类修复验收测试（197 服务端 + 283 前端 + 6 Playwright，有条件通过） |
+| [docs/reports/2026-08-02-karpathy-implementation-analysis.md](docs/reports/2026-08-02-karpathy-implementation-analysis.md) | Reference | Karpathy LLM Wiki 模式实现度分析报告 V1（59 项功能点逐项核验，实现度约 75%，修复前基线） |
+| [docs/reports/2026-08-02-karpathy-implementation-analysis-v2.md](docs/reports/2026-08-02-karpathy-implementation-analysis-v2.md) | Reference | Karpathy LLM Wiki 模式实现度分析报告 V2（修复后复审，实现度约 92%，识别 Schema 层同步债务） |
+| [docs/reports/2026-08-02-missing-features-solution.md](docs/reports/2026-08-02-missing-features-solution.md) | Reference | Karpathy 缺失功能补全方案设计（6 项：文档对齐/定时维护/auto-xref/答案回写/概念检测/LLM整理） |
+| [docs/reports/2026-08-02-missing-features-guardrail.md](docs/reports/2026-08-02-missing-features-guardrail.md) | Reference | 缺失功能补全安全与质量审计（0 阻断 + 0 高危 + 2 中危 M-1/M-2 已修复，通过） |
+| [docs/reports/2026-08-02-missing-features-acceptance.md](docs/reports/2026-08-02-missing-features-acceptance.md) | Reference | 缺失功能补全验收测试（6/6 AC 通过 + 215 单元 + 16 新增测试，DEFECT-1 已修复） |
+| [docs/reports/2026-08-02-review-domain-archaeology.md](docs/reports/2026-08-02-review-domain-archaeology.md) | Reference | 审核页/LLM 新领域建议/领域管理 源码考古与方案设计（3 问题根因 + 联网案例 + 方案） |
+| [docs/reports/2026-08-02-review-domain-guardrail.md](docs/reports/2026-08-02-review-domain-guardrail.md) | Reference | 审核页/领域管理 R1 安全与质量审计（0 阻断 + 2 中风险 MED-1/MED-2，通过有条件） |
+| [docs/reports/2026-08-02-review-domain-guardrail-r2.md](docs/reports/2026-08-02-review-domain-guardrail-r2.md) | Reference | 审核页/领域管理 R2 修复 delta 复审（MED-1/MED-2/LOW-3/LOW-4 修复后通过） |
+| [docs/reports/2026-08-02-review-domain-acceptance.md](docs/reports/2026-08-02-review-domain-acceptance.md) | Reference | 审核页/领域管理验收测试（35/35 AC 通过 + 547 单元 + 5 E2E + 10 安全，通过） |
 | [docs/templates/README.md](docs/templates/README.md) | How-to | 文档模板索引 |
 
 ### 治理与自动化
@@ -74,6 +102,7 @@
 | 文件 | 说明 |
 | --- | --- |
 | [scripts/consistency-check.js](scripts/consistency-check.js) | 文档一致性检查脚本（CI 必需） |
+| [scripts/hooks-deps-guard.js](scripts/hooks-deps-guard.js) | React Hooks 依赖数组守卫脚本（阻断 eslint-disable 压制 react-hooks 规则，CI 必需） |
 | [.github/workflows/docs.yml](.github/workflows/docs.yml) | 文档质量 CI（markdownlint + consistency + lychee） |
 | [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md) | PR 模板（含 P0-P3 风险等级） |
 | [.github/dependabot.yml](.github/dependabot.yml) | 依赖监控 |
@@ -94,7 +123,7 @@
 │  编码 Agent（Claude Code/Trae/OpenCode）  │
 │   └─ MCP stdio                            │
 ├─────────────────────────────────────────┤
-│  L3 访问层：MCP Server（9 tools）          │
+│  L3 访问层：MCP Server（17 tools）         │
 │  L4 GUI 层：Tauri v2                       │
 │  L5 进化层：AGENTS.md + Dream Loop         │
 ├─────────────────────────────────────────┤

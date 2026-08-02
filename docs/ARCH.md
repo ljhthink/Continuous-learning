@@ -17,7 +17,7 @@ Person_Ext(agent, "外部编码 Agent", "Claude Code / Trae CN / OpenCode")
 
 System_Boundary(kb, "知识库系统") {
     Container(gui, "Tauri GUI", "Tauri v2 + TypeScript", "拖拽上传、wiki 预览、经验审核")
-    Container(mcp, "MCP Server", "TypeScript SDK / enquire-mcp", "kb_search / kb_ingest / kb_write_experience 等 9 tools")
+    Container(mcp, "MCP Server", "TypeScript SDK / enquire-mcp", "kb_search / kb_ingest / kb_write_experience / kb_write_answer / kb_organize_staging 等 17 tools")
     Container(parser, "解析管道", "Python: MinerU + office2md", "PDF/Word/Excel → markdown")
     Container(search, "检索引擎", "index.md / qmd / LanceDB", "分档递进检索")
     ContainerDb(repo, "知识库仓库", "markdown + git", "raw/ + wiki/ + index.md + log.md + AGENTS.md")
@@ -59,7 +59,7 @@ UpdateRelStyle(agent, mcp, "stdio")
 | 组件 | 职责 | 技术栈 | 关键依赖 |
 | --- | --- | --- | --- |
 | `repo` 知识库仓库 | 唯一事实来源，markdown + git | git ≥2.40、Obsidian ≥1.5 | 无（vendor-neutral） |
-| `mcp_server` | 暴露 9 个 MCP tools，stdio 传输 | TypeScript 7.x、@modelcontextprotocol/sdk | enquire-mcp（复用）/ Zod（校验） |
+| `mcp_server` | 暴露 17 个 MCP tools，stdio 传输 | TypeScript 7.x、@modelcontextprotocol/sdk | enquire-mcp（复用）/ Zod（校验） |
 | `parser` 解析管道 | PDF/Word/Excel → markdown | Python 3.11、MinerU 3.4+、office2md 0.5+ | mineru[pipeline]、mammoth、pandas |
 | `search_engine` | 分档检索 | 规模自适应：index.md / qmd / LanceDB | qmd（含 GGUF 模型 ~2GB）/ lancedb |
 | `tauri_gui` | 桌面 GUI | Tauri v2、React 18、TypeScript | @tauri-apps/api、isomorphic-git |
@@ -70,19 +70,27 @@ UpdateRelStyle(agent, mcp, "stdio")
 
 ### 3.1 MCP Tools（L3 访问层对外契约）
 
-所有 tools 经 stdio 传输，输入输出均为 JSON，参数用 Zod schema 校验。
+所有 tools 经 stdio 传输，输入输出均为 JSON，参数用 Zod schema 校验。当前注册 **17 个 tools**（`server/src/index.ts` 实测）。
 
 | Tool | 对应 Karpathy 操作 | 输入 | 输出 | 副作用 |
 | --- | --- | --- | --- | --- |
 | `kb_search` | Query | `{ query: string, domain?: string, limit?: number }` | `{ results: [{ path, title, snippet, score }] }` | 无（只读） |
 | `kb_get_page` | Query | `{ path: string, section?: string }` | `{ frontmatter, body, links }` | use_count+1 并回写 frontmatter（body 不变；AGENTS.md §7.5） |
-| `kb_ingest_source` | Ingest | `{ source_path: string, domain: string, type?: "source" }` | `{ wiki_path, status: "staging" }` | 写 raw/、写 wiki/staging/、追加 log |
+| `kb_list_categories` | 导航 | `{ include_stats?: boolean }` | `{ categories: [{ name, page_count, last_update }] }` | 无 |
+| `kb_list_recent` | Query | `{ limit?: number, type?: string }` | `{ entries: [{ date, type, title, path }] }` | 无 |
+| `kb_health` | 运维 | `{}` | `{ total_pages, index_status, last_ingest, last_lint }` | 无 |
+| `kb_ingest_source` | Ingest | `{ source_path, domain, type?: "source", auto_xref?: boolean }` | `{ wiki_path, status: "staging", xref?: { touched, skipped, candidates } }` | 写 raw/、写 wiki/staging/、追加 log（ingest + xref）；auto_xref 默认 true（AGENTS.md §4.4） |
 | `kb_write_experience` | 持续进化 | `{ title, domain, content, confidence: 0-1, source_task: string }` | `{ path, status: "pending" }` | 写 wiki/`<domain>`/experiences/inbox/ |
 | `kb_promote_experience` | 持续进化 | `{ inbox_path: string, action: "promote"\|"reject" }` | `{ path, status, tier, duplicate_with: [{path, title_sim, content_sim}] }` | promote: 移动 inbox→active + 同域 active 卡重复检测（ADR-011）+ 更新 index/log；reject: 标记 rejected + log（AGENTS.md §7.4） |
-| `kb_list_categories` | 导航 | `{ include_stats?: boolean }` | `{ categories: [{ name, page_count, last_update }] }` | 无 |
-| `kb_list_recent` | Query | `{ limit?: number, type?: "ingest"/"query"/"lint"/"experience"/"promote"/"reject"/"dream"/"init" }` | `{ entries: [{ date, type, title, path }] }` | 无 |
-| `kb_lint` | Lint | `{ checks?: ["frontmatter","contradictions","orphans","stale","missing_xref"] }` | `{ issues: [{ type, severity: "high"/"mid", page, detail, suggestion }], summary: { total, by_type, pages_scanned, checks_run } }` | 无 |
-| `kb_health` | 运维 | `{}` | `{ total_pages, index_status, last_ingest, last_lint }` | 无 |
+| `kb_write_answer` | Query 答案回写 | `{ title, domain, content, confidence, source_query, cited_pages: string[] (≥2) }` | `{ path, status: "pending", duplicate_with? }` | 写 inbox/、追加 log（writeback）；WRITEBACK-RAG Utility Gate：cited_pages ≥ 2（AGENTS.md §7.6） |
+| `kb_lint` | Lint | `{ checks?: ["frontmatter","contradictions","orphans","stale","missing_xref","missing_concept"] }` | `{ issues: [{ type, severity, page, detail, suggestion }], summary: { total, by_type, pages_scanned, checks_run } }` | 无（只读分析） |
+| `kb_list_staging` | Staging 导航 | `{ domain?: string }` | `{ items: [{ path, title, domain }] }` | 无 |
+| `kb_confirm_staging` | Staging 审核 | `{ page_path: string }` | `{ wiki_path, status: "active" }` | staging → active + 更新 index/log |
+| `kb_reject_staging` | Staging 审核 | `{ page_path: string }` | `{ path, status: "rejected" }` | 标记 rejected（文件保留可审计）+ log |
+| `kb_organize_staging` | Staging LLM 整理 | `{ page_path, title?, tags?, description?, domain_suggestion? }` | `{ path, applied_fields, domain_suggestion? }` | 更新 frontmatter（不动 body）+ log（organize）；仅 staging 页可整理（AGENTS.md §7.6） |
+| `kb_get_graph` | 图谱 | `{ max_nodes?: number }` | `{ nodes, edges, summary: { totals, orphans, largest_cc, domain_dist } }` | 无 |
+| `kb_get_backlinks` | 图谱 | `{ page_path: string }` | `{ backlinks, outbound, related }` | 无 |
+| `kb_list_inbox` | Inbox 审核 | `{ domain?: string }` | `{ items: [{ title, domain, confidence, source_task, body }] }` | 无 |
 
 ### 3.2 Tauri GUI 命令（L4 内部 IPC）
 
@@ -222,12 +230,12 @@ sequenceDiagram
 
     A->>MCP: kb_search(query="python async")
     MCP->>S: 选择检索档位
-    alt 小规模（<200 页）
-        S->>R: 读取 index.md
-        S->>R: 钻取相关页面
-    else 中规模
-        S->>S: qmd BM25 + 向量混合
-    else 大规模
+    alt 小规模（<200 页）· 当前实现
+        S->>R: 扫描 wiki/*.md
+        S->>S: term-overlap 打分 + CJK bigram
+    else 中规模（200-5000）· P6+ 演进
+        S->>S: qmd BM25 + 向量混合 + 重排
+    else 大规模（>5000）· P6+ 演进
         S->>S: LanceDB 向量检索
     end
     S-->>MCP: 带引用片段
@@ -236,6 +244,8 @@ sequenceDiagram
     MCP->>R: 读取完整页面
     MCP-->>A: frontmatter + body
 ```
+
+> **当前实现档位**：仅小规模档位已落地（`server/src/tools/search.ts` 的 `kbSearch`）：扫描 `wiki/` 下全部 markdown 文件，按 query-term overlap（title×3 + body×1）+ CJK bigram 打分，返回 top-N。中规模（qmd BM25+向量+重排）与大规模（LanceDB）档位留待 P6+ 演进（Karpathy 原文：<200 页 index.md 够用）。详见 [Karpathy 实现度分析报告](reports/2026-08-02-karpathy-implementation-analysis.md) §2.4。
 
 ### 5.3 持续进化（任务结束 → 经验沉淀）
 
@@ -268,15 +278,18 @@ stateDiagram-v2
 
 ### 5.4 Lint（健康检查）
 
-定时或手动触发 `kb_lint`，检查：
+定时或手动触发 `kb_lint`，检查 6 项（ALL_CHECKS）：
 
-1. **矛盾**：同一实体在不同页面有冲突声明。
-2. **孤儿页**：无入链的页面（除非 type=experience 且 confidence 高）。
-3. **过时声明**：source 页面被更新后，引用它的 wiki 页未同步。
-4. **缺失交叉引用**：页面间应建链但未建。
-5. **数据缺口**：重要概念被提及但无独立页面。
+1. **frontmatter 缺失**：页面无 frontmatter 或必填字段不全（severity=高）。
+2. **矛盾**：同一实体在不同页面有冲突声明（marker-based + 重复标题检测，severity=高）。
+3. **孤儿页**：无入链的页面（除非 type=experience 且 confidence 高，severity=中）。
+4. **过时声明**：source 页面被更新后，引用它的 wiki 页未同步（severity=高）。
+5. **缺失交叉引用**：页面间应建链但未建（severity=中）。
+6. **数据缺口（missing_concept）**：重要概念被提及 ≥5 次但无独立页面（RAKE-lite 从 H2/H3 标题 + frontmatter tags 提候选，CJK 安全子串计数，top-20，severity=低）。
 
 输出结构化报告至 `docs/reports/YYYY-MM-DD-kb-lint-lint.md`。
+
+> **定时执行**：`.github/workflows/kb-maintenance.yml` 每日 02:17 UTC 自动运行 `kb_lint`，每周一 03:23 UTC 自动运行 `/dream`，报告作为 CI artifact 上传（retention 90 天），不自动 commit 到 main。可通过 `checks` 参数单独运行任意子集，如 `kb_lint({ checks: ["missing_concept"] })`。
 
 ## 6. 部署架构
 

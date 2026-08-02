@@ -1,6 +1,6 @@
 # 知识库索引
 
-> 最后更新：2026-07-26 · 总页数：37
+> 最后更新：2026-08-02 · 总页数：45
 > 本文件是知识库的内容索引（内容导向），LLM 回答问题前先读此文件定位。
 > 时间日志见 [log.md](log.md)。结构约定见 [AGENTS.md](AGENTS.md)。
 
@@ -47,6 +47,12 @@
 - [[wiki/coding/merge-sort-impl-patterns]] · 归并排序跨语言实现模式对比（7 语言：函数式非原地/命令式原地，含 Rust bottom-up 迭代与 Python pop(0) 陷阱） · 2026-07-25
 - [[wiki/coding/heap-sort-impl-patterns]] · 堆排序跨语言实现模式对比（6 语言 7 实现：含 C sift-up 建堆 + Rust 升序降序切换 + Java 1-based 索引） · 2026-07-25
 - [[wiki/coding/graph-traversal-bfs-dfs-impl-patterns]] · 图遍历 BFS/DFS 跨语言实现模式对比（5 语言 10 实现：含 C++ 3-coloring 三色标记 + Rust VecDeque 双用途 + Java 邻接矩阵） · 2026-07-25
+
+- [[wiki/coding/experiences/cjk-bigram-分词无分词库依赖的中文子串检索方案.md]] · CJK bigram 分词：无分词库依赖的中文子串检索方案 · confidence=0.85 · 2026-08-02
+- [[wiki/coding/experiences/react-usecallback-stale-closure依赖数组遗漏导致闭包过期.md]] · React useCallback stale closure：依赖数组遗漏导致闭包过期 · confidence=0.9 · 2026-08-02
+
+- [[wiki/coding/experiences/mcp-tool-三点注册陷阱新增工具须同时注册-indexts-clits-双-registry.md]] · MCP tool 三点注册陷阱：新增工具须同时注册 index.ts + cli.ts 双 registry · confidence=0.9 · 2026-08-02
+- [[wiki/coding/experiences/github-actions-shell-注入防护用-env-块替代内联-表达式.md]] · GitHub Actions shell 注入防护：用 env 块替代内联 ${{ }} 表达式 · confidence=0.9 · 2026-08-02
 
 ## resources
 

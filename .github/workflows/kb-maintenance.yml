@@ -1,0 +1,198 @@
+name: kb-maintenance
+
+# 定时维护 /dream（老化+去重+质量评分）与 kb_lint（健康检查）。
+# 对应 AGENTS.md §6.1「定期（如每周）」与 §7.5「/dream 定期执行」。
+# 报告 §2.5 #28 / §2.9 #49 指出两者实际各仅执行 1 次，本 workflow 落地 Karpathy「periodically」要求。
+#
+# cron 注意（cronbuilder 5 陷阱）：
+#   - 必须 single-quote；5 字段 minute/hour/day/month/weekday
+#   - UTC-only；最短 5 分钟间隔；高峰延迟 5-30 分钟
+#   - 避开整点 :00/:30 降低延迟（17/23 分）
+#   - 仅默认分支生效；60 天无活动自动禁用
+#   - DOM+DOW 同时指定为 OR 语义（所以 lint 用每日、dream 用周一分开两个 cron）
+#
+# 幂等保证：
+#   - /dream 已幂等回写 quality_score（ADR-011，|Δ|<0.01 跳过）
+#   - kb_lint 只读无副作用
+#
+# 报告存档：upload-artifact@v4，retention-days: 90（对齐 AGENTS.md §6.3 报告存档周期）。
+# 不自动 commit 到 docs/reports/：避免 CI bot 写 main 触发额外 CI（CLAUDE.md §12 GitHub Flow 要求 PR）。
+
+on:
+  schedule:
+    - cron: '17 2 * * *'    # 每日 02:17 UTC 跑 kb_lint
+    - cron: '23 3 * * 1'    # 每周一 03:23 UTC 跑 /dream
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'Maintenance task to run'
+        required: true
+        default: 'lint'
+        type: choice
+        options:
+          - lint
+          - dream
+          - full-audit
+
+permissions:
+  contents: read
+
+jobs:
+  select-task:
+    name: Select task
+    runs-on: ubuntu-latest
+    outputs:
+      tasks: ${{ steps.pick.outputs.tasks }}
+    steps:
+      - id: pick
+        env:
+          # M-1 hardening: pass GitHub expressions via env, not inline ${{ }} in shell
+          # (GitHub Security Lab recommended pattern; prevents injection if values
+          # ever become attacker-controlled).
+          INPUT_TASK: ${{ inputs.task }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          # Decide which task(s) to run.
+          # - schedule events: route by which cron fired (github.event.schedule)
+          # - workflow_dispatch: use the input
+          # - fallback (push/PR): run lint only (cheap, read-only)
+          TASK="$INPUT_TASK"
+          if [ -n "$TASK" ]; then
+            echo "tasks=[\"$TASK\"]" >> "$GITHUB_OUTPUT"
+            echo "Selected task (dispatch): $TASK"
+          elif [ "$SCHEDULE" = "17 2 * * *" ]; then
+            echo "tasks=[\"lint\"]" >> "$GITHUB_OUTPUT"
+            echo "Selected task (cron daily): lint"
+          elif [ "$SCHEDULE" = "23 3 * * 1" ]; then
+            echo "tasks=[\"dream\"]" >> "$GITHUB_OUTPUT"
+            echo "Selected task (cron weekly): dream"
+          else
+            echo "tasks=[\"lint\"]" >> "$GITHUB_OUTPUT"
+            echo "Selected task (fallback): lint"
+          fi
+
+  run-maintenance:
+    name: ${{ matrix.task }}
+    needs: select-task
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        task: ${{ fromJson(needs.select-task.outputs.tasks) }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'server/package.json'
+
+      - name: Install server dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Run kb_lint
+        if: matrix.task == 'lint' || matrix.task == 'full-audit'
+        working-directory: server
+        env:
+          # M-1 hardening: GitHub context via env, not inline ${{ }} in shell.
+          EVENT_NAME: ${{ github.event_name }}
+          REPOSITORY: ${{ github.repository }}
+          REF_NAME: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          # 失败重试 1 次（CronSignal 排障建议：幂等 job 才重试；kb_lint 只读无副作用，安全）
+          DATE=$(date -u +%Y-%m-%d)
+          REPORT="../docs/reports/${DATE}-kb-lint-scheduled.md"
+          mkdir -p ../docs/reports
+          {
+            echo "# kb_lint scheduled report · ${DATE}"
+            echo
+            echo "| 项目 | 内容 |"
+            echo "| --- | --- |"
+            echo "| 触发 | $EVENT_NAME |"
+            echo "| 任务 | kb_lint |"
+            echo "| 仓库 | $REPOSITORY |"
+            echo "| 分支 | $REF_NAME |"
+            echo "| commit | $SHA |"
+            echo
+            echo "## 原始 JSON 输出"
+            echo
+            echo '```json'
+          } > "$REPORT"
+          # 重试一次：失败时 sleep 10s 再跑
+          if ! node --import tsx src/cli.ts kb_lint '{}' >> "$REPORT" 2>&1; then
+            echo "首次运行失败，10s 后重试..." >&2
+            sleep 10
+            node --import tsx src/cli.ts kb_lint '{}' >> "$REPORT" 2>&1
+          fi
+          echo '```' >> "$REPORT"
+          echo "Report written to $REPORT"
+          # 用 GITHUB_ENV 把路径传给下一步
+          echo "REPORT_PATH=$REPORT" >> "$GITHUB_ENV"
+
+      - name: Run /dream
+        if: matrix.task == 'dream' || matrix.task == 'full-audit'
+        working-directory: server
+        env:
+          # M-1 hardening: GitHub context via env, not inline ${{ }} in shell.
+          EVENT_NAME: ${{ github.event_name }}
+          REPOSITORY: ${{ github.repository }}
+          REF_NAME: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          # /dream 已幂等（ADR-011 quality_score |Δ|<0.01 跳过回写），重试安全
+          DATE=$(date -u +%Y-%m-%d)
+          REPORT="../docs/reports/${DATE}-kb-dream-scheduled.md"
+          mkdir -p ../docs/reports
+          {
+            echo "# /dream scheduled report · ${DATE}"
+            echo
+            echo "| 项目 | 内容 |"
+            echo "| --- | --- |"
+            echo "| 触发 | $EVENT_NAME |"
+            echo "| 任务 | /dream (Phase 1 aging + Phase 2 dedup + Phase 3 quality) |"
+            echo "| 仓库 | $REPOSITORY |"
+            echo "| 分支 | $REF_NAME |"
+            echo "| commit | $SHA |"
+            echo
+            echo "## 控制台输出"
+            echo
+            echo '```'
+          } > "$REPORT"
+          if ! npm run dream >> "$REPORT" 2>&1; then
+            echo "首次运行失败，10s 后重试..." >&2
+            sleep 10
+            npm run dream >> "$REPORT" 2>&1
+          fi
+          echo '```' >> "$REPORT"
+          echo "Report written to $REPORT"
+          echo "REPORT_PATH=$REPORT" >> "$GITHUB_ENV"
+
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kb-maintenance-${{ matrix.task }}-${{ github.run_id }}
+          path: |
+            docs/reports/*-kb-lint-scheduled.md
+            docs/reports/*-kb-dream-scheduled.md
+          retention-days: 90
+          if-no-files-found: warn
+
+      - name: Heartbeat (scheduled runs only)
+        if: github.event_name == 'schedule'
+        env:
+          # M-1 hardening: GitHub context via env.
+          MATRIX_TASK: ${{ matrix.task }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          echo "✓ kb-maintenance $MATRIX_TASK completed at $(date -u)"
+          echo "Schedule: $SCHEDULE"
+          # 未来 P6+ 可在此 ping 外部 heartbeat 监控（CronSignal 建议）

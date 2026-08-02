@@ -42,7 +42,7 @@
   - [x] 至少暴露 tools：`kb_search` / `kb_get_page` / `kb_ingest_source` / `kb_list_categories` / `kb_list_recent` / `kb_lint`
   - [x] Claude Code、Trae CN、OpenCode 三者均能配置并成功调用 `kb_search` 返回结果
   - [x] 检索结果带页面路径引用
-  - [x] 断网时本地检索（index.md / qmd）仍可用
+  - [x] 断网时本地检索（index.md 导航 + term-overlap 扫描）仍可用
 
 ### US-003: 多领域分类管理
 
@@ -77,7 +77,7 @@
 
 - **验收标准**：
   - [x] 小规模（<200 页）index.md 检索，LLM 先读索引再钻取，准确率人工评估 ≥80%
-  - [ ] 中规模接入 qmd 后，混合检索 P95 延迟 < 2s（含重排）（⚠️ 部分完成：qmd 未接入，当前 BM25+向量检索 p95 < 2s 已满足，见性能基线）
+  - [ ] 中规模接入 qmd 后，混合检索 P95 延迟 < 2s（含重排）（⚠️ P6+ 演进项：qmd 未接入；当前小规模档位 term-overlap + CJK bigram 检索 p95 < 2s 已满足，见性能基线与 [Karpathy 实现度分析](reports/2026-08-02-karpathy-implementation-analysis.md) §2.4）
 
 ## 4. 非功能需求
 

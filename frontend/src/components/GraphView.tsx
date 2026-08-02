@@ -32,7 +32,7 @@ import ForceGraph2D, { type ForceGraphMethods } from "react-force-graph-2d";
 import { forceCollide } from "d3-force-3d";
 import { useViewStore } from "@/store/viewStore";
 import { useGraphStore } from "@/store/graphStore";
-import { DOMAIN_COLORS, DOMAIN_LABELS } from "@/types";
+import { DOMAIN_COLORS, DOMAIN_LABELS, domainColor, domainLabel } from "@/types";
 import type { GraphNode, GraphEdge, Domain, PageType, PageStatus, GraphData } from "@/types";
 import { callMcpTool, isTauri } from "@/lib/ipc";
 import { escapeHtml } from "@/lib/html-utils";
@@ -77,12 +77,48 @@ function drawNodeShape(ctx: CanvasRenderingContext2D, type: PageType, r: number)
   }
 }
 
-/** 页面类型中文标签（用于筛选提示条） */
+/** 页面类型中文标签（用于筛选提示条 + 筛选按钮） */
 const PAGE_TYPE_LABELS: Record<PageType, string> = {
   concept: "概念",
   entity: "实体",
   source: "来源",
   experience: "经验",
+};
+
+/** UX-5: 类型含义说明（筛选按钮 tooltip），帮助用户理解分类依据 */
+const PAGE_TYPE_TOOLTIPS: Record<PageType, string> = {
+  concept: "概念页：解释某个概念/原理的知识页（如「异步编程模式」）",
+  entity: "实体页：描述具体对象/工具/库的知识页（如「Python asyncio 库」）",
+  source: "来源页：从原始资料（PDF/Word 等）ingest 生成的页面",
+  experience: "经验卡片：编码实践中沉淀的可复用方案/踩坑记录",
+};
+
+/** UX-5: 状态中文标签 + 说明（筛选按钮用中文 + tooltip） */
+const STATUS_LABELS_ZH: Record<PageStatus, string> = {
+  active: "正式",
+  staging: "待审",
+  pending: "待审",
+  archived: "归档",
+  rejected: "驳回",
+};
+const STATUS_TOOLTIPS: Record<PageStatus, string> = {
+  active: "已通过审核，进入正式知识库",
+  staging: "从原始资料 ingest，等待用户确认入库",
+  pending: "经验卡片待审核（inbox）",
+  archived: "老化降级，仍可检索但不进 top 结果",
+  rejected: "审核驳回，不进入正式库",
+};
+
+/** UX-5: 边类型中文标签 + 说明 */
+const EDGE_TYPE_LABELS: Record<GraphEdge["type"], string> = {
+  wikilink: "正文引用",
+  related: "相关关联",
+  tags: "标签同属",
+};
+const EDGE_TYPE_TOOLTIPS: Record<GraphEdge["type"], string> = {
+  wikilink: "页面正文中通过 [[wikilink]] 直接引用的关系",
+  related: "frontmatter related 字段声明的相关页面",
+  tags: "共享相同 tag 的页面（基于 tags 字段聚类）",
 };
 
 function nodeRadius(inDegree: number, type?: PageType): number {
@@ -152,7 +188,7 @@ export function GraphView() {
 
   // 图谱数据从共享 graphStore 读取（GraphStats 右栏面板也读取同一份），
   // 避免重复请求 kb_get_graph，且确保统计面板显示真实数据而非 mock。
-  const { graphData, loading, error, setGraphData, setLoading, setError } = useGraphStore();
+  const { graphData, loading, error, setGraphData, setLoading, setError, reloadTrigger } = useGraphStore();
   const graphRef = useRef<ForceGraphMethods | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement | null>(null);
   // 双击检测：onNodeDoubleClick 不在 react-force-graph-2d 的 props 中，
@@ -185,7 +221,18 @@ export function GraphView() {
         if (result.success && result.data) {
           const data = result.data as GraphData;
           if (data.nodes && data.nodes.length > 0) {
-            setGraphData(data);
+            // P5-R4 fix: 防御性归一化 — frontmatter 损坏导致 domain/type/status
+            // 为 null 时，赋予默认值而非静默排除（考古报告问题 2 根因防御）。
+            const normalizedData: GraphData = {
+              ...data,
+              nodes: data.nodes.map((n) => ({
+                ...n,
+                domain: (n.domain ?? "coding") as Domain,
+                type: (n.type ?? "source") as PageType,
+                status: (n.status ?? "active") as PageStatus,
+              })),
+            };
+            setGraphData(normalizedData);
           }
         } else {
           setError(result.error ?? "加载图谱失败");
@@ -202,7 +249,7 @@ export function GraphView() {
     return () => {
       cancelled = true;
     };
-  }, [tauriEnv]);
+  }, [tauriEnv, reloadTrigger]);
 
   // DEF-3: 局部模式 N-hop 邻域（BFS）
   const neighborhood = useMemo(() => {
@@ -758,10 +805,10 @@ export function GraphView() {
       {/* 领域过滤提示（来自左栏 CategoryTree 点击） */}
       {currentDomain && (
         <div className="absolute top-14 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3.5 py-1.5 bg-surface border rounded-md text-[11px] z-10 shadow-md"
-          style={{ borderColor: DOMAIN_COLORS[currentDomain], color: DOMAIN_COLORS[currentDomain] }}
+          style={{ borderColor: domainColor(currentDomain), color: domainColor(currentDomain) }}
         >
-          <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: DOMAIN_COLORS[currentDomain] }} />
-          <span>领域筛选：{DOMAIN_LABELS[currentDomain]}（{graphData.nodes.filter((n) => n.domain === currentDomain).length} 节点）</span>
+          <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: domainColor(currentDomain) }} />
+          <span>领域筛选：{domainLabel(currentDomain)}（{graphData.nodes.filter((n) => n.domain === currentDomain).length} 节点）</span>
           <button
             type="button"
             onClick={() => useViewStore.getState().setDomain(null)}
@@ -835,15 +882,20 @@ export function GraphView() {
               key={t}
               type="button"
               onClick={() => setFilterTypes((s) => toggleSetItem(s, t))}
-              className={`px-1.5 py-0.5 text-[10px] font-mono rounded-sm transition-all ${
+              title={PAGE_TYPE_TOOLTIPS[t]}
+              className={`px-1.5 py-0.5 text-[10px] rounded-sm transition-all ${
                 filterTypes.has(t)
                   ? "bg-active text-accent-primary"
                   : "bg-elevated text-text-muted opacity-50"
               }`}
             >
-              {t}
+              {PAGE_TYPE_LABELS[t]}
             </button>
           ))}
+        </div>
+        {/* P5-R2 问题 7: 常驻帮助文本，说明类型划分依据（AGENTS.md §3.2） */}
+        <div className="text-[9px] text-text-muted mt-1 leading-relaxed">
+          概念=原理/方法 · 实体=工具/库 · 来源=原始资料 ingest · 经验=实践沉淀
         </div>
 
         <div className="text-[10px] font-semibold tracking-wider text-text-muted uppercase mt-3 mb-2">状态</div>
@@ -853,13 +905,14 @@ export function GraphView() {
               key={s}
               type="button"
               onClick={() => setFilterStatuses((prev) => toggleSetItem(prev, s))}
-              className={`px-1.5 py-0.5 text-[10px] font-mono rounded-sm transition-all ${
+              title={STATUS_TOOLTIPS[s]}
+              className={`px-1.5 py-0.5 text-[10px] rounded-sm transition-all ${
                 filterStatuses.has(s)
                   ? "bg-active text-accent-primary"
                   : "bg-elevated text-text-muted opacity-50"
               }`}
             >
-              {s}
+              {STATUS_LABELS_ZH[s]}
             </button>
           ))}
         </div>
@@ -871,13 +924,14 @@ export function GraphView() {
               key={t}
               type="button"
               onClick={() => setFilterEdgeTypes((s) => toggleSetItem(s, t))}
-              className={`px-1.5 py-0.5 text-[10px] font-mono rounded-sm transition-all ${
+              title={EDGE_TYPE_TOOLTIPS[t]}
+              className={`px-1.5 py-0.5 text-[10px] rounded-sm transition-all ${
                 filterEdgeTypes.has(t)
                   ? "bg-active text-accent-primary"
                   : "bg-elevated text-text-muted opacity-50"
               }`}
             >
-              {t}
+              {EDGE_TYPE_LABELS[t]}
             </button>
           ))}
         </div>
@@ -910,10 +964,10 @@ export function GraphView() {
       <div className="absolute top-3 right-3 bg-surface border border-border-subtle rounded-md p-3 z-10">
         <div className="text-[10px] font-semibold tracking-wider text-text-muted uppercase mb-2">节点形状 / 边类型</div>
         <div className="space-y-1 text-[11px] text-text-secondary">
-          <LegendItem shape="circle" label="concept（圆）" />
-          <LegendItem shape="square" label="entity（方）" />
-          <LegendItem shape="diamond" label="source（菱）" />
-          <LegendItem shape="triangle" label="experience（三角）" />
+          <LegendItem shape="circle" label="概念 concept（圆）" />
+          <LegendItem shape="square" label="实体 entity（方）" />
+          <LegendItem shape="diamond" label="来源 source（菱）" />
+          <LegendItem shape="triangle" label="经验 experience（三角）" />
           <div className="h-1" />
           <EdgeLegend type="wikilink" />
           <EdgeLegend type="related" />
@@ -1014,7 +1068,7 @@ function EdgeLegend({ type }: { type: GraphEdge["type"] }) {
       <svg width={20} height={6}>
         <line x1={0} y1={3} x2={20} y2={3} stroke={color} strokeWidth={1.5} strokeDasharray={dash} />
       </svg>
-      <span>{type}</span>
+      <span>{EDGE_TYPE_LABELS[type]}（{type}）</span>
     </div>
   );
 }

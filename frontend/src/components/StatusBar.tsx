@@ -13,6 +13,7 @@ const VIEW_LABELS: Record<ViewName, string> = {
   preview: "预览",
   review: "审核",
   graph: "图谱",
+  chat: "对话",
 };
 
 export function StatusBar() {

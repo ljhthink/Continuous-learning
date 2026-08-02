@@ -31,6 +31,7 @@ import {
   levenshteinRatio,
   sorensenDiceBigram,
 } from "../utils/similarity.js";
+import { runAutoXref } from "../utils/xref.js";
 import { jsonResult, errorResult } from "./helpers.js";
 import type { ToolResult } from "./helpers.js";
 
@@ -119,8 +120,9 @@ export async function kbIngestSource(args: {
   source_path: string;
   domain: string;
   type?: "source";
+  auto_xref?: boolean;
 }): Promise<ToolResult> {
-  const { source_path: sourcePath, domain } = args;
+  const { source_path: sourcePath, domain, auto_xref: autoXrefFlag } = args;
   const kbRoot = getKbRoot();
   const rawDir = getRawDir();
   const wikiDir = getWikiDir();
@@ -227,7 +229,65 @@ export async function kbIngestSource(args: {
     },
   });
 
-  return jsonResult({ wiki_path: wikiRelPath, status: "staging" });
+  // Auto cross-reference (Karpathy "touch 5-15 pages" core thesis,
+  // docs/reports/2026-08-02-missing-features-solution.md §3.3).
+  // Default enabled; caller can pass auto_xref=false to skip (e.g., tests
+  // or batch ingest). Best-effort: failure does not abort ingest.
+  const enableXref = autoXrefFlag !== false;
+  let xrefSummary: { touched: string[]; skipped: string[]; candidates: number } | null = null;
+  if (enableXref) {
+    try {
+      // Reload pages so the newly-written staging page is included in the
+      // candidate pool's "already linked" check (defense-in-depth against
+      // self-link). We pass the new page's metadata separately.
+      const allPages = await loadAllPages();
+      const xrefResult = await runAutoXref(
+        {
+          relPath: wikiRelPath.replace(/\.md$/, ""),
+          absPath: wikiFullPath,
+          title: baseName,
+          domain,
+          tags: [], // staging frontmatter has no tags yet
+          body,
+        },
+        allPages,
+      );
+      xrefSummary = {
+        touched: xrefResult.touched,
+        skipped: xrefResult.skipped,
+        candidates: xrefResult.candidates.length,
+      };
+
+      // Log xref event only when we actually touched pages (avoid log noise
+      // for ingest into an empty/sparse domain).
+      if (xrefResult.touched.length > 0) {
+        await appendLogEntry({
+          date: today,
+          // DEF-007: type="xref" distinct from "ingest" to avoid MD024
+          // duplicate-heading collision with the ingest entry above.
+          type: "xref",
+          title: baseName,
+          details: {
+            new_page: wikiRelPath,
+            touched: xrefResult.touched.join(", "),
+            touched_count: String(xrefResult.touched.length),
+            candidates: String(xrefResult.candidates.length),
+          },
+        });
+      }
+    } catch (err) {
+      // Best-effort: auto-xref failure must NOT abort the ingest main flow.
+      // Surface to stderr (CLAUDE.md §19.4 不吞异常) and continue.
+      console.error(`[kb_ingest_source] auto-xref failed for ${wikiRelPath}:`, err);
+      xrefSummary = { touched: [], skipped: [], candidates: 0 };
+    }
+  }
+
+  return jsonResult({
+    wiki_path: wikiRelPath,
+    status: "staging",
+    xref: xrefSummary,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -304,6 +364,146 @@ export async function kbWriteExperience(args: {
   });
 
   return jsonResult({ path: inboxRelPath, status: "pending" });
+}
+
+// ---------------------------------------------------------------------------
+// kb_write_answer (Query 答案回写, AGENTS.md §5.2 step 5, Karpathy "good answers filed back")
+// ---------------------------------------------------------------------------
+
+/**
+ * Maximum length of source_query used to derive source_task provenance.
+ * Keeps frontmatter source_task compact and grep-friendly; full query is
+ * retained in the log entry details.
+ */
+const WRITEBACK_QUERY_PROVENANCE_LEN = 50;
+
+export async function kbWriteAnswer(args: {
+  title: string;
+  domain: string;
+  content: string;
+  confidence: number;
+  source_query: string;
+  cited_pages: string[];
+}): Promise<ToolResult> {
+  const { title, domain, content, confidence, source_query, cited_pages } = args;
+  const kbRoot = getKbRoot();
+  const wikiDir = getWikiDir();
+
+  // Gating already enforced by Zod schema (cited_pages.min(2)), but defend
+  // in depth: a caller bypassing the schema (CLI misuse) must still be gated.
+  // WRITEBACK-RAG Utility Gate: only answers synthesizing ≥2 pages are worth
+  // filing back (RAG/Wiki/Memory 三层分工 — simple fact lookups are not).
+  if (!Array.isArray(cited_pages) || cited_pages.length < 2) {
+    return errorResult(
+      `kb_write_answer requires cited_pages.length >= 2 (WRITEBACK-RAG Utility Gate). Got ${cited_pages?.length ?? 0}. Simple fact lookups should not be filed back.`
+    );
+  }
+
+  const slug = slugify(title) || `answer-${Date.now()}`;
+  const today = todayDate();
+
+  const inboxFullPath = path.join(
+    wikiDir,
+    domain,
+    "experiences",
+    "inbox",
+    `${slug}.md`,
+  );
+  // Defense-in-depth: schemas.ts validates domain via kebab-case regex (S-1),
+  // but verify the resolved path stays inside the wiki directory at runtime too.
+  const relInbox = path.relative(wikiDir, inboxFullPath);
+  if (relInbox.startsWith("..") || path.isAbsolute(relInbox)) {
+    return errorResult(`Path traversal detected in domain: ${domain}`);
+  }
+  const inboxRelPath = `wiki/${domain}/experiences/inbox/${slug}.md`;
+
+  // Provenance: derive source_task from source_query (compact, grep-friendly).
+  // Strip CR/LF (CWE-117-ish — frontmatter YAML safety) and truncate.
+  const provenanceQuery = source_query
+    .replace(/[\r\n]+/g, " ")
+    .trim()
+    .slice(0, WRITEBACK_QUERY_PROVENANCE_LEN);
+  const sourceTask = `query-writeback:${provenanceQuery}`;
+
+  // Pre-writeback duplicate detection (ADR-011 reuse): scan same-domain
+  // active experience cards. Suspected duplicates do NOT block — the answer
+  // still goes to inbox for human review (WRITEBACK-RAG "独立索引保持原库洁净"
+  // + AGENTS.md §9.3 "禁止跳过 inbox 直接写正式经验页"). The duplicate_with
+  // list is surfaced as a warning for the reviewer.
+  let duplicates: DuplicateMatch[] = [];
+  try {
+    duplicates = await findDuplicateExperiences({
+      title,
+      body: content,
+      domain,
+    });
+  } catch (err) {
+    // Duplicate detection failure is non-fatal (best-effort, like /dream
+    // quality writeback). Surface to stderr and proceed with empty list.
+    console.error(`[kb_write_answer] duplicate detection failed:`, err);
+    duplicates = [];
+  }
+
+  const frontmatter: Record<string, unknown> = {
+    title,
+    domain: [domain],
+    type: "experience",
+    status: "pending",
+    confidence,
+    date: today,
+    source_task: sourceTask,
+    // AGENTS.md §3.3: related is a pure-path array; [[...]] wikilinks
+    // forbidden (js-yaml parses multiple wikilinks incorrectly). cited_pages
+    // are already pure paths from the schema, safe to assign directly.
+    related: cited_pages.slice(),
+  };
+
+  // DEF-001: atomic create-only write (flag 'wx') — same TOCTOU protection
+  // as kb_write_experience / kb_ingest_source.
+  try {
+    await writeFile(
+      inboxFullPath,
+      serializeFrontmatter(frontmatter, content),
+      "wx"
+    );
+  } catch (err) {
+    if (isAlreadyExistsError(err)) {
+      return errorResult(
+        `Answer already exists at ${inboxRelPath}; a card with this title is already in the inbox.`
+      );
+    }
+    throw err;
+  }
+
+  // Append log.md (type=writeback — DEF-007 distinct from "experience" to
+  // avoid MD024 duplicate-heading collision with the experience entry pattern
+  // and to make writeback events grep-able separately).
+  await appendLogEntry({
+    date: today,
+    type: "writeback",
+    title,
+    details: {
+      inbox: inboxRelPath,
+      confidence: String(confidence),
+      source_query: source_query.replace(/[\r\n]+/g, " ").trim(),
+      cited_pages: cited_pages.join(", "),
+      duplicate_with: duplicates.map((d) => d.path).join(", "),
+    },
+  });
+
+  return jsonResult({
+    path: inboxRelPath,
+    status: "pending",
+    source_task: sourceTask,
+    duplicate_warning:
+      duplicates.length > 0
+        ? {
+            message:
+              "Suspected duplicates found in same-domain active cards. Reviewer should resolve overlap before promoting.",
+            duplicates,
+          }
+        : null,
+  });
 }
 
 // ---------------------------------------------------------------------------

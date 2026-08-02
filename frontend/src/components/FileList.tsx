@@ -4,7 +4,7 @@
  * 启动时调用 `list_staging` 加载所有 staging 页面；每次 confirm/reject 后刷新。
  * 卡片：格式图标 + 标题 + 领域·日期·source_file + 预览 + [预览] [LLM整理] [确认] [拒绝]。
  *
- * P5（ADR-013）：新增 "LLM 整理" 按钮 — 调用中国三厂商 LLM 将原始 markdown
+ * P5（ADR-013）：新增 "LLM 整理" 按钮 — 调用 LLM 将原始 markdown
  * 整理为结构化 wiki 页面。整理结果在模态框中展示，用户可采用或丢弃。
  *
  * 在浏览器 dev 模式下，IPC 不可用 → 回退到 mockStagingFiles + 显示 dev 提示。
@@ -19,12 +19,21 @@ import {
   confirmStaging,
   rejectStaging,
   updateStagingContent,
+  deletePage,
+  callMcpTool,
   isTauri,
   type StagingPageIPC,
 } from "@/lib/ipc";
 import { useViewStore } from "@/store/viewStore";
 import { useLlmStore } from "@/store/llmStore";
-import { organizeStagingPage, loadApiKey, PROVIDERS } from "@/lib/llm";
+import { useGraphStore } from "@/store/graphStore";
+import {
+  organizeStagingPage,
+  organizeStagingPageStream,
+  loadApiKey,
+  PROVIDERS,
+  type LlmUsage,
+} from "@/lib/llm";
 
 const FORMAT_ICONS: Record<StagingFile["format"], string> = {
   pdf: "picture_as_pdf",
@@ -59,13 +68,25 @@ export function FileList() {
   const [busyPath, setBusyPath] = useState<string | null>(null);
   const { setCurrentPagePath, setView } = useViewStore();
   // P5 LLM 整理状态（ADR-013）
-  const { llmMode, cloudProvider } = useLlmStore();
+  const { llmMode, cloudProvider, customBaseUrl, customModelName, maxTokens } = useLlmStore();
+  // P5-R3 问题 5: confirm/reject/delete 后使图谱缓存失效
+  const invalidateGraph = useGraphStore((s) => s.invalidate);
   const [organizingPath, setOrganizingPath] = useState<string | null>(null);
   const [organizeResult, setOrganizeResult] = useState<
     { path: string; content: string; fileName: string } | null
   >(null);
   const [organizeError, setOrganizeError] = useState<string | null>(null);
   const [adopting, setAdopting] = useState(false);
+  // P6-R1: 流式响应 / 用量 / 截断 / 重试 / 降级 状态
+  const [streamingContent, setStreamingContent] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamUsage, setStreamUsage] = useState<LlmUsage | null>(null);
+  const [streamTruncated, setStreamTruncated] = useState(false);
+  const [retryInfo, setRetryInfo] = useState<{
+    attempt: number;
+    error: string;
+  } | null>(null);
+  const [degraded, setDegraded] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (!tauriEnv) {
@@ -95,6 +116,7 @@ export function FileList() {
       setBusyPath(file.id);
       try {
         await confirmStaging(file.id);
+        invalidateGraph(); // P5-R3: staging→active 改变图谱节点状态
         await refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
@@ -102,7 +124,7 @@ export function FileList() {
         setBusyPath(null);
       }
     },
-    [tauriEnv, refresh],
+    [tauriEnv, refresh, invalidateGraph],
   );
 
   const handleReject = useCallback(
@@ -111,6 +133,7 @@ export function FileList() {
       setBusyPath(file.id);
       try {
         await rejectStaging(file.id);
+        invalidateGraph(); // P5-R3: rejected 页面应从图谱移除
         await refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
@@ -118,7 +141,7 @@ export function FileList() {
         setBusyPath(null);
       }
     },
-    [tauriEnv, refresh],
+    [tauriEnv, refresh, invalidateGraph],
   );
 
   const handlePreview = useCallback(
@@ -130,7 +153,34 @@ export function FileList() {
     [setCurrentPagePath, setView],
   );
 
+  // P5 UX-3: 手动删除页面（P5-R2: 可选同时删除原始文件，问题 5）
+  const handleDelete = useCallback(
+    async (file: StagingFile) => {
+      if (!tauriEnv) return;
+      // 二次确认：询问是否同时删除原始文件
+      const deleteRaw = window.confirm(
+        `确定删除「${file.name}」？\n\n点击"确定"将同时删除 wiki 页面和原始上传文件（不可撤销）。\n点击"取消"则不删除。`,
+      );
+      if (!deleteRaw) return;
+      setBusyPath(file.id);
+      try {
+        await deletePage(file.id, true);
+        invalidateGraph(); // P5-R3: 删除页面后图谱应移除该节点
+        await refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setBusyPath(null);
+      }
+    },
+    [tauriEnv, refresh, invalidateGraph],
+  );
+
   // P5：LLM 整理 staging 页面（ADR-013）
+  // P5-R2 fix: 读取完整页面内容（kb_get_page body）而非 200 字符 preview，
+  // 否则 LLM 只收到预览片段，无法整理完整内容（考古报告问题 3 根因）。
+  // P6-R1: 改为流式调用（organizeStagingPageStream），token 逐步渲染；
+  //        流式失败时降级到非流式（callLlm），保证可用性。
   const handleOrganize = useCallback(
     async (file: StagingFile) => {
       if (!tauriEnv) return;
@@ -145,19 +195,66 @@ export function FileList() {
       }
       setOrganizingPath(file.id);
       setOrganizeResult(null);
+      // P6-R1: 重置流式状态
+      setStreamingContent("");
+      setIsStreaming(true);
+      setStreamUsage(null);
+      setStreamTruncated(false);
+      setRetryInfo(null);
+      setDegraded(null);
       try {
         const apiKey = await loadApiKey(cloudProvider);
         if (!apiKey) {
           setOrganizeError(
-            `未找到 ${PROVIDERS[cloudProvider].name} 的 API Key，请先在设置中保存`,
+            `未找到 ${PROVIDERS[cloudProvider].name} 的 API Key，请先在设置中保存（确认已点击"保存"或"测试连接"按钮）`,
           );
           return;
         }
-        const result = await organizeStagingPage(
+        // 读取完整页面内容（body），而非 200 字符 preview
+        let fullContent = file.preview;
+        const pageResult = await callMcpTool("kb_get_page", { page_path: file.id });
+        if (pageResult.success && pageResult.data) {
+          const data = pageResult.data as { body?: string };
+          if (data.body && data.body.trim().length > 0) {
+            fullContent = data.body;
+          }
+        } else {
+          // 降级：使用 preview 但提示用户内容可能不完整
+          console.warn("[FileList] kb_get_page failed, falling back to preview:", pageResult.error);
+        }
+        // P6-R1: 流式调用（token 逐步渲染 + 用量/截断/重试回调）
+        // 使用局部变量跟踪是否收到过 token，避免 React 闭包陷阱（streamingContent 在
+        // await 期间变化但闭包捕获旧值）
+        let receivedTokens = false;
+        let result = await organizeStagingPageStream(
           cloudProvider,
           apiKey,
-          file.preview,
+          fullContent,
+          customBaseUrl,
+          customModelName,
+          maxTokens ?? undefined,
+          {
+            onToken: (token) => {
+              receivedTokens = true;
+              setStreamingContent((prev) => prev + token);
+            },
+            onUsage: (u) => setStreamUsage(u),
+            onTruncated: () => setStreamTruncated(true),
+            onRetry: (attempt, _delayMs, error) =>
+              setRetryInfo({ attempt, error }),
+          },
         );
+        // P6-R2: 流式失败且未收到任何 token 时，降级到非流式
+        if (!result.success && result.error && !receivedTokens) {
+          setDegraded("stream → non-stream");
+          result = await organizeStagingPage(
+            cloudProvider,
+            apiKey,
+            fullContent,
+            customBaseUrl,
+            customModelName,
+          );
+        }
         if (result.success && result.content) {
           setOrganizeResult({
             path: file.id,
@@ -170,10 +267,11 @@ export function FileList() {
       } catch (err) {
         setOrganizeError(err instanceof Error ? err.message : String(err));
       } finally {
+        setIsStreaming(false);
         setOrganizingPath(null);
       }
     },
-    [tauriEnv, llmMode, cloudProvider],
+    [tauriEnv, llmMode, cloudProvider, customBaseUrl, customModelName, maxTokens],
   );
 
   // 采用 LLM 整理结果：更新 staging 文件内容
@@ -244,20 +342,32 @@ export function FileList() {
               onOrganize={() => handleOrganize(file)}
               onConfirm={() => handleConfirm(file)}
               onReject={() => handleReject(file)}
+              onDelete={() => handleDelete(file)}
             />
           ))}
         </div>
       )}
 
       {/* P5：LLM 整理结果模态框（ADR-013） */}
-      {organizeResult && (
+      {/* P6-R1: 流式渲染期间也展示模态框（streamingContent），完成后展示 organizeResult */}
+      {(organizeResult || isStreaming) && (
         <LlmOrganizeModal
-          fileName={organizeResult.fileName}
-          content={organizeResult.content}
+          fileName={organizeResult?.fileName ?? ""}
+          content={organizeResult?.content ?? streamingContent}
           providerName={PROVIDERS[cloudProvider].name}
           adopting={adopting}
+          isStreaming={isStreaming}
+          usage={streamUsage}
+          truncated={streamTruncated}
+          retryInfo={retryInfo}
+          degraded={degraded}
           onAdopt={handleAdopt}
-          onClose={() => setOrganizeResult(null)}
+          onClose={() => {
+            if (!isStreaming) {
+              setOrganizeResult(null);
+              setStreamingContent("");
+            }
+          }}
         />
       )}
     </div>
@@ -273,6 +383,7 @@ interface FileCardProps {
   onOrganize: () => void;
   onConfirm: () => void;
   onReject: () => void;
+  onDelete: () => void;
 }
 
 function FileCard({
@@ -284,6 +395,7 @@ function FileCard({
   onOrganize,
   onConfirm,
   onReject,
+  onDelete,
 }: FileCardProps) {
   return (
     <div className="grid grid-cols-[36px_1fr_auto] gap-3 p-3 bg-surface border border-border-subtle rounded-md hover:border-border-strong transition-colors items-center">
@@ -385,6 +497,21 @@ function FileCard({
             close
           </span>
         </button>
+        {/* P5 UX-3: 手动删除按钮 */}
+        <button
+          type="button"
+          onClick={onDelete}
+          disabled={busy || organizing}
+          className="flex items-center justify-center w-7 h-7 rounded-md text-text-muted hover:bg-hover hover:text-accent-danger transition-all disabled:opacity-50 disabled:cursor-wait"
+          title="删除文件"
+        >
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: 16 }}
+          >
+            delete
+          </span>
+        </button>
       </div>
     </div>
   );
@@ -399,6 +526,16 @@ interface LlmOrganizeModalProps {
   content: string;
   providerName: string;
   adopting: boolean;
+  /** P6-R1: 是否正在流式接收 */
+  isStreaming?: boolean;
+  /** P6-R1: token 用量统计 */
+  usage?: LlmUsage | null;
+  /** P6-R1: 是否检测到截断（finish_reason === "length"） */
+  truncated?: boolean;
+  /** P6-R1: 重试信息 */
+  retryInfo?: { attempt: number; error: string } | null;
+  /** P6-R1: 降级提示（如 "stream → non-stream"） */
+  degraded?: string | null;
   onAdopt: () => void;
   onClose: () => void;
 }
@@ -408,6 +545,11 @@ function LlmOrganizeModal({
   content,
   providerName,
   adopting,
+  isStreaming,
+  usage,
+  truncated,
+  retryInfo,
+  degraded,
   onAdopt,
   onClose,
 }: LlmOrganizeModalProps) {
@@ -426,14 +568,14 @@ function LlmOrganizeModal({
         <div className="flex items-center justify-between px-5 py-3 border-b border-border-subtle">
           <div className="flex items-center gap-2">
             <span
-              className="material-symbols-outlined text-accent-primary"
+              className={`material-symbols-outlined text-accent-primary ${isStreaming ? "animate-pulse" : ""}`}
               style={{ fontSize: 20 }}
             >
-              auto_fix_high
+              {isStreaming ? "progress_activity" : "auto_fix_high"}
             </span>
             <div>
               <h3 className="text-[14px] font-semibold text-text-primary">
-                LLM 整理结果
+                {isStreaming ? "LLM 整理中…" : "LLM 整理结果"}
               </h3>
               <p className="text-[11px] text-text-muted">
                 {fileName} · 由 {providerName} 生成
@@ -443,7 +585,9 @@ function LlmOrganizeModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex items-center justify-center w-7 h-7 rounded-md text-text-secondary hover:bg-hover hover:text-text-primary transition-all"
+            disabled={isStreaming}
+            className="flex items-center justify-center w-7 h-7 rounded-md text-text-secondary hover:bg-hover hover:text-text-primary transition-all disabled:opacity-30 disabled:cursor-wait"
+            title={isStreaming ? "整理进行中，无法关闭" : "关闭"}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
               close
@@ -451,32 +595,89 @@ function LlmOrganizeModal({
           </button>
         </div>
 
-        {/* 内容区：展示整理后的 markdown */}
+        {/* P6-R1: 状态条 — 重试 / 降级 / 截断 提示 */}
+        {(retryInfo || degraded || truncated) && (
+          <div className="px-5 py-2 border-b border-border-subtle space-y-1">
+            {retryInfo && (
+              <div className="flex items-center gap-1.5 text-[11px] text-accent-warning">
+                <span className="material-symbols-outlined" style={{ fontSize: 13 }}>
+                  refresh
+                </span>
+                <span>
+                  网络重试中（第 {retryInfo.attempt} 次）：{retryInfo.error}
+                </span>
+              </div>
+            )}
+            {degraded && (
+              <div className="flex items-center gap-1.5 text-[11px] text-accent-warning">
+                <span className="material-symbols-outlined" style={{ fontSize: 13 }}>
+                  arrow_downward
+                </span>
+                <span>已降级：{degraded}（流式不可用，改用非流式请求）</span>
+              </div>
+            )}
+            {truncated && (
+              <div className="flex items-center gap-1.5 text-[11px] text-accent-danger">
+                <span className="material-symbols-outlined" style={{ fontSize: 13 }}>
+                  warning
+                </span>
+                <span>
+                  ⚠️ 内容可能被截断（达到 token 上限），建议检查完整性或增大 max_tokens
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 内容区：展示整理后的 markdown（流式期间逐步增长） */}
         <div className="flex-1 overflow-y-auto p-5">
-          <pre className="text-[12px] text-text-primary font-mono whitespace-pre-wrap leading-relaxed">
-            {content}
-          </pre>
+          {isStreaming && content.length === 0 ? (
+            <div className="flex items-center gap-2 text-[12px] text-text-muted">
+              <span className="material-symbols-outlined animate-spin" style={{ fontSize: 16 }}>
+                progress_activity
+              </span>
+              <span>等待 LLM 首个 token…</span>
+            </div>
+          ) : (
+            <pre className="text-[12px] text-text-primary font-mono whitespace-pre-wrap leading-relaxed">
+              {content}
+              {isStreaming && (
+                <span className="inline-block w-2 h-3 bg-accent-primary animate-pulse ml-0.5 align-middle" />
+              )}
+            </pre>
+          )}
         </div>
+
+        {/* P6-R1: 用量统计 */}
+        {usage && (
+          <div className="px-5 py-1.5 border-t border-border-subtle text-[10px] text-text-muted font-mono">
+            本次消耗：{usage.total_tokens.toLocaleString()} tokens
+            {usage.prompt_tokens != null && `（输入 ${usage.prompt_tokens.toLocaleString()}）`}
+            {usage.completion_tokens != null && `（输出 ${usage.completion_tokens.toLocaleString()}）`}
+          </div>
+        )}
 
         {/* 底部：操作按钮 */}
         <div className="flex items-center justify-between px-5 py-3 border-t border-border-subtle">
           <span className="text-[11px] text-text-muted">
-            采用后将替换 staging 页面内容（status 仍为 staging，需手动确认入库）
+            {isStreaming
+              ? "整理进行中，请稍候…"
+              : "采用后将替换 staging 页面内容（status 仍为 staging，需手动确认入库）"}
           </span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={onClose}
-              disabled={adopting}
-              className="px-4 py-1.5 text-[12px] bg-elevated text-text-secondary rounded-md hover:bg-hover transition-colors disabled:opacity-50"
+              disabled={adopting || isStreaming}
+              className="px-4 py-1.5 text-[12px] bg-elevated text-text-secondary rounded-md hover:bg-hover transition-colors disabled:opacity-50 disabled:cursor-wait"
             >
               丢弃
             </button>
             <button
               type="button"
               onClick={onAdopt}
-              disabled={adopting}
-              className="flex items-center gap-1.5 px-4 py-1.5 text-[12px] bg-accent-secondary text-white rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
+              disabled={adopting || isStreaming || content.length === 0}
+              className="flex items-center gap-1.5 px-4 py-1.5 text-[12px] bg-accent-secondary text-white rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-wait"
             >
               <span
                 className={`material-symbols-outlined ${adopting ? "animate-spin" : ""}`}

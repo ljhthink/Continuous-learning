@@ -1,12 +1,14 @@
 ---
-title: "声音素材资源"
+title: 声音素材资源
 domain: [design]
 type: concept
 status: active
 date: 2026-07-25
 tags: [design, sound, audio, sfx, music, ambience, resources, assets]
 related: [wiki/design/_index]
+use_count: 1
 ---
+
 
 ## 简介
 

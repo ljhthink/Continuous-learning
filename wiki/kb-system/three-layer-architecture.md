@@ -6,8 +6,9 @@ status: active
 date: 2026-07-24
 tags: [kb-system, architecture, schema]
 related: [wiki/kb-system/dual-index-mechanism, wiki/kb-system/frontmatter-schema]
-use_count: 3
+use_count: 5
 ---
+
 
 
 ## 概念

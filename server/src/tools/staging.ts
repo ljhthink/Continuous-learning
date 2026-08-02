@@ -289,6 +289,135 @@ export async function kbRejectStaging(args: {
 }
 
 // ---------------------------------------------------------------------------
+// kb_organize_staging (LLM 整理 staging, #56 / Karpathy 报告 §2.10)
+// ---------------------------------------------------------------------------
+
+/**
+ * Apply LLM-organized metadata to a staging page.
+ *
+ * Caller (Tauri GUI / external Agent) invokes the LLM separately and passes
+ * the refined metadata here. The server stays LLM-dependency-free (ADR-001:
+ * core deps ≤5). This function only validates + serializes + persists.
+ *
+ *   1. Resolve + validate path inside KB root (path traversal defense).
+ *   2. Verify the page exists and is currently `status: staging`.
+ *   3. Update frontmatter.title / .tags / .description (only fields provided).
+ *   4. Body is NOT modified — user can still edit content during staging review.
+ *   5. Append a `## [YYYY-MM-DD] organize | <title>` entry to log.md.
+ *   6. Return domain_suggestion (if provided) for caller action; do NOT auto-migrate.
+ *
+ * At least one of {title, tags, description} must be provided — otherwise the
+ * call has no effect and is rejected early to prevent no-op log noise.
+ */
+export async function kbOrganizeStaging(args: {
+  page_path: string;
+  title?: string;
+  tags?: string[];
+  description?: string;
+  domain_suggestion?: string;
+}): Promise<ToolResult> {
+  const {
+    page_path: pagePath,
+    title: newTitle,
+    tags: newTags,
+    description: newDescription,
+    domain_suggestion: domainSuggestion,
+  } = args;
+  const kbRoot = getKbRoot();
+
+  // Early no-op guard: at least one metadata field must be provided.
+  if (
+    newTitle === undefined &&
+    newTags === undefined &&
+    newDescription === undefined
+  ) {
+    return errorResult(
+      `kb_organize_staging requires at least one of {title, tags, description}. ` +
+        `domain_suggestion alone is not persisted (it is only returned for caller action).`
+    );
+  }
+
+  const withExt = pagePath.endsWith(".md") ? pagePath : `${pagePath}.md`;
+  const fullPath = path.resolve(kbRoot, withExt);
+  const rel = path.relative(kbRoot, fullPath);
+  if (rel.startsWith("..") || path.isAbsolute(rel)) {
+    return errorResult(`Path traversal detected: ${pagePath}`);
+  }
+  if (!(await fileExists(fullPath))) {
+    return errorResult(`Page not found: ${pagePath}`);
+  }
+
+  const content = await readFile(fullPath);
+  const { frontmatter, body } = parseFrontmatter(content);
+
+  if (frontmatter.status !== "staging") {
+    return errorResult(
+      `Cannot organize: page status is "${frontmatter.status ?? "unknown"}", expected "staging". Only staging pages can be LLM-organized.`,
+    );
+  }
+
+  // Apply provided fields only (undefined → preserve existing).
+  const updatedFields: string[] = [];
+  if (newTitle !== undefined) {
+    frontmatter.title = newTitle;
+    updatedFields.push("title");
+  }
+  if (newTags !== undefined) {
+    // Defensive copy so caller's array isn't aliased into the frontmatter
+    // object (mutation of caller state would be a surprising side effect).
+    frontmatter.tags = newTags.slice();
+    updatedFields.push("tags");
+  }
+  if (newDescription !== undefined) {
+    // description is a frontmatter extension field for LLM-generated summary.
+    // Not in AGENTS.md §3.3 optional-fields list, but frontmatter is open
+    // (Record<string, unknown>) and the field is Obsidian/Dataview-compatible.
+    // Empty string clears the field; non-empty sets it.
+    if (newDescription.length === 0) {
+      delete frontmatter.description;
+    } else {
+      frontmatter.description = newDescription;
+    }
+    updatedFields.push("description");
+  }
+
+  // Bump date to reflect the metadata update (AGENTS.md §3.1: date is
+  // "创建或最后更新日期"). This keeps stale-check (lint.ts checkStale) accurate.
+  const today = todayIso();
+  frontmatter.date = today;
+
+  await writeFile(fullPath, serializeFrontmatter(frontmatter, body));
+
+  // Log entry — DEF-007: type="organize" distinct from "confirm"/"reject"
+  // to avoid MD024 collision and make LLM-organize events grep-able.
+  const logTitle =
+    typeof frontmatter.title === "string"
+      ? frontmatter.title
+      : path.basename(fullPath, ".md");
+  await appendLogEntry({
+    date: today,
+    type: "organize",
+    title: logTitle,
+    details: {
+      page: rel.replace(/\\/g, "/"),
+      updated_fields: updatedFields.join(", "),
+      domain_suggestion: domainSuggestion ?? "(none)",
+    },
+  });
+
+  return jsonResult({
+    page_path: rel.replace(/\\/g, "/"),
+    status: "staging",
+    updated_fields: updatedFields,
+    domain_suggestion: domainSuggestion ?? null,
+    note:
+      domainSuggestion !== undefined
+        ? "domain_suggestion is returned only; domain migration requires explicit user action (move_page_domain or manual move)."
+        : undefined,
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

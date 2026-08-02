@@ -107,14 +107,36 @@ export async function kbSearch(args: {
 
 /**
  * Tokenize a query into lowercase search terms.
- * Splits on whitespace and punctuation. CJK runs are kept intact (no word
- * segmentation), so a Chinese phrase is matched as a single substring.
+ *
+ * Splits on ASCII and CJK (full-width) punctuation + whitespace. For CJK
+ * runs, additionally emits character bigrams (e.g. "数学建模" → "数学",
+ * "学建", "建模") so that a Chinese phrase can be matched even when the
+ * document contains a longer/surrounding phrase. This is the standard
+ * lightweight recall fix for CJK without a segmentation dictionary
+ * (validated against lunr-languages / babel-memory approaches; see
+ * docs/reports/2026-08-02-rag-classify-archaeology.md §7.1).
+ *
+ * Rationale: whitespace-only splitting on Chinese yields a single giant
+ * token that almost never matches document text, causing 0-result
+ * searches (the "multilingual blind spot" in BM25/RAG). Bigrams provide
+ * good recall with substring matching at acceptable index cost.
  */
 function tokenize(text: string): string[] {
-  return text
+  const parts = text
     .toLowerCase()
-    .split(/[\s,.;:!?()[\]{}'"\/\\<>@#$%^&*+=|~`\-]+/)
+    // ASCII punctuation + CJK full-width punctuation (，。、！？；：（）《》【】「」『』〈〉“”‘’…—～·)
+    .split(/[\s,.;:!?()[\]{}'"\/\\<>@#$%^&*+=|~`\-，。、！？；：（）《》【】「」『』〈〉“”‘’…—～·]+/)
     .filter((t) => t.length > 0);
+
+  const result: string[] = [...parts];
+  for (const part of parts) {
+    // Extract CJK Unified Ideographs and emit overlapping bigrams.
+    const cjkChars = part.match(/[\u4e00-\u9fff]/g) || [];
+    for (let i = 0; i < cjkChars.length - 1; i++) {
+      result.push(cjkChars[i] + cjkChars[i + 1]);
+    }
+  }
+  return result;
 }
 
 /** Count case-insensitive occurrences of `needle` in `haystack`. */

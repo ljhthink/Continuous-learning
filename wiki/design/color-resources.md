@@ -1,12 +1,14 @@
 ---
-title: "颜色素材资源"
+title: 颜色素材资源
 domain: [design]
 type: concept
 status: active
 date: 2026-07-25
 tags: [design, color, palette, gradient, resources, assets, css]
 related: [wiki/design/_index]
+use_count: 2
 ---
+
 
 ## 简介
 

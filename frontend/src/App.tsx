@@ -17,12 +17,14 @@ import { DropZone } from "@/components/DropZone";
 import { FileList } from "@/components/FileList";
 import { MarkdownPreview } from "@/components/MarkdownPreview";
 import { ExperienceInbox } from "@/components/ExperienceInbox";
+import { StagingReview } from "@/components/StagingReview";
 import { GraphView } from "@/components/GraphView";
 import { BacklinksPanel } from "@/components/BacklinksPanel";
 import { LogTimeline } from "@/components/LogTimeline";
 import { SettingsPanel } from "@/components/SettingsPanel";
-import { DOMAIN_COLORS, DOMAIN_LABELS } from "@/types";
-import type { ViewName, Domain } from "@/types";
+import { ChatPanel } from "@/components/ChatPanel";
+import { domainColor, domainLabel } from "@/types";
+import type { ViewName } from "@/types";
 
 export function App() {
   const { currentView, setView, theme, setSettingsOpen } = useViewStore();
@@ -35,10 +37,10 @@ export function App() {
   // 全局快捷键
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      // ⌘1-4 切换视图
-      if ((e.metaKey || e.ctrlKey) && ["1", "2", "3", "4"].includes(e.key)) {
+      // ⌘1-5 切换视图（P6-R4: 新增 chat 视图）
+      if ((e.metaKey || e.ctrlKey) && ["1", "2", "3", "4", "5"].includes(e.key)) {
         e.preventDefault();
-        const views: ViewName[] = ["upload", "preview", "review", "graph"];
+        const views: ViewName[] = ["upload", "preview", "review", "graph", "chat"];
         setView(views[parseInt(e.key, 10) - 1]);
         return;
       }
@@ -129,8 +131,73 @@ function MainContent({ view }: { view: ViewName }) {
         </div>
       )}
 
-      {view === "review" && <ExperienceInbox />}
+      {view === "review" && <ReviewView />}
+
+      {view === "chat" && <ChatPanel />}
     </div>
+  );
+}
+
+/**
+ * P6-R5: 审核视图（双 Tab：经验卡片 inbox + 待审核文档 staging）。
+ *
+ * 用原生 button + useViewStore.reviewTab 实现，不引入 shadcn/Tabs 依赖。
+ * Tab 标题内嵌计数 badge，便于用户判断是否有积压。
+ * Tab 切换不触发 listStaging/kb_list_inbox 重新加载（各组件有内存缓存 UX-4）。
+ */
+function ReviewView() {
+  const { reviewTab, setReviewTab } = useViewStore();
+  return (
+    <div className="h-full flex flex-col">
+      {/* Tab 头 */}
+      <div className="flex items-center border-b border-border-subtle bg-surface px-3 gap-1 flex-shrink-0">
+        <TabButton
+          active={reviewTab === "experience"}
+          onClick={() => setReviewTab("experience")}
+          icon="lightbulb"
+          label="经验卡片"
+        />
+        <TabButton
+          active={reviewTab === "staging"}
+          onClick={() => setReviewTab("staging")}
+          icon="inbox"
+          label="待审核文档"
+        />
+      </div>
+      {/* Tab 内容 */}
+      <div className="flex-1 overflow-hidden">
+        {reviewTab === "experience" ? <ExperienceInbox /> : <StagingReview />}
+      </div>
+    </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: string;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium border-b-2 transition-colors ${
+        active
+          ? "border-accent-primary text-accent-primary"
+          : "border-transparent text-text-secondary hover:text-text-primary"
+      }`}
+    >
+      <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
+        {icon}
+      </span>
+      {label}
+    </button>
   );
 }
 
@@ -256,10 +323,10 @@ function GraphStats() {
           <div key={domain} className="flex items-center gap-2 text-[11px]">
             <span
               className="inline-block w-1.5 h-1.5 rounded-full"
-              style={{ background: DOMAIN_COLORS[domain as Domain] ?? "#888" }}
+              style={{ background: domainColor(domain) }}
             />
             <span className="text-text-secondary">
-              {DOMAIN_LABELS[domain as Domain] ?? domain}
+              {domainLabel(domain)}
             </span>
             <span className="ml-auto font-mono text-text-muted">{count}</span>
           </div>

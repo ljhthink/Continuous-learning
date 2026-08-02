@@ -10,7 +10,7 @@
 import { useState, useEffect } from "react";
 import { useViewStore } from "@/store/viewStore";
 import { mockCategories } from "@/data/mockData";
-import { DOMAIN_COLORS, DOMAIN_LABELS } from "@/types";
+import { domainColor, domainLabel } from "@/types";
 import type { ViewName, CategoryItem, Domain, PageType } from "@/types";
 import { callMcpTool, isTauri } from "@/lib/ipc";
 
@@ -30,7 +30,7 @@ const VIEW_SWITCHER: Array<{ view: ViewName; icon: string; label: string; kbd: s
 ];
 
 export function CategoryTree() {
-  const { currentDomain, setDomain, currentType, setType, currentView, setView } = useViewStore();
+  const { currentDomain, setDomain, currentType, setType, currentView, setView, openSettings } = useViewStore();
   const [categories, setCategories] = useState<CategoryItem[]>(mockCategories);
   const tauriEnv = isTauri();
 
@@ -57,8 +57,8 @@ export function CategoryTree() {
               const domain = c.name as Domain;
               return {
                 domain,
-                label: DOMAIN_LABELS[domain] ?? c.name,
-                color: DOMAIN_COLORS[domain] ?? "#888",
+                label: domainLabel(domain),
+                color: domainColor(domain),
                 pageCount: c.page_count ?? 0,
                 experienceCount: 0,
               };
@@ -80,8 +80,18 @@ export function CategoryTree() {
       style={{ width: "var(--left-w)" }}
     >
       {/* 领域分类 */}
-      <div className="px-4 pb-1.5 text-[10px] font-semibold tracking-wider text-text-muted uppercase">
-        领域分类
+      <div className="px-4 pb-1.5 text-[10px] font-semibold tracking-wider text-text-muted uppercase flex items-center justify-between">
+        <span>领域分类</span>
+        <button
+          type="button"
+          onClick={() => openSettings("domain-management")}
+          title="管理领域（新建/删除）"
+          className="text-text-muted hover:text-accent-primary transition-colors p-0.5 -mr-1"
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 13 }}>
+            settings
+          </span>
+        </button>
       </div>
       <div>
         <CategoryItemRow

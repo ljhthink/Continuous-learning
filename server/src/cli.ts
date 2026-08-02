@@ -26,6 +26,7 @@
  */
 
 import { z } from "zod";
+import { pathToFileURL } from "node:url";
 import { kbSearch } from "./tools/search.js";
 import { kbGetPage } from "./tools/read-only.js";
 import { kbListCategories, kbListRecent, kbHealth } from "./tools/read-only.js";
@@ -37,11 +38,13 @@ import {
   kbListStaging,
   kbConfirmStaging,
   kbRejectStaging,
+  kbOrganizeStaging,
 } from "./tools/staging.js";
 import {
   kbIngestSource,
   kbWriteExperience,
   kbPromoteExperience,
+  kbWriteAnswer,
 } from "./tools/write.js";
 import type { ToolResult } from "./tools/helpers.js";
 import {
@@ -50,6 +53,7 @@ import {
   kbIngestSourceSchema,
   kbWriteExperienceSchema,
   kbPromoteExperienceSchema,
+  kbWriteAnswerSchema,
   kbListCategoriesSchema,
   kbListRecentSchema,
   kbLintSchema,
@@ -57,6 +61,7 @@ import {
   kbListStagingSchema,
   kbConfirmStagingSchema,
   kbRejectStagingSchema,
+  kbOrganizeStagingSchema,
   kbGetGraphSchema,
   kbGetBacklinksSchema,
   kbListInboxSchema,
@@ -71,7 +76,7 @@ type ToolHandler = (args: Record<string, unknown>) => Promise<ToolResult>;
 // Tool functions have specific parameter types (e.g., { page_path: string }),
 // but the registry needs a uniform type for dynamic dispatch. We cast to
 // ToolHandler — the Zod schemas validate inputs before the handler runs.
-const TOOL_REGISTRY: Record<string, ToolHandler> = {
+export const TOOL_REGISTRY: Record<string, ToolHandler> = {
   // Read-only
   kb_search: kbSearch as unknown as ToolHandler,
   kb_get_page: kbGetPage as unknown as ToolHandler,
@@ -89,10 +94,12 @@ const TOOL_REGISTRY: Record<string, ToolHandler> = {
   kb_list_staging: kbListStaging as unknown as ToolHandler,
   kb_confirm_staging: kbConfirmStaging as unknown as ToolHandler,
   kb_reject_staging: kbRejectStaging as unknown as ToolHandler,
+  kb_organize_staging: kbOrganizeStaging as unknown as ToolHandler,
   // Write (ingest + experience)
   kb_ingest_source: kbIngestSource as unknown as ToolHandler,
   kb_write_experience: kbWriteExperience as unknown as ToolHandler,
   kb_promote_experience: kbPromoteExperience as unknown as ToolHandler,
+  kb_write_answer: kbWriteAnswer as unknown as ToolHandler,
 };
 
 // ---------------------------------------------------------------------------
@@ -104,7 +111,7 @@ const TOOL_REGISTRY: Record<string, ToolHandler> = {
 // with safeParse(). This ensures the CLI subprocess path validates inputs
 // identically to the MCP server path (which uses server.tool(name, desc,
 // schema, handler) — the MCP SDK internally wraps ZodRawShape the same way).
-const SCHEMA_REGISTRY: Record<string, z.ZodType> = {
+export const SCHEMA_REGISTRY: Record<string, z.ZodType> = {
   kb_search: z.object(kbSearchSchema),
   kb_get_page: z.object(kbGetPageSchema),
   kb_list_categories: z.object(kbListCategoriesSchema),
@@ -117,9 +124,11 @@ const SCHEMA_REGISTRY: Record<string, z.ZodType> = {
   kb_list_staging: z.object(kbListStagingSchema),
   kb_confirm_staging: z.object(kbConfirmStagingSchema),
   kb_reject_staging: z.object(kbRejectStagingSchema),
+  kb_organize_staging: z.object(kbOrganizeStagingSchema),
   kb_ingest_source: z.object(kbIngestSourceSchema),
   kb_write_experience: z.object(kbWriteExperienceSchema),
   kb_promote_experience: z.object(kbPromoteExperienceSchema),
+  kb_write_answer: z.object(kbWriteAnswerSchema),
 };
 
 // ---------------------------------------------------------------------------
@@ -192,7 +201,24 @@ async function main(): Promise<void> {
   console.log(text);
 }
 
-main().catch((err: unknown) => {
-  console.error(`[kb-cli] Fatal: ${err instanceof Error ? err.stack : String(err)}`);
-  process.exit(1);
-});
+// Only run main() when cli.ts is the entry point (direct `node cli.ts ...`
+// invocation). When imported by unit tests (which only need the exported
+// TOOL_REGISTRY / SCHEMA_REGISTRY), skip main() so process.argv parsing and
+// process.exit() don't fire inside the test runner.
+// pathToFileURL handles Windows backslash → file:/// URL conversion correctly.
+// The try/catch + argv[1] guard makes this bulletproof when the module is
+// imported via eval/dynamic import (where process.argv[1] may be undefined).
+try {
+  const isMainModule =
+    !!process.argv[1] &&
+    import.meta.url === pathToFileURL(process.argv[1]).href;
+  if (isMainModule) {
+    main().catch((err: unknown) => {
+      console.error(`[kb-cli] Fatal: ${err instanceof Error ? err.stack : String(err)}`);
+      process.exit(1);
+    });
+  }
+} catch {
+  // Guard check itself failed (e.g. argv[1] missing) — we are definitely not
+  // the entry point, so skip main() silently.
+}

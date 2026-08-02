@@ -353,4 +353,4 @@ Summary: 0 issues in 0 files
 
 本报告 markdownlint 自检通过，0 issues。
 
-> **主 Agent 后续动作提示**：本 acceptance 报告新建后，需将其加入 [docs/reports/README.md](README.md) 报告索引（追加一行：`| 2026-07-25 | DEF-015 TheAlgorithms 6 仓库目录索引补全验收测试 | acceptance | [2026-07-25-thealgorithms-dir-index-acceptance.md](2026-07-25-thealgorithms-dir-index-acceptance.md) |`）。因任务约束"不要修改被审查文件"，ac-verifier 未直接修改 docs/reports/README.md，由主 Agent 在提交阶段补充。
+> **主 Agent 后续动作提示**：本 acceptance 报告新建后，需将其加入 [docs/reports/README.md](../../README.md) 报告索引（追加一行：`| 2026-07-25 | DEF-015 TheAlgorithms 6 仓库目录索引补全验收测试 | acceptance | [2026-07-25-thealgorithms-dir-index-acceptance.md](2026-07-25-thealgorithms-dir-index-acceptance.md) |`）。因任务约束"不要修改被审查文件"，ac-verifier 未直接修改 docs/reports/README.md，由主 Agent 在提交阶段补充。

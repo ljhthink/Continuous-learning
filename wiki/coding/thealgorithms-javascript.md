@@ -1,12 +1,14 @@
 ---
-title: "TheAlgorithms/JavaScript — JavaScript 算法教育实现合集"
+title: TheAlgorithms/JavaScript — JavaScript 算法教育实现合集
 domain: [coding]
 type: entity
 status: active
 date: 2026-07-24
 tags: [javascript, algorithm, open-source, learning, thealgorithms]
 related: [wiki/coding/thealgorithms-typescript, wiki/coding/thealgorithms-python]
+use_count: 4
 ---
+
 
 ## 简介
 
