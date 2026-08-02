@@ -190,7 +190,7 @@ it("包含 Unicode 字符的 Key 往返一致（base64 编码正确性）", asyn
 
 | 检查项 | 结果 | 证据 |
 | --- | --- | --- |
-| 前端无硬编码密钥 | 通过 | `Select-String -Pattern 'sk-[a-zA-Z0-9]{20,}|api[_-]?key\s*=|password\s*=|secret\s*='` 扫描 7 个核心文件 → 0 匹配 |
+| 前端无硬编码密钥 | 通过 | `Select-String -Pattern 'sk-[a-zA-Z0-9]{20,}\|api[_-]?key\s*=\|password\s*=\|secret\s*='` 扫描 7 个核心文件 → 0 匹配 |
 | .env 文件未提交 | 通过 | `Get-ChildItem -Recurse -Include ".env",".env.*"` → 无结果 |
 | .gitignore 排除 .env | 通过 | `.env`、`.env.local`、`.env.*.local` 在 .gitignore 中 |
 | API Key 存储机制 | 通过（附条件） | keyring 为主存储（安全），localStorage base64 为降级后备（中风险，guardrail Finding-1 记录但不阻断） |
@@ -202,7 +202,7 @@ it("包含 Unicode 字符的 Key 往返一致（base64 编码正确性）", asyn
 
 | 检查项 | 结果 | 证据 |
 | --- | --- | --- |
-| 无 dangerouslySetInnerHTML | 通过 | `Select-String -Pattern 'dangerouslySetInnerHTML|innerHTML'` → 仅 GraphView.tsx:417 注释提及（非实际使用） |
+| 无 dangerouslySetInnerHTML | 通过 | `Select-String -Pattern 'dangerouslySetInnerHTML\|innerHTML'` → 仅 GraphView.tsx:417 注释提及（非实际使用） |
 | escapeHtml 覆盖所有用户可控字段 | 通过 | [GraphView.tsx:423-427](frontend/src/components/GraphView.tsx#L423-L427) title/domain/type/inDegree/outDegree 均经 escapeHtml |
 | escapeHtml 实现正确 | 通过 | [html-utils.ts:26-45](frontend/src/lib/html-utils.ts#L26-L45) 转义 OWASP 推荐 6 字符（& < > " ' /） |
 | escapeHtml 单元测试覆盖 | 通过 | html-utils.test.ts 48 个测试覆盖所有 OWASP 载荷 |

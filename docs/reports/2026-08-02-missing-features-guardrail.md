@@ -98,7 +98,7 @@ if (rel.startsWith("..") || path.isAbsolute(rel)) {
 #### 3.1.3 `runAutoXref` / `applyXrefWithAbsPaths`（[xref.ts:151-210](../../server/src/utils/xref.ts#L151-L210)）
 
 - `applyXrefWithAbsPaths` 接收 `candidatesWithAbs`，其中 `absPath` 来自 `loadAllPages()` 的 `PageInfo.absPath`（[pages.ts:57-81](../../server/src/utils/pages.ts#L57-L81)），由 `listMarkdownFiles(getWikiDir())` 文件系统遍历生成——**非用户输入**，是可信路径。
-- `newPage.absPath` 在 `kbIngestSource` 中由 `path.join(wikiDir, domain, `${slug}.md`)` 构造（[write.ts:173](../../server/src/tools/write.ts#L173)），`domain` 和 `slug` 均已校验。
+- `newPage.absPath` 在 `kbIngestSource` 中由 ``path.join(wikiDir, domain, `${slug}.md`)`` 构造（[write.ts:173](../../server/src/tools/write.ts#L173)），`domain` 和 `slug` 均已校验。
 - `updateNewPageRelated` 接收 `newPageAbsPath`（同上，已校验）和 `candidatePaths`（来自 `touched` 列表，源自 `PageInfo.relPath`，文件系统生成）。
 - **无用户控制路径到达文件操作。**
 

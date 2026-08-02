@@ -1,4 +1,4 @@
-# P6-R4 H-1/H-2 修复 — 增量代码审查 + 安全审计报告
+﻿# P6-R4 H-1/H-2 修复 — 增量代码审查 + 安全审计报告
 
 > **任务令牌**：TKN-P6-R4-GUARDRAIL-001
 > **执行 Agent**：guardrail-enforcer（代码安全护栏）
@@ -333,7 +333,7 @@ dangerouslySetInnerHTML={{
 
 ## 9. 数据流追踪（H-2 修复后全链路验证）
 
-```
+```text
 用户操作                 前端 input                前端 store              前端 API 层              Tauri IPC              Rust 后端
 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 留空(不限)    → v="" → null          → maxTokens=null  → ?? undefined → ?? null → invoke({maxTokens:null}) → Option<u32>=None → 不注入 max_tokens      ✅

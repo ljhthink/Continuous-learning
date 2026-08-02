@@ -55,7 +55,7 @@
 | 知识库内容 | `index.md`、`log.md`、`wiki/` 目录结构 |
 | 治理文档 | `CLAUDE.md`、`AGENTS.md`、`README.md`、`docs/PRD.md`、`docs/ARCH.md` |
 | 测试 | `server/src/tests/`、`frontend/src/lib/__tests__/` |
-| 日志统计 | `log.md` 全文 `## [YYYY-MM-DD] <type> |` 条目分类计数 |
+| 日志统计 | `log.md` 全文 `## [YYYY-MM-DD] <type> \|` 条目分类计数 |
 
 ---
 

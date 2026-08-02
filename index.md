@@ -53,6 +53,7 @@
 
 - [[wiki/coding/experiences/mcp-tool-三点注册陷阱新增工具须同时注册-indexts-clits-双-registry.md]] · MCP tool 三点注册陷阱：新增工具须同时注册 index.ts + cli.ts 双 registry · confidence=0.9 · 2026-08-02
 - [[wiki/coding/experiences/github-actions-shell-注入防护用-env-块替代内联-表达式.md]] · GitHub Actions shell 注入防护：用 env 块替代内联 ${{ }} 表达式 · confidence=0.9 · 2026-08-02
+
 ## resources
 
 <!-- 外部资源索引：API、数据集等（ADR-009 决策 2） -->

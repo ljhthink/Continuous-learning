@@ -14,7 +14,7 @@
 
 ## 0. 系统架构速览
 
-```
+```text
 React 前端 (webview)
   ├── components/         UI 组件（TopBar / CategoryTree / DropZone / FileList / SearchBar / ...）
   ├── store/              Zustand 状态（viewStore / llmStore / graphStore）
@@ -50,7 +50,7 @@ Node MCP Server (server/src/)
 
 **调用链**：
 
-```
+```text
 FileList.handleOrganize (frontend/src/components/FileList.tsx:166)
   → loadApiKey(cloudProvider) (frontend/src/lib/llm.ts:281)
   → callMcpTool("kb_get_page") 获取完整 body (frontend/src/lib/ipc.ts:190)
@@ -118,7 +118,7 @@ let content = json["choices"][0]["message"]["content"].as_str()?;  // 一次性�
 
 ### 1.5 API Key 加载和传递链路
 
-```
+```text
 SettingsPanel (frontend/src/components/SettingsPanel.tsx:71)
   → loadApiKey(cloudProvider) (frontend/src/lib/llm.ts:281)
     → invoke("load_api_key", {provider})  ← Tauri IPC
@@ -218,7 +218,7 @@ export type Domain =
 
 **实际 wiki 目录**（6 个，缺 `academic` 和 `life`）：
 
-```
+```text
 coding / design / emotions / kb-system / reading / resources
 ```
 
@@ -227,7 +227,7 @@ coding / design / emotions / kb-system / reading / resources
 | 步骤 | 文件 | 改动 |
 | --- | --- | --- |
 | 1 | `wiki/<new-domain>/` | 新建目录 |
-| 2 | `frontend/src/types/index.ts:9` | `Domain` 联合类型加 `| "new-domain"` |
+| 2 | `frontend/src/types/index.ts:9` | `Domain` 联合类型加 `\| "new-domain"` |
 | 3 | `frontend/src/types/index.ts:35` | `DOMAIN_COLORS` 加配色 |
 | 4 | `frontend/src/types/index.ts:47` | `DOMAIN_LABELS` 加中文名 |
 | 5 | `AGENTS.md` §8.1 | 领域说明表追加行 |
@@ -556,7 +556,7 @@ let output = app_handle.shell()
 
 基于考古发现，建议 P6 增强按以下顺序实施（依赖关系从下到上）：
 
-```
+```text
 第一步：Tauri 事件基础设施
   └─ call_llm_api 加 AppHandle 参数 + emit 能力
      （前置：所有流式功能的基础）

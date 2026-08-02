@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-file MD024 --><!-- append-only 日志，重复 H2 标题为设计预期（同类事件多次记录） -->
 # 知识库时间日志
 
 > append-only 日志，记录 ingest/query/lint/experience 事件。

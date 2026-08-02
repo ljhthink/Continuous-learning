@@ -347,7 +347,7 @@ H-1/H-2 修复的性质为**最小化变更**，不涉及接口/契约/数据结
 | u32 上限钳制 | 通过 | SettingsPanel onChange `Math.min(4294967295, ...)` 硬钳制；Playwright 运行时验证输入 5000000000 → 4294967295 |
 | u32 下限钳制 | 通过 | `Math.max(0, ...)` 硬钳制；运行时验证输入 -5 → 0 |
 | Rust 端类型安全 | 通过 | `frontend/src-tauri/src/lib.rs` L1037 `max_tokens: Option<u32>`，serde 反序列化对非法值报错而非 UB |
-| 全链路类型对齐 | 通过 | 前端 `number | null` → IPC `number | null` → Rust `Option<u32>`，钳制后值始终在 u32 范围 |
+| 全链路类型对齐 | 通过 | 前端 `number \| null` → IPC `number \| null` → Rust `Option<u32>`，钳制后值始终在 u32 范围 |
 
 ### 5.3 硬编码密钥扫描
 

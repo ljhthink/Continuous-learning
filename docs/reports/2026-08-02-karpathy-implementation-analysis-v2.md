@@ -1,4 +1,4 @@
-# Karpathy LLM Wiki 模式实现度深度分析报告 V2
+﻿# Karpathy LLM Wiki 模式实现度深度分析报告 V2
 
 | 项目 | 内容 |
 | --- | --- |
@@ -504,7 +504,7 @@ V1 报告识别的 6 项核心缺口已全部通过 [缺失功能补全方案](2
 
 ### 9.2 测试运行结果（本次实跑）
 
-```
+```text
 cd server && npm test
 # tests 215
 # suites 36

@@ -1,4 +1,4 @@
-# Karpathy 缺失功能补全 · 正式验收报告
+﻿# Karpathy 缺失功能补全 · 正式验收报告
 
 | 项目 | 内容 |
 | --- | --- |
@@ -70,7 +70,7 @@
 | --- | --- |
 | 标准 | `kb_ingest_source` 默认 auto_xref=true，ingest 后 touch 同域/共享 tag/标题提及的相关页（追加 ## Related + frontmatter related 双向链接），log 记录 type=xref。可设 auto_xref=false 关闭。幂等。 |
 | 验证方法 | 单元测试（5 项）+ 源码审查 + CLI ingest 集成测试 |
-| 证据 | `server/src/utils/xref.ts`（新建）：`findXrefCandidates` 复合打分（同域 +4、共享 tag +2/个上限 +6、双向标题提及 +3）；`applyXrefWithAbsPaths` 追加 `## Related` 节 + frontmatter `related`（双向链接）；幂等性三层去重检测（完整 relPath / basename / basename|alias，`xref.ts:166-174`；`frontmatter.related` 去重 `xref.ts:196`；无新增不写盘 `xref.ts:232`）。`server/src/tools/write.ts:236` `const enableXref = autoXrefFlag !== false;`（默认 true）；L244 调用 `runAutoXref`；L268 log `type: "xref"`（仅 touched>0 时记录）。单元测试：`missing-features.test.ts` ok 22（auto-xref 套件 5 项全过：同域打分、共享 tag 打分、双向链接、幂等性、ingest 集成+xref 日志）。 |
+| 证据 | `server/src/utils/xref.ts`（新建）：`findXrefCandidates` 复合打分（同域 +4、共享 tag +2/个上限 +6、双向标题提及 +3）；`applyXrefWithAbsPaths` 追加 `## Related` 节 + frontmatter `related`（双向链接）；幂等性三层去重检测（完整 relPath / basename / basename\|alias，`xref.ts:166-174`；`frontmatter.related` 去重 `xref.ts:196`；无新增不写盘 `xref.ts:232`）。`server/src/tools/write.ts:236` `const enableXref = autoXrefFlag !== false;`（默认 true）；L244 调用 `runAutoXref`；L268 log `type: "xref"`（仅 touched>0 时记录）。单元测试：`missing-features.test.ts` ok 22（auto-xref 套件 5 项全过：同域打分、共享 tag 打分、双向链接、幂等性、ingest 集成+xref 日志）。 |
 | 结果 | **PASS** |
 
 ### AC-4（#16 kb_write_answer）
@@ -79,7 +79,7 @@
 | --- | --- |
 | 标准 | 新增 kb_write_answer tool，将 Query 答案回写为 pending 经验卡（走 inbox，不跳过门禁）。cited_pages ≥2 门控（WRITEBACK-RAG Utility Gate）。frontmatter.related = cited_pages。log type=writeback。路径穿越防御。 |
 | 验证方法 | 单元测试（4 项）+ CLI 真实运行时调用 + 落盘文件验证 |
-| 证据 | `server/src/tools/write.ts:379-507` `kbWriteAnswer`：cited_pages ≥2 门控（Zod `min(2)` `schemas.ts:170` + 运行时纵深防御 `write.ts:395-399`）；写入 `wiki/<domain>/experiences/inbox/<slug>.md`（status=pending，走 inbox 两 tier 门禁，`write.ts:446-458`）；`frontmatter.related = cited_pages.slice()`（`write.ts:457`）；`source_task = "query-writeback:<query>"`（`write.ts:425`）；log `type: "writeback"`（`write.ts:483`）；路径穿越防御（DOMAIN_REGEX + `path.relative` 二次校验，`write.ts:413-416`）；DEF-001 原子写 `flag: "wx"`（`write.ts:466`）；去重检测非阻断（`write.ts:432-444`）。CLI 运行时：`node cli.ts kb_write_answer {...}` exit=0，落盘文件 `wiki/coding/experiences/inbox/cli-probe-synthesis.md` frontmatter 完整正确（`domain: [coding]` flow 风格、`status: pending`、`related: [wiki/coding/page-a, wiki/coding/page-b]`、`source_task: query-writeback:cli probe query`、`date: 2026-08-02` 无引号、`---` 后空行）；`log.md` 含 `## [2026-08-02] writeback | CLI Probe Synthesis` 条目。单元测试：`missing-features.test.ts` ok 20（4 项全过：创建 inbox 页、拒绝 cited_pages<2、拒绝路径穿越、拒绝重复 DEF-001）。 |
+| 证据 | `server/src/tools/write.ts:379-507` `kbWriteAnswer`：cited_pages ≥2 门控（Zod `min(2)` `schemas.ts:170` + 运行时纵深防御 `write.ts:395-399`）；写入 `wiki/<domain>/experiences/inbox/<slug>.md`（status=pending，走 inbox 两 tier 门禁，`write.ts:446-458`）；`frontmatter.related = cited_pages.slice()`（`write.ts:457`）；`source_task = "query-writeback:<query>"`（`write.ts:425`）；log `type: "writeback"`（`write.ts:483`）；路径穿越防御（DOMAIN_REGEX + `path.relative` 二次校验，`write.ts:413-416`）；DEF-001 原子写 `flag: "wx"`（`write.ts:466`）；去重检测非阻断（`write.ts:432-444`）。CLI 运行时：`node cli.ts kb_write_answer {...}` exit=0，落盘文件 `wiki/coding/experiences/inbox/cli-probe-synthesis.md` frontmatter 完整正确（`domain: [coding]` flow 风格、`status: pending`、`related: [wiki/coding/page-a, wiki/coding/page-b]`、`source_task: query-writeback:cli probe query`、`date: 2026-08-02` 无引号、`---` 后空行）；`log.md` 含 `## [2026-08-02] writeback \| CLI Probe Synthesis` 条目。单元测试：`missing-features.test.ts` ok 20（4 项全过：创建 inbox 页、拒绝 cited_pages<2、拒绝路径穿越、拒绝重复 DEF-001）。 |
 | 结果 | **PASS** |
 
 ### AC-5（#24 missing_concept）
@@ -108,7 +108,7 @@
 
 执行命令：`cd server && npm test`
 
-```
+```text
 # tests 215
 # suites 36
 # pass 215
@@ -137,7 +137,7 @@
 
 执行命令：`node scripts/consistency-check.js`（项目根）
 
-```
+```text
 一致性检查通过 ✓
 CONSISTENCY_EXIT=0
 ```

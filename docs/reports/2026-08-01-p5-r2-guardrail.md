@@ -1,4 +1,4 @@
-# 安全与质量审计报告 · P5-R2（P5 验收二轮修复）
+﻿# 安全与质量审计报告 · P5-R2（P5 验收二轮修复）
 
 ## 元信息
 
@@ -100,7 +100,7 @@
 
 **source_file 路径穿越防护详细分析**（审查重点 1）：
 
-```
+```text
 source_file（用户可篡改） → Path::join(kb_root, source_file)
   → parent.canonicalize()（解析符号链接）
   → join(file_name)

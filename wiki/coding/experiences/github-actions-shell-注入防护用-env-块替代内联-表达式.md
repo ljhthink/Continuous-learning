@@ -33,6 +33,7 @@ guardrail-enforcer 审计标记为中危 M-1：GitHub Security Lab 已知反模�
 ```
 
 关键点：
+
 - `env:` 块的 `${{ }}` 赋值由 GitHub Actions 运行时直接注入环境，不经过 shell 解析，天然防注入。
 - shell 内 `$VAR` 是 POSIX 变量展开，即使值含 `;` `$(...)` 等特殊字符也不会被解释为命令。
 - 同样适用 `inputs.*`：`INPUT_TASK: ${{ inputs.task }}` → `TASK="$INPUT_TASK"`。

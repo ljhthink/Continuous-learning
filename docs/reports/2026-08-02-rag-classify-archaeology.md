@@ -1,4 +1,4 @@
-# RAG 对话检索与 LLM 自动分类断裂点源码考古报告
+﻿# RAG 对话检索与 LLM 自动分类断裂点源码考古报告
 
 | 项目 | 内容 |
 | --- | --- |
@@ -29,7 +29,7 @@
 
 ### 1.1 三层架构
 
-```
+```text
 React 前端 (webview)
   ├── components/ChatPanel.tsx   RAG 对话（前端编排检索 + LLM 流式生成）
   ├── components/DropZone.tsx     上传 + LLM 分类建议
@@ -123,7 +123,7 @@ function tokenize(text: string): string[] {
 
 **运行时验证**（使用项目实际代码实跑）:
 
-```
+```text
 === Current tokenize() behavior ===
 Query: 关于数学建模，目前有哪些资料
 Tokens: ["关于数学建模，目前有哪些资料"]
@@ -150,7 +150,7 @@ Match results:
 
 加入全角标点后，查询分割为 `["关于数学建模", "目前有哪些资料"]`，但：
 
-```
+```text
 === With CJK punctuation in delimiter ===
 Tokens: ["关于数学建模","目前有哪些资料"]
   "关于数学建模" in title? false
@@ -161,7 +161,7 @@ Tokens: ["关于数学建模","目前有哪些资料"]
 
 **CJK bigram 方案验证**（将 CJK 连续字符额外拆分为二元组）:
 
-```
+```text
 === With CJK bigram approach ===
 Tokens: ["关于数学建模","目前有哪些资料","关于","于数","数学","学建","建模",...]
   MATCH: "数学" found in title!
@@ -705,7 +705,7 @@ babel-memory 是首个专门修复 AI 记忆 / RAG 系统多语言盲点的独�
 
 其 Before/After 示例与本项目完全一致：
 
-```
+```text
 BEFORE: "机器学习在自然语言处理中的应用" → BM25 search("机器学习") → [] (零结果)
 AFTER:  → fts_text: "机器 学习 机器学习 自然 语言 处理 ..." → BM25 search → [匹配!]
 ```
@@ -751,9 +751,9 @@ React 官方文档明确指出：
 **案例 5：stale closure 的深层原理**
 
 > 来源：<https://alexweblab.com/articles/stale-closure-problem>（2026-05-27）
-
+>
 > "The stale closure problem occurs when a function that was created in an earlier render is called later — and it still holds the variable values from when it was created, not the current values."
-
+>
 > "Every warning is a potential stale closure or an unnecessary re-run. Take them seriously rather than suppressing them with `// eslint-disable-line`."
 
 **推理**：本项目的根因正是「用 `eslint-disable-line` 压制警告而非修复」。DropZone.tsx 原第 109 行的 `// eslint-disable-next-line react-hooks/exhaustive-deps` 注释使缺陷逃脱了静态检查。这促使本次修复新增 `scripts/hooks-deps-guard.js` CI 守卫，阻断对 react-hooks 规则的 eslint-disable 压制。

@@ -1,4 +1,4 @@
-# P5-R4 综合安全与质量审计报告
+﻿# P5-R4 综合安全与质量审计报告
 
 ## 元信息
 
@@ -245,7 +245,7 @@ const normalizedData: GraphData = {
 
 LLM 输出的完整数据流追踪：
 
-```
+```text
 LLM API 响应 → lib.rs call_llm_api（返回 content: String）
   → llm.ts callLlm（返回 { success, content }）
     → FileList.tsx handleOrganize（setOrganizeResult({ content })）

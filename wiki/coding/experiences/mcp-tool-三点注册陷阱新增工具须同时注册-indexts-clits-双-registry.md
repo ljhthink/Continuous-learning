@@ -17,12 +17,15 @@ source_task: task-missing-features-2026-08-02
 ## 方案
 
 新增 MCP 工具时必须同步注册三处：
+
 1. `server/src/index.ts` — `server.tool(name, desc, schema, handler)`
 2. `server/src/cli.ts` 的 `TOOL_REGISTRY` — 映射工具名 → handler 函数
 3. `server/src/cli.ts` 的 `SCHEMA_REGISTRY` — 映射工具名 → `z.object(schema)` 用于输入校验
 
 配套修复：
+
 - cli.ts 的 `main()` 调用需用入口点守卫包裹，否则被单元测试 import 时会触发 `process.exit()`：
+
   ```typescript
   import { pathToFileURL } from "node:url";
   try {
@@ -34,6 +37,7 @@ source_task: task-missing-features-2026-08-02
     }
   } catch { /* argv[1] missing → not entry point */ }
   ```
+
 - `pathToFileURL` 处理 Windows 反斜杠 → file:/// URL 转换；try/catch + `!!process.argv[1]` 防止 eval/dynamic import 上下文（argv[1] 可能 undefined）抛错。
 - 导出 TOOL_REGISTRY 和 SCHEMA_REGISTRY，补一条回归测试断言两者 keys 一致 + 含所有预期工具名。
 

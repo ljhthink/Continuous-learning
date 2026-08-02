@@ -1,4 +1,4 @@
-# P6 LLM 增强能力决策计划文档
+﻿# P6 LLM 增强能力决策计划文档
 
 | 项目 | 内容 |
 | --- | --- |
@@ -687,7 +687,7 @@ TopBar 新增「对话」切换按钮（chat 图标）。
 
 ## 6. 实施路线图
 
-```
+```text
 P6-R1（基础层，所有后续依赖）
   ├─ Rust: call_llm_api 加 AppHandle + stream + 重试 + 截断检测 + usage 解析
   ├─ 前端: callLlmStream + 事件监听

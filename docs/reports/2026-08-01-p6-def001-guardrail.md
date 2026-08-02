@@ -1,4 +1,4 @@
-# P6 DEF-001 修复 — 增量代码审查 + 安全审计报告
+﻿# P6 DEF-001 修复 — 增量代码审查 + 安全审计报告
 
 > **任务令牌**：TKN-P6-DEF001-GUARDRAIL-001
 > **审查日期**：2026-08-01
@@ -251,7 +251,7 @@ setMaxTokens(v === "" || n === 0 ? null : n);
 
 ## 5. 数据流追踪（null 透传全链路验证）
 
-```
+```text
 用户操作                    前端 store              前端 API 层              Tauri IPC              Rust 后端
 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 留空(不限)      → maxTokens=null  → ?? undefined → params.maxTokens=undefined → ?? null → invoke({maxTokens:null}) → Option<u32>=None → if let Some = false → 不注入 max_tokens ✅
