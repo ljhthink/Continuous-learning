@@ -42,7 +42,8 @@ exclude = [
 # （lychee include 字段是 URL regex 过滤器，非文件 glob；误用会导致 regex parse error）
 
 # 超时与重试
-timeout = 20
+# 30s：tauri.app 等文档站点偶发慢响应（20s 曾导致 CI timeout，PR #40）
+timeout = 30
 max_retries = 2
 
 # 接受这些状态码
