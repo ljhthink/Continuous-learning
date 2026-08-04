@@ -121,25 +121,25 @@
 
 ### 必须修复（合并前）
 
-**Q1 · 高优先级 · [llm.ts:L399-408](frontend/src/lib/llm.ts#L399-L408)**
+**Q1 · 高优先级 · [llm.ts:L399-408](../../frontend/src/lib/llm.ts#L399-L408)**
 `readLocalStorageKey` 外层 catch 静默吞掉**所有**异常（含 AES-GCM 认证失败），与「未保存（null）」无法区分。若未来 `APP_SEED` 变更/数据损坏，用户 API Key 将静默丢失且日志无任何痕迹，主 Agent 自问的「吞异常」盲区在这里得到实证。
 修复建议：在 `stored` 存在但 `decryptSecret` 抛错时，`console.warn` 记录结构化告警（含 provider、不打印明文）后返回 null；仅「无条目」静默返回 null。
 
 ### 建议修复（非阻断）
 
-**Q2 · [crypto-utils.ts:L80-85](frontend/src/lib/crypto-utils.ts#L80-L85)**
+**Q2 · [crypto-utils.ts:L80-85](../../frontend/src/lib/crypto-utils.ts#L80-L85)**
 `encryptSecret`/`decryptSecret` 的 `provider` 参数实际未参与密钥派生（密钥完全由随机盐决定，测试已断言 provider 可互换）。此参数名暗示「密钥按 provider 作用域隔离」，与实际不符，易误导后续维护者。建议删除参数或在 JSDoc 显著标注「纯元信息，不影响密钥」。
 
-**Q3 · [crypto-utils.ts:L106-126](frontend/src/lib/crypto-utils.ts#L106-L126)**
+**Q3 · [crypto-utils.ts:L106-126](../../frontend/src/lib/crypto-utils.ts#L106-L126)**
 `b64ToBuf` 对非法 base64 抛原始 `InvalidCharacterError`，错误信息不友好。虽被调用方 catch，但作为导出 API 建议在 `atob` 外包一层 try 并统一抛「invalid base64 in payload」；并为「三段非空但非法 base64」补充单测。
 
-**Q4 · [consistency-check.js:L277-282](scripts/consistency-check.js#L277-L282)**
+**Q4 · [consistency-check.js:L277-282](../../scripts/consistency-check.js#L277-L282)**
 `module.exports` 导出了有副作用的 `checkMcpToolCount`（依赖模块级 `errors`/`ROOT`），单测仅需纯函数 `validateToolCount`。建议仅导出纯函数，避免误用导致共享状态污染。
 
-**Q5 · [llm.ts:L443-448](frontend/src/lib/llm.ts#L443-L448)**
+**Q5 · [llm.ts:L443-448](../../frontend/src/lib/llm.ts#L443-L448)**
 `saveApiKey` 未拦空 Key：`apiKey=""` 时现会加密空串为 truthy 密文落盘（旧行为存 falsy `""`），`loadApiKey` 解密得 `""` 后仍视为无 Key，但残留 truthy 条目会反复触发 custom legacy 迁移扫描。建议在 `saveApiKey` 入口对空/空白 Key 直接 return，避免无效落盘。
 
-**S1 · [crypto-utils.ts:L22-29](frontend/src/lib/crypto-utils.ts#L22-L29)（已接受限制，记录不阻断）**
+**S1 · [crypto-utils.ts:L22-29](../../frontend/src/lib/crypto-utils.ts#L22-L29)（已接受限制，记录不阻断）**
 `APP_SEED` 硬编码派生种子 = 仅混淆。已获 ADR-015 豁免声明，真实保护由 keyring 承担。建议在设置面板避免向用户宣称「已加密存储」的绝对化表述。
 
 ---

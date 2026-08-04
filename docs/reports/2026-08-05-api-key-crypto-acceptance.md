@@ -76,7 +76,7 @@
 | 类型检查 | `pnpm exec tsc --noEmit`（frontend） | ✅（修复后补跑） | `tsc --noEmit` exit 0、0 错误；DEF-001/DEF-002 的 TS6133 已消除，无新增告警（见 §12.1） |
 | 一致性 CLI | `node scripts/consistency-check.js` | ✅ | 输出 `一致性检查通过 ✓`，`EXIT_CODE=0` |
 
-> 初版 tsc 失败根因（已修复）：`frontend/tsconfig.json` 开启 `noUnusedParameters: true`（L19），而新增的 `encryptSecret`/`decryptSecret` 的 `provider` 参数仅在注释中说明为元信息、未被读取。`package.json` 的 `build` 脚本为 `tsc && vite build`，故初版 `pnpm build` 会被 tsc 阻断。修复方式：参数改名 `provider` → `_provider`（下划线前缀约定豁免 `noUnusedParameters`，[tsconfig.json:18-19](frontend/tsconfig.json#L18-L19)），仅参数改命，无逻辑/接口/行为变化。修复后 `tsc --noEmit` exit 0，`pnpm build` 不再被阻断。详见 §12。
+> 初版 tsc 失败根因（已修复）：`frontend/tsconfig.json` 开启 `noUnusedParameters: true`（L19），而新增的 `encryptSecret`/`decryptSecret` 的 `provider` 参数仅在注释中说明为元信息、未被读取。`package.json` 的 `build` 脚本为 `tsc && vite build`，故初版 `pnpm build` 会被 tsc 阻断。修复方式：参数改名 `provider` → `_provider`（下划线前缀约定豁免 `noUnusedParameters`，[tsconfig.json:18-19](../../frontend/tsconfig.json#L18-L19)），仅参数改命，无逻辑/接口/行为变化。修复后 `tsc --noEmit` exit 0，`pnpm build` 不再被阻断。详见 §12。
 
 ### 3.2 单元测试
 
@@ -170,7 +170,7 @@
 | DEF-001 | 高（构建阻断，已修复） | AC-7 | `frontend/src/lib/crypto-utils.ts:86` `encryptSecret` 的 `provider` 参数声明但未读取 → TS6133 | 1. `cd frontend && pnpm exec tsc --noEmit` | 修复前：`crypto-utils.ts(86,37): error TS6133: 'provider' is declared but its value is never read.`；修复后：exit 0 | ✅ 已修复（参数改名 `_provider`） |
 | DEF-002 | 高（构建阻断，已修复） | AC-7 | `frontend/src/lib/crypto-utils.ts:106` `decryptSecret` 的 `provider` 参数声明但未读取 → TS6133 | 1. `cd frontend && pnpm exec tsc --noEmit` | 修复前：`crypto-utils.ts(106,37): error TS6133: 'provider' is declared but its value is never read.`；修复后：exit 0 | ✅ 已修复（参数改名 `_provider`） |
 
-**修复说明**：主 Agent 将两处参数名由 `provider` 改为 `_provider`（下划线前缀约定豁免 `noUnusedParameters`，见 [tsconfig.json:19](frontend/tsconfig.json#L19)）。仅参数改命，无逻辑/接口/行为变化；`llm.ts` 调用方仍位置传参、签名不变。ac-verifier 未改生产代码，仅实测验证。
+**修复说明**：主 Agent 将两处参数名由 `provider` 改为 `_provider`（下划线前缀约定豁免 `noUnusedParameters`，见 [tsconfig.json:19](../../frontend/tsconfig.json#L19)）。仅参数改命，无逻辑/接口/行为变化；`llm.ts` 调用方仍位置传参、签名不变。ac-verifier 未改生产代码，仅实测验证。
 
 ---
 
@@ -207,10 +207,10 @@
 
 ### 12.2 修复纯净性核对
 
-- **代码差异**：`encryptSecret`（[crypto-utils.ts:86](frontend/src/lib/crypto-utils.ts#L86)）与 `decryptSecret`
-  （[crypto-utils.ts:106](frontend/src/lib/crypto-utils.ts#L106)）仅参数名 `provider` → `_provider`，函数体、
+- **代码差异**：`encryptSecret`（[crypto-utils.ts:86](../../frontend/src/lib/crypto-utils.ts#L86)）与 `decryptSecret`
+  （[crypto-utils.ts:106](../../frontend/src/lib/crypto-utils.ts#L106)）仅参数名 `provider` → `_provider`，函数体、
   密钥派生、返回格式、抛错逻辑零改动。
-- **类型配置**：[tsconfig.json:18-19](frontend/tsconfig.json#L18-L19) 开启 `noUnusedLocals`/`noUnusedParameters`；
+- **类型配置**：[tsconfig.json:18-19](../../frontend/tsconfig.json#L18-L19) 开启 `noUnusedLocals`/`noUnusedParameters`；
   `tsc --noEmit` 0 错误证明改名完全豁免未使用参数告警且未引入新的未使用符号。
 - **调用点**：`llm.ts`（L376/401/421）及两测试文件（crypto-utils.test.ts、p5-r3-integration.test.ts:129）全部
   位置传参，无命名实参引用，改名不破坏任何调用。
