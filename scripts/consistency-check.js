@@ -54,29 +54,25 @@ function exists(rel) {
 // 宣称的工具数（如 "17 tools" / "17 个 tools" / "17 个 MCP tools"），两者必须一致。
 // 取文档中提到的最大工具数作为"当前状态"宣称值（工具数随演进递增，历史阶段如
 // "P1: 8 tools" / "P3 增至 9 tools" 不会被误判为当前宣称）。
-function checkMcpToolCount() {
-  const indexTs = path.join(ROOT, 'server', 'src', 'index.ts');
-  if (!fs.existsSync(indexTs)) {
-    errors.push('server/src/index.ts 不存在，无法核对 MCP 工具数');
-    return;
-  }
-  const indexText = fs.readFileSync(indexTs, 'utf8');
-  // 统计 `server.tool(` 调用数（实际注册的工具数）
-  const toolCalls = indexText.match(/server\.tool\(/g) || [];
-  const actualCount = toolCalls.length;
 
-  // 校验 README.md 与 ARCH.md 中宣称的工具数
-  const docsToCheck = [
-    { file: 'README.md', label: 'README.md' },
-    { file: 'docs/ARCH.md', label: 'docs/ARCH.md' },
-  ];
+/**
+ * 纯函数：校验文档宣称的 MCP 工具数与 index.ts 实际注册数一致。
+ *
+ * 提取为纯函数以便脚本可被 `node --test` 单测（见 __tests__/consistency-check.test.js），
+ * 函数不访问文件系统，仅根据传入的文本内容做断言。
+ *
+ * @param {object} input
+ * @param {string} input.indexTsContent - server/src/index.ts 的文本内容
+ * @param {Record<string,string>} input.docs - { 标签: 文档文本 }，如 { 'README.md': '...', 'docs/ARCH.md': '...' }
+ * @returns {string[]} 断言不一致时的错误描述数组；全部一致返回空数组
+ */
+function validateToolCount({ indexTsContent, docs }) {
+  const errors = [];
+  const toolCalls = (indexTsContent || '').match(/server\.tool\(/g) || [];
+  const actualCount = toolCalls.length;
   // 匹配 "<数字> tools" / "<数字> 个 tools" / "<数字> 个 MCP tools" 等中文/英文表述
   const countRe = /(\d+)\s*(?:个\s*)?(?:MCP\s*)?tools?/gi;
-
-  for (const { file, label } of docsToCheck) {
-    const fullPath = path.join(ROOT, file);
-    if (!fs.existsSync(fullPath)) continue;
-    const text = fs.readFileSync(fullPath, 'utf8');
+  for (const [label, text] of Object.entries(docs || {})) {
     let m;
     let maxMentioned = 0;
     while ((m = countRe.exec(text)) !== null) {
@@ -93,6 +89,30 @@ function checkMcpToolCount() {
       );
     }
   }
+  return errors;
+}
+
+function checkMcpToolCount() {
+  const indexTs = path.join(ROOT, 'server', 'src', 'index.ts');
+  if (!fs.existsSync(indexTs)) {
+    errors.push('server/src/index.ts 不存在，无法核对 MCP 工具数');
+    return;
+  }
+  const indexText = fs.readFileSync(indexTs, 'utf8');
+
+  // 校验 README.md 与 ARCH.md 中宣称的工具数
+  const docsToCheck = [
+    { file: 'README.md', label: 'README.md' },
+    { file: 'docs/ARCH.md', label: 'docs/ARCH.md' },
+  ];
+  const docs = {};
+  for (const { file, label } of docsToCheck) {
+    const fullPath = path.join(ROOT, file);
+    if (fs.existsSync(fullPath)) {
+      docs[label] = fs.readFileSync(fullPath, 'utf8');
+    }
+  }
+  errors.push(...validateToolCount({ indexTsContent: indexText, docs }));
 }
 
 // 1. README 相对链接检查
@@ -239,18 +259,24 @@ function checkRelativePathDepth() {
   }
 }
 
-checkReadmeLinks();
-checkDecisionsIndex();
-checkTemplatesIndex();
-checkReportsNaming();
-checkFileAbsolutePath();
-checkRelativePathDepth();
-checkMcpToolCount();
+// 仅当直接执行脚本（node scripts/consistency-check.js）时运行全部检查；
+// 被 require 导入（单测）时跳过，避免副作用。
+if (require.main === module) {
+  checkReadmeLinks();
+  checkDecisionsIndex();
+  checkTemplatesIndex();
+  checkReportsNaming();
+  checkFileAbsolutePath();
+  checkRelativePathDepth();
+  checkMcpToolCount();
 
-if (errors.length) {
-  console.error('一致性检查失败:');
-  errors.forEach(e => console.error('  - ' + e));
-  process.exit(1);
+  if (errors.length) {
+    console.error('一致性检查失败:');
+    errors.forEach(e => console.error('  - ' + e));
+    process.exit(1);
+  }
+  console.log('一致性检查通过 ✓');
+  process.exit(0);
 }
-console.log('一致性检查通过 ✓');
-process.exit(0);
+
+module.exports = { validateToolCount };

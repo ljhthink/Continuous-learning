@@ -22,5 +22,6 @@
 | [ADR-012](ADR-012-p4-gui-tech-stack.md) | P4 GUI 技术栈（Tauri v2 + React + Vite + TailwindCSS） | Proposed | 2026-07-26 |
 | [ADR-013](ADR-013-p4-llm-integration-strategy.md) | P4 LLM 集成策略（三态切换 + 延迟到 P5 接入） | Proposed | 2026-07-27 |
 | [ADR-014](ADR-014-p4-python-parser-and-staging-workflow.md) | P4 Python parser 与 staging 工作流（pymupdf + Tauri IPC + MCP 工具） | Accepted | 2026-07-27 |
+| [ADR-015](ADR-015-api-key-localstorage-encryption.md) | API Key localStorage 降级存储加密（Web Crypto API） | Accepted | 2026-08-05 |
 
 <!-- 新增 ADR 时在此追加一行，并保证文件名以 ADR-NNN- 开头 -->
