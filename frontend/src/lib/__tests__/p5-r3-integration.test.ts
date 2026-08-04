@@ -32,6 +32,7 @@ vi.mock("@tauri-apps/api/core", () => ({
 import { isTauri } from "@/lib/ipc";
 import { invoke } from "@tauri-apps/api/core";
 import { saveApiKey, loadApiKey } from "@/lib/llm";
+import { decryptSecret } from "@/lib/crypto-utils";
 
 const mockIsTauri = vi.mocked(isTauri);
 const mockInvoke = vi.mocked(invoke);
@@ -120,10 +121,12 @@ describe("AC-1: loadApiKey 旧 provider 迁移逻辑", () => {
 
     const key = await loadApiKey("custom");
     expect(key).toBe("sk-localstorage-deepseek");
-    // 验证迁移到 custom 的 localStorage
+    // 验证迁移到 custom 的 localStorage：P7 修复后应为 AES-GCM 加密格式，
+    // 解密后还原明文（不再明文 base64 落盘）。
     const customStored = localStorage.getItem("llm-key-custom");
     expect(customStored).toBeTruthy();
-    expect(decodeURIComponent(atob(customStored!))).toBe("sk-localstorage-deepseek");
+    expect(customStored!.startsWith("kb-env:")).toBe(true);
+    expect(await decryptSecret("custom", customStored!)).toBe("sk-localstorage-deepseek");
   });
 });
 
@@ -186,14 +189,16 @@ describe("AC-1: 非 Tauri 环境边缘场景", () => {
     expect(loaded).toBe("sk-notauri-test");
   });
 
-  it("空字符串 Key 不被存储（saveApiKey 不存储空值）", async () => {
+  it("空字符串 Key 不被存储（saveApiKey 入口拦截）", async () => {
     mockInvoke.mockResolvedValue(undefined);
     await saveApiKey("custom", "");
-    // localStorage 存了空字符串的 base64
+    // 空 Key 被入口拦截，不触发加密落盘，localStorage 无对应条目
     const stored = localStorage.getItem("llm-key-custom");
-    // btoa(encodeURIComponent("")) = btoa("") = ""
-    expect(stored).toBe("");
-    // loadApiKey 时空字符串应为 falsy，不返回
+    expect(stored).toBeNull();
+    // 空白字符串同样被拦截
+    await saveApiKey("custom", "   ");
+    expect(localStorage.getItem("llm-key-custom")).toBeNull();
+    // loadApiKey 返回 null
     mockInvoke.mockResolvedValue(null);
     const loaded = await loadApiKey("custom");
     expect(loaded).toBeNull();

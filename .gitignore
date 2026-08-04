@@ -27,6 +27,8 @@ temp/
 # ===== Coverage =====
 .coverage/
 .nyc_output/
+coverage/
+frontend/coverage/
 
 # ===== OS files =====
 .DS_Store

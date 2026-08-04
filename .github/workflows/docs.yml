@@ -24,6 +24,9 @@ jobs:
         run: markdownlint-cli2 '**/*.md' '#node_modules' '#**/node_modules' '#tmp' '#.trae'
       - name: Run consistency check
         run: node scripts/consistency-check.js
+      - name: Run consistency-check unit tests
+        # 单测覆盖工具数断言逻辑（validateToolCount 纯函数），用 Node 内置 test runner
+        run: node --test scripts/__tests__/consistency-check.test.js
       # lychee 链接检查（可选，需配置 lychee.toml）
       - name: Link checker
         uses: lycheeverse/lychee-action@v2

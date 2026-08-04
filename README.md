@@ -64,6 +64,7 @@
 | [docs/decisions/ADR-012-p4-gui-tech-stack.md](docs/decisions/ADR-012-p4-gui-tech-stack.md) | Explanation | P4 GUI 技术栈（Tauri v2 + React + Vite + TailwindCSS） |
 | [docs/decisions/ADR-013-p4-llm-integration-strategy.md](docs/decisions/ADR-013-p4-llm-integration-strategy.md) | Explanation | P4 LLM 集成策略（三态切换 + 延迟到 P5 接入） |
 | [docs/decisions/ADR-014-p4-python-parser-and-staging-workflow.md](docs/decisions/ADR-014-p4-python-parser-and-staging-workflow.md) | Explanation | P4 Python parser 与 staging 工作流（pymupdf + Tauri IPC + MCP 工具） |
+| [docs/decisions/ADR-015-api-key-localstorage-encryption.md](docs/decisions/ADR-015-api-key-localstorage-encryption.md) | Explanation | API Key localStorage 降级存储加密（Web Crypto API） |
 | [docs/integration/mcp-clients.md](docs/integration/mcp-clients.md) | How-to | MCP 客户端集成指南 |
 | [docs/reports/README.md](docs/reports/README.md) | Reference | 运行时报告索引 |
 | [docs/reports/2026-07-22-knowledge-base-tech-selection.md](docs/reports/2026-07-22-knowledge-base-tech-selection.md) | Reference | 技术选型对比分析报告（选型依据） |
@@ -95,6 +96,8 @@
 | [docs/reports/2026-08-02-review-domain-guardrail.md](docs/reports/2026-08-02-review-domain-guardrail.md) | Reference | 审核页/领域管理 R1 安全与质量审计（0 阻断 + 2 中风险 MED-1/MED-2，通过有条件） |
 | [docs/reports/2026-08-02-review-domain-guardrail-r2.md](docs/reports/2026-08-02-review-domain-guardrail-r2.md) | Reference | 审核页/领域管理 R2 修复 delta 复审（MED-1/MED-2/LOW-3/LOW-4 修复后通过） |
 | [docs/reports/2026-08-02-review-domain-acceptance.md](docs/reports/2026-08-02-review-domain-acceptance.md) | Reference | 审核页/领域管理验收测试（35/35 AC 通过 + 547 单元 + 5 E2E + 10 安全，通过） |
+| [docs/reports/2026-08-05-api-key-crypto-archaeology.md](docs/reports/2026-08-05-api-key-crypto-archaeology.md) | Reference | API Key 存储模块源码考古报告（调用点清单 + 风险点定位） |
+| [docs/reports/2026-08-05-api-key-crypto-guardrail.md](docs/reports/2026-08-05-api-key-crypto-guardrail.md) | Reference | API Key 加密改造安全与质量审计报告（有条件通过，Q1-Q5 修复） |
 | [docs/templates/README.md](docs/templates/README.md) | How-to | 文档模板索引 |
 
 ### 治理与自动化

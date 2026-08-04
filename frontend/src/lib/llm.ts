@@ -10,6 +10,11 @@
  */
 
 import { isTauri } from "@/lib/ipc";
+import {
+  encryptSecret,
+  decryptSecret,
+  isEncryptedPayload,
+} from "@/lib/crypto-utils";
 
 // ---------------------------------------------------------------------------
 // 类型定义
@@ -352,6 +357,79 @@ export async function testConnection(
 // ---------------------------------------------------------------------------
 
 /**
+ * 将 API Key 明文加密后写入 localStorage（best-effort，P7 安全债修复）。
+ *
+ * 使用 crypto-utils 的 AES-256-GCM 加密（Web Crypto API），不再明文 base64 落盘。
+ * 任何持有 localStorage 访问权限者（devtools / 字符串扫描 / 意外备份导出）都无法
+ * 直接读取明文 API Key。
+ *
+ * @param provider - 厂商（仅作 localStorage 键名前缀与归属元信息；密钥由随机盐决定）
+ * @param plaintext - API Key 明文
+ */
+async function writeLocalStorageKey(
+  provider: CloudProvider,
+  plaintext: string,
+): Promise<void> {
+  try {
+    localStorage.setItem(
+      `llm-key-${provider}`,
+      await encryptSecret(provider, plaintext),
+    );
+  } catch {
+    /* localStorage 不可用时忽略，keyring 仍可尝试 */
+  }
+}
+
+/**
+ * 从 localStorage 读取 API Key 明文（P7 安全债修复）。
+ *
+ * 兼容两种格式：
+ * - 新格式：`kb-env:<salt>.<iv>.<ciphertext>`（AES-GCM 加密）→ 解密返回明文
+ * - 旧格式：base64 明文（历史遗留）→ 解码返回明文，并就地迁移为加密格式
+ *
+ * @param provider - 厂商
+ * @returns API Key 明文（未保存或解密失败时返回 null）
+ */
+async function readLocalStorageKey(
+  provider: CloudProvider,
+): Promise<string | null> {
+  try {
+    const stored = localStorage.getItem(`llm-key-${provider}`);
+    if (!stored) return null;
+    if (isEncryptedPayload(stored)) {
+      try {
+        return await decryptSecret(provider, stored);
+      } catch (err) {
+        // 密文存在但解密失败（损坏/篡改/密钥不匹配）：告警但不打印明文，避免与「未保存」混淆
+        console.warn(
+          `[llm] 解密 localStorage 中的 API Key 失败，已忽略（provider=${provider}）`,
+        );
+        return null;
+      }
+    }
+    // 旧 base64 明文格式：解码并就地迁移为加密格式（best-effort，失败不影响返回明文）
+    let plain: string;
+    try {
+      plain = decodeURIComponent(atob(stored));
+    } catch {
+      // 旧值无法 base64 解码（损坏/非本模块写入），无法迁移，视作不存在
+      return null;
+    }
+    try {
+      localStorage.setItem(
+        `llm-key-${provider}`,
+        await encryptSecret(provider, plain),
+      );
+    } catch {
+      /* 迁移失败不影响返回明文 */
+    }
+    return plain;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * 保存 API Key 到操作系统密钥环。
  *
  * 使用 Rust keyring crate，跨平台支持：
@@ -366,14 +444,12 @@ export async function saveApiKey(
   provider: CloudProvider,
   apiKey: string,
 ): Promise<void> {
+  // 空 Key 直接忽略，不落盘（避免残留 truthy 密文并反复触发 legacy 迁移扫描）
+  if (!apiKey || !apiKey.trim()) return;
   // P5-R3 fix: 双层存储 — keyring 为主，localStorage 为降级后备。
   // keyring 在 Windows 上可能因 VaultSci 服务问题失败（考古报告问题 1），
-  // localStorage 保证 key 至少可读（base64 编码，非安全存储但胜于丢失）。
-  try {
-    localStorage.setItem(`llm-key-${provider}`, btoa(encodeURIComponent(apiKey)));
-  } catch {
-    /* localStorage 不可用时忽略，keyring 仍可尝试 */
-  }
+  // localStorage 保证 key 至少可读（P7 修复：AES-GCM 加密存储，非明文 base64）。
+  await writeLocalStorageKey(provider, apiKey);
   try {
     const invoke = await getInvoke();
     await invoke("save_api_key", { provider, apiKey });
@@ -413,15 +489,9 @@ export async function loadApiKey(
       `[llm] load_api_key keyring failed for ${provider}: ${errMsg}. Falling back to localStorage.`,
     );
   }
-  // localStorage 降级读取
-  try {
-    const stored = localStorage.getItem(`llm-key-${provider}`);
-    if (stored) {
-      return decodeURIComponent(atob(stored));
-    }
-  } catch {
-    /* localStorage 不可用或数据损坏 */
-  }
+  // localStorage 降级读取（P7 修复：支持加密格式 + 旧 base64 自动迁移）
+  const localKey = await readLocalStorageKey(provider);
+  if (localKey) return localKey;
   // P5-R3: "custom" provider 无 key 时，尝试从旧 provider 迁移
   // 旧版用户可能在 "deepseek"/"glm"/"kimi" 下保存了 key，
   // 迁移到 "custom" 后自动读取旧 key 并迁移到 "custom"。
@@ -442,18 +512,13 @@ export async function loadApiKey(
       } catch {
         /* keyring 不可用，尝试 localStorage */
       }
-      // 再试 localStorage
-      try {
-        const legacyStored = localStorage.getItem(`llm-key-${legacy}`);
-        if (legacyStored) {
-          const legacyKey = decodeURIComponent(atob(legacyStored));
-          await saveApiKey("custom", legacyKey);
-          try { localStorage.removeItem(`llm-key-${legacy}`); } catch { /* ignore */ }
-          console.info(`[llm] migrated API key from localStorage "${legacy}" to "custom"`);
-          return legacyKey;
-        }
-      } catch {
-        /* localStorage 不可用或数据损坏 */
+      // 再试 localStorage（P7 修复：readLocalStorageKey 兼容加密 + 旧 base64）
+      const localLegacyKey = await readLocalStorageKey(legacy);
+      if (localLegacyKey) {
+        await saveApiKey("custom", localLegacyKey);
+        try { localStorage.removeItem(`llm-key-${legacy}`); } catch { /* ignore */ }
+        console.info(`[llm] migrated API key from localStorage "${legacy}" to "custom"`);
+        return localLegacyKey;
       }
     }
   }
